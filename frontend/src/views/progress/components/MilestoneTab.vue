@@ -106,9 +106,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useTable } from '@/composables/useTable'
 import {
-  getMilestoneList, getAllMilestones, createMilestone, updateMilestone, deleteMilestone
+  getMilestoneList, getAllMilestones, createMilestone, updateMilestone, deleteMilestone,
+  updateMilestoneStatus
 } from '@/api/progress'
-import { updateGanttTaskStatus } from '@/api/progress'
 
 const props = defineProps({
   projectId: { type: [Number, String], default: null }
@@ -250,7 +250,7 @@ const statusLabel = { draft: '草稿', pending: '审批中', approved: '已审�
 
 const handleStatusChange = async (row, status) => {
   await ElMessageBox.confirm(`确定将状态改为"${statusLabel[status]}"？`, '提示', { type: 'warning' })
-  await updateGanttTaskStatus(row.id, status)
+  await updateMilestoneStatus(row.id, status)
   ElMessage.success('状态已更新')
   fetchData()
 }

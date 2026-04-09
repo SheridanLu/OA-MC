@@ -127,10 +127,8 @@ export default [
           title: '库存管理',
           icon: 'House',
           permission: [
-            'material:inbound', 'material:inbound-approve',
-            'material:outbound', 'material:outbound-approve',
-            'material:return', 'material:return-approve',
-            'inventory:check-approve'
+            'inventory:inbound', 'inventory:outbound', 'inventory:return',
+            'inventory:stock-view', 'inventory:check', 'inventory:check-approve'
           ]
         }
       },
@@ -144,10 +142,8 @@ export default [
           title: '进度变更',
           icon: 'DataLine',
           permission: [
-            'progress:report', 'progress:view', 'progress:correct',
-            'change:apply', 'change:approve',
-            'statement:apply', 'statement:approve',
-            'split:apply'
+            'progress:gantt-manage', 'progress:milestone-manage',
+            'progress:change-manage', 'progress:report'
           ]
         }
       },
@@ -161,8 +157,9 @@ export default [
           title: '财务管理',
           icon: 'Money',
           permission: [
-            'finance:reimburse-approve', 'finance:payment-apply',
-            'finance:payment-confirm', 'finance:report-view'
+            'finance:statement-manage', 'finance:payment-create', 'finance:payment-confirm',
+            'finance:invoice-manage', 'finance:reimburse-manage',
+            'finance:cost-view', 'finance:cost-summary'
           ]
         }
       },
@@ -176,10 +173,9 @@ export default [
           title: '人力资源',
           icon: 'Avatar',
           permission: [
-            'hr:entry-process', 'hr:resign-process', 'hr:certificate-manage',
-            'hr:salary-adjust', 'hr:salary-approve', 'hr:asset-transfer',
-            'hr:contract-manage', 'hr:contract-view-own',
-            'hr:salary-config', 'hr:social-insurance-config', 'hr:tax-rate-config'
+            'hr:salary-manage', 'hr:contract-manage', 'hr:certificate-manage',
+            'hr:entry-manage', 'hr:resign-manage',
+            'hr:salary-config', 'hr:social-insurance', 'hr:asset-transfer'
           ]
         }
       },
@@ -192,7 +188,10 @@ export default [
         meta: {
           title: '竣工劳务',
           icon: 'Finished',
-          permission: ['progress:report', 'finance:payment-apply']
+          permission: [
+            'completion:finish-manage', 'completion:labor-manage',
+            'completion:drawing-manage', 'completion:doc-manage'
+          ]
         }
       },
 

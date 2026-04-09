@@ -71,9 +71,10 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { formatFileSize } from '@/utils/format'
-import request from '@/utils/request'
+import { getDocumentList, deleteDocument } from '@/api/document'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -87,7 +88,7 @@ const categoryMap = { construction: '施工资料', contract: '合同文件', co
 async function fetchData() {
   loading.value = true
   try {
-    const res = await request.get('/api/v1/documents', { params: query })
+    const res = await getDocumentList(query)
     tableData.value = res.data?.records || []
     total.value = res.data?.total || 0
   } finally {
@@ -104,7 +105,7 @@ function handleDownload(row) {
 
 async function handleDelete(row) {
   await ElMessageBox.confirm('确认删除此文档？')
-  await request.delete(`/api/v1/documents/${row.id}`)
+  await deleteDocument(row.id)
   ElMessage.success('删除成功')
   fetchData()
 }

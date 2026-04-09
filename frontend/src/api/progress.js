@@ -22,6 +22,10 @@ export function deleteMilestone(id) {
   return request.delete(`/api/v1/progress/milestones/${id}`)
 }
 
+export function updateMilestoneStatus(id, status) {
+  return request.patch(`/api/v1/progress/milestones/${id}/status`, { status })
+}
+
 export function getMilestoneDeps(id) {
   return request.get(`/api/v1/progress/milestones/${id}/deps`)
 }

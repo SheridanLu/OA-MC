@@ -14,6 +14,12 @@
         <el-tab-pane label="异常工单" name="exception">
           <ExceptionTab v-if="activeTab === 'exception'" />
         </el-tab-pane>
+        <el-tab-pane label="竣工图纸" name="drawing">
+          <DrawingTab v-if="activeTab === 'drawing'" />
+        </el-tab-pane>
+        <el-tab-pane label="竣工资料" name="doc">
+          <CompletionDocTab v-if="activeTab === 'doc'" />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -25,6 +31,8 @@ import FinishTab from './components/FinishTab.vue'
 import LaborTab from './components/LaborTab.vue'
 import CaseTab from './components/CaseTab.vue'
 import ExceptionTab from './components/ExceptionTab.vue'
+import DrawingTab from './components/DrawingTab.vue'
+import CompletionDocTab from './components/CompletionDocTab.vue'
 
 const activeTab = ref('finish')
 </script>

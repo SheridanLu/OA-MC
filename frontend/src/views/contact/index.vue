@@ -73,7 +73,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { getDeptTree } from '@/api/dept'
 import { getUserList } from '@/api/user'
-import request from '@/utils/request'
+import { getExternalContacts } from '@/api/contact'
 
 const viewMode = ref('internal')
 
@@ -123,7 +123,7 @@ const extContacts = ref([])
 async function fetchExtContacts() {
   extLoading.value = true
   try {
-    const res = await request.get('/api/v1/contacts', { params: extQuery.value })
+    const res = await getExternalContacts(extQuery.value)
     extContacts.value = res.data?.records || []
   } finally {
     extLoading.value = false
