@@ -48,11 +48,17 @@ function filterRoutes(routes, permissions) {
 function buildMenuFromRoutes(routes, basePath = '') {
   const menus = []
   for (const route of routes) {
-    if (route.meta?.hidden) continue
-
     const fullPath = basePath
       ? `${basePath}/${route.path}`.replace(/\/+/g, '/')
       : route.path
+
+    // hidden 路由自身不作为菜单项，但其子路由要提升到当前层级
+    if (route.meta?.hidden) {
+      if (route.children?.length) {
+        menus.push(...buildMenuFromRoutes(route.children, fullPath))
+      }
+      continue
+    }
 
     const menu = {
       path: fullPath,
@@ -131,7 +137,7 @@ export const usePermissionStore = defineStore('permission', {
       this.accessRoutes = filterRoutes(asyncRoutes, this.permissions)
 
       // 构建菜单树 — 从 accessRoutes 中过滤 hidden 路由后生成
-      this.menuTree = buildMenuFromRoutes(this.accessRoutes, '/')
+      this.menuTree = buildMenuFromRoutes(this.accessRoutes, '')
 
       return this.accessRoutes
     },
