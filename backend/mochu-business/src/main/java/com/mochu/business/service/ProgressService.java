@@ -266,6 +266,18 @@ public class ProgressService {
     }
 
     /**
+     * 更新里程碑状态
+     */
+    public void updateMilestoneStatus(Integer id, String status) {
+        BizGanttTask entity = ganttTaskMapper.selectById(id);
+        if (entity == null || entity.getTaskType() != 1) {
+            throw new BusinessException("里程碑不存在");
+        }
+        entity.setStatus(status);
+        ganttTaskMapper.updateById(entity);
+    }
+
+    /**
      * 查询单个里程碑的依赖ID列表
      */
     public List<Integer> getMilestoneDeps(Integer milestoneId) {

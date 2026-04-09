@@ -124,6 +124,13 @@ public class ProgressController {
         return R.ok();
     }
 
+    @PatchMapping("/milestones/{id}/status")
+    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    public R<Void> updateMilestoneStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        progressService.updateMilestoneStatus(id, body.get("status"));
+        return R.ok();
+    }
+
     @GetMapping("/milestones/{id}/deps")
     @PreAuthorize("hasAuthority('progress:milestone-manage')")
     public R<List<Integer>> getMilestoneDeps(@PathVariable Integer id) {

@@ -2,6 +2,8 @@ package com.mochu.business.controller;
 
 import com.mochu.business.dto.ContractDTO;
 import com.mochu.business.entity.BizContract;
+import com.mochu.business.entity.BizInvoice;
+import com.mochu.business.entity.BizPaymentApply;
 import com.mochu.business.service.ContractService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -65,5 +68,59 @@ public class ContractController {
     public R<Void> delete(@PathVariable Integer id) {
         contractService.delete(id);
         return R.ok();
+    }
+
+    // ======================== 合同提交/终止 ========================
+
+    @PostMapping("/{id}/submit")
+    @PreAuthorize("hasAuthority('contract:edit')")
+    public R<Void> submit(@PathVariable Integer id) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        contractService.submitContract(id, userId);
+        return R.ok();
+    }
+
+    @PostMapping("/{id}/terminate")
+    @PreAuthorize("hasAuthority('contract:terminate')")
+    public R<Void> terminate(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        contractService.terminateContract(id, body.get("reason"), userId);
+        return R.ok();
+    }
+
+    // ======================== 补充协议 ========================
+
+    @GetMapping("/{contractId}/supplements")
+    @PreAuthorize("hasAnyAuthority('contract:view-all','contract:view-own')")
+    public R<List<BizContract>> listSupplements(@PathVariable Integer contractId) {
+        return R.ok(contractService.listSupplements(contractId));
+    }
+
+    @PostMapping("/{contractId}/supplements")
+    @PreAuthorize("hasAuthority('contract:create')")
+    public R<Void> createSupplement(@PathVariable Integer contractId, @Valid @RequestBody ContractDTO dto) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        contractService.createSupplement(contractId, dto, userId);
+        return R.ok();
+    }
+
+    // ======================== 合同关联查询 ========================
+
+    @GetMapping("/{contractId}/payments")
+    @PreAuthorize("hasAnyAuthority('contract:view-all','contract:view-own')")
+    public R<List<BizPaymentApply>> listPayments(@PathVariable Integer contractId) {
+        return R.ok(contractService.listPaymentsByContract(contractId));
+    }
+
+    @GetMapping("/{contractId}/invoices")
+    @PreAuthorize("hasAnyAuthority('contract:view-all','contract:view-own')")
+    public R<List<BizInvoice>> listInvoices(@PathVariable Integer contractId) {
+        return R.ok(contractService.listInvoicesByContract(contractId));
+    }
+
+    @GetMapping("/{contractId}/overquantity-check")
+    @PreAuthorize("hasAnyAuthority('contract:view-all','contract:view-own')")
+    public R<Map<String, Object>> checkOverquantity(@PathVariable Integer contractId) {
+        return R.ok(contractService.checkOverquantity(contractId));
     }
 }

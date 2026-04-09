@@ -54,15 +54,15 @@ export function getStockList(params) {
 
 // 提交入库/出库/退库
 export function submitInbound(id) {
-  return request.post(`/api/v1/inventory/inbound/${id}/submit`)
+  return request.patch(`/api/v1/inventory/inbound/${id}/status`, { status: 'submitted' })
 }
 
 export function submitOutbound(id) {
-  return request.post(`/api/v1/inventory/outbound/${id}/submit`)
+  return request.patch(`/api/v1/inventory/outbound/${id}/status`, { status: 'submitted' })
 }
 
 export function submitReturn(id) {
-  return request.post(`/api/v1/inventory/return/${id}/submit`)
+  return request.patch(`/api/v1/inventory/return/${id}/status`, { status: 'submitted' })
 }
 
 // V3.2 盘点管理
@@ -83,7 +83,7 @@ export function deleteCheck(id) {
 }
 
 export function submitCheck(id) {
-  return request.post(`/api/v1/inventory/check/${id}/submit`)
+  return request.patch(`/api/v1/inventory/check/${id}/status`, { status: 'submitted' })
 }
 
 export function getCheckById(id) {

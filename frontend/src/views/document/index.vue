@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <page-header title="文档管理">
-      <el-button type="primary" v-permission="'doc:upload'" @click="uploadVisible = true"><el-icon><Upload /></el-icon>上传文档</el-button>
+      <el-button type="primary" v-permission="'completion:doc-manage'" @click="uploadVisible = true"><el-icon><Upload /></el-icon>上传文档</el-button>
     </page-header>
 
     <el-form :model="query" inline class="search-wrapper">
@@ -35,8 +35,8 @@
       <el-table-column prop="created_at" label="上传时间" width="170" />
       <el-table-column label="操作" width="150" fixed="right">
         <template #default="{ row }">
-          <el-button v-permission="'doc:download'" link type="primary" @click="handleDownload(row)">下载</el-button>
-          <el-button v-permission="'doc:manage'" link type="danger" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'completion:doc-manage'" link type="primary" @click="handleDownload(row)">下载</el-button>
+          <el-button v-permission="'completion:doc-manage'" link type="danger" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -95,44 +95,60 @@ export function updateSalaryConfig(id, data) {
 
 // 社保配置
 export function getSocialInsuranceConfig(params) {
-  return request.get('/api/v1/hr/social-insurance-config', { params })
+  return request.get('/api/v1/hr/social-insurance', { params })
 }
 
-export function updateSocialInsuranceConfig(data) {
-  return request.put('/api/v1/hr/social-insurance-config', data)
+export function updateSocialInsuranceConfig(id, data) {
+  return request.put(`/api/v1/hr/social-insurance/${id}`, data)
 }
 
 // 个税税率表
 export function getTaxRateTable() {
-  return request.get('/api/v1/hr/tax-rate-table')
+  return request.get('/api/v1/hr/tax-rate')
 }
 
-export function updateTaxRateTable(data) {
-  return request.put('/api/v1/hr/tax-rate-table', data)
+export function updateTaxRateTable(id, data) {
+  return request.put(`/api/v1/hr/tax-rate/${id}`, data)
 }
 
 // 提交操作
 export function submitSalary(id) {
-  return request.post(`/api/v1/hr/salaries/${id}/submit`)
+  return request.patch(`/api/v1/hr/salaries/${id}/status`, { status: 'submitted' })
 }
 
 export function submitEntry(id) {
-  return request.post(`/api/v1/hr/entries/${id}/submit`)
+  return request.patch(`/api/v1/hr/entries/${id}/status`, { status: 'submitted' })
 }
 
 export function submitResign(id) {
-  return request.post(`/api/v1/hr/resigns/${id}/submit`)
+  return request.patch(`/api/v1/hr/resigns/${id}/status`, { status: 'submitted' })
 }
 
 // 资产移交
 export function getAssetTransferList(params) {
-  return request.get('/api/v1/hr/asset-transfers', { params })
+  return request.get('/api/v1/hr/asset-transfer', { params })
 }
 
 export function createAssetTransfer(data) {
-  return request.post('/api/v1/hr/asset-transfers', data)
+  return request.post('/api/v1/hr/asset-transfer', data)
 }
 
 export function submitAssetTransfer(id) {
-  return request.post(`/api/v1/hr/asset-transfers/${id}/submit`)
+  return request.patch(`/api/v1/hr/asset-transfer/${id}/status`, { status: 'submitted' })
+}
+
+export function submitHrContract(id) {
+  return request.patch(`/api/v1/hr/contracts/${id}/status`, { status: 'submitted' })
+}
+
+export function submitCertificate(id) {
+  return request.patch(`/api/v1/hr/certificates/${id}/status`, { status: 'submitted' })
+}
+
+export function submitSalaryConfig(id) {
+  return request.patch(`/api/v1/hr/salary-config/${id}/status`, { status: 'submitted' })
+}
+
+export function submitSocialInsurance(id) {
+  return request.patch(`/api/v1/hr/social-insurance/${id}/status`, { status: 'submitted' })
 }

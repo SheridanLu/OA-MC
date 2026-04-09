@@ -30,6 +30,7 @@ public class SupplierController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('supplier:view')")
     public R<List<BizSupplier>> listAll() {
         return R.ok(supplierService.listAll());
     }

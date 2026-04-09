@@ -70,19 +70,19 @@ export function getCostLedgerList(params) {
 
 // V3.2 新增
 export function submitPayment(id) {
-  return request.post(`/api/v1/finance/payments/${id}/submit`)
+  return request.patch(`/api/v1/finance/payments/${id}/status`, { status: 'submitted' })
 }
 
-export function confirmPayment(id, data) {
-  return request.post(`/api/v1/finance/payments/${id}/confirm`, data)
+export function confirmPayment(id) {
+  return request.patch(`/api/v1/finance/payments/${id}/status`, { status: 'confirmed' })
 }
 
 export function submitReimburse(id) {
-  return request.post(`/api/v1/finance/reimburses/${id}/submit`)
+  return request.patch(`/api/v1/finance/reimburses/${id}/status`, { status: 'submitted' })
 }
 
 export function submitStatement(id) {
-  return request.post(`/api/v1/finance/statements/${id}/submit`)
+  return request.patch(`/api/v1/finance/statements/${id}/status`, { status: 'submitted' })
 }
 
 // 收款管理
@@ -92,6 +92,14 @@ export function getReceiptList(params) {
 
 export function createReceipt(data) {
   return request.post('/api/v1/finance/receipts', data)
+}
+
+export function submitReceipt(id) {
+  return request.patch(`/api/v1/finance/receipts/${id}/status`, { status: 'submitted' })
+}
+
+export function submitInvoice(id) {
+  return request.patch(`/api/v1/finance/invoices/${id}/status`, { status: 'submitted' })
 }
 
 // 费用汇总

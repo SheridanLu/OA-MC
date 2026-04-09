@@ -22,8 +22,8 @@ export function deleteMilestone(id) {
   return request.delete(`/api/v1/progress/milestones/${id}`)
 }
 
-export function updateMilestoneStatus(id, status) {
-  return request.patch(`/api/v1/progress/milestones/${id}/status`, { status })
+export function updateMilestoneStatus(id, data) {
+  return request.put(`/api/v1/progress/milestones/${id}`, data)
 }
 
 export function getMilestoneDeps(id) {
@@ -88,7 +88,7 @@ export function deleteChangeOrder(id) {
 
 // V3.2 新增 - 变更提交
 export function submitChangeOrder(id) {
-  return request.post(`/api/v1/progress/changes/${id}/submit`)
+  return request.patch(`/api/v1/progress/changes/${id}/status`, { status: 'submitted' })
 }
 
 // 进度填报
@@ -97,8 +97,8 @@ export function reportProgress(taskId, data) {
 }
 
 // 进度纠偏
-export function correctProgress(taskId, data) {
-  return request.post(`/api/v1/progress/gantt/${taskId}/correct`, data)
+export function correctProgress(data) {
+  return request.post('/api/v1/progress/correct', data)
 }
 
 // 对账单
@@ -111,14 +111,31 @@ export function createStatement(data) {
 }
 
 export function submitStatement(id) {
-  return request.post(`/api/v1/progress/statements/${id}/submit`)
+  return request.patch(`/api/v1/progress/statements/${id}/status`, { status: 'submitted' })
 }
 
 // 收入拆分
 export function getIncomeSplitList(params) {
-  return request.get('/api/v1/progress/income-splits', { params })
+  return request.get('/api/v1/progress/income-split', { params })
 }
 
 export function createIncomeSplit(data) {
-  return request.post('/api/v1/progress/income-splits', data)
+  return request.post('/api/v1/progress/income-split', data)
+}
+
+export function submitIncomeSplit(id) {
+  return request.patch(`/api/v1/progress/income-split/${id}/status`, { status: 'submitted' })
+}
+
+// 进度汇报
+export function getReportList(params) {
+  return request.get('/api/v1/progress/reports', { params })
+}
+
+export function createReport(data) {
+  return request.post('/api/v1/progress/reports', data)
+}
+
+export function submitReport(id) {
+  return request.patch(`/api/v1/progress/reports/${id}/status`, { status: 'submitted' })
 }

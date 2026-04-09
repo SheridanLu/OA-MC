@@ -75,18 +75,30 @@ export function deleteDrawing(id) {
 
 // 竣工文档
 export function getCompletionDocList(params) {
-  return request.get('/api/v1/completion/documents', { params })
+  return request.get('/api/v1/completion/docs', { params })
 }
 
 export function uploadCompletionDoc(data) {
-  return request.post('/api/v1/completion/documents', data)
+  return request.post('/api/v1/completion/docs', data)
 }
 
 // 提交操作
 export function submitCompletion(id) {
-  return request.post(`/api/v1/completion/finish/${id}/submit`)
+  return request.patch(`/api/v1/completion/finish/${id}/status`, { status: 'submitted' })
 }
 
 export function submitLabor(id) {
-  return request.post(`/api/v1/completion/labor/${id}/submit`)
+  return request.patch(`/api/v1/completion/labor/${id}/status`, { status: 'submitted' })
+}
+
+export function submitCase(id) {
+  return request.patch(`/api/v1/completion/cases/${id}/status`, { status: 'submitted' })
+}
+
+export function submitDrawing(id) {
+  return request.patch(`/api/v1/completion/drawings/${id}/status`, { status: 'submitted' })
+}
+
+export function submitDoc(id) {
+  return request.patch(`/api/v1/completion/docs/${id}/status`, { status: 'submitted' })
 }

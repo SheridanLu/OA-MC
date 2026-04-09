@@ -61,7 +61,7 @@ export default [
         meta: {
           title: '供应商管理',
           icon: 'Van',
-          permission: 'contract:sign-expense'
+          permission: ['contract:view-all', 'contract:view-own']
         }
       },
 
@@ -73,7 +73,7 @@ export default [
         meta: {
           title: '材料管理',
           icon: 'Box',
-          permission: ['material:inbound', 'material:outbound', 'purchase:list-manage']
+          permission: ['material:inbound', 'material:outbound', 'material:view']
         }
       },
 
@@ -86,9 +86,8 @@ export default [
           title: '合同管理',
           icon: 'Tickets',
           permission: [
-            'contract:sign-income', 'contract:sign-expense',
-            'contract:approve-finance', 'contract:approve-legal', 'contract:approve-gm',
-            'contract:template-manage'
+            'contract:create', 'contract:view-all', 'contract:view-own',
+            'contract:edit', 'system:tpl-manage'
           ]
         }
       },
@@ -100,8 +99,7 @@ export default [
           title: '合同详情',
           hidden: true,
           permission: [
-            'contract:sign-income', 'contract:sign-expense',
-            'contract:approve-finance', 'contract:approve-legal', 'contract:approve-gm'
+            'contract:view-all', 'contract:view-own'
           ]
         }
       },
@@ -114,7 +112,7 @@ export default [
         meta: {
           title: '采购管理',
           icon: 'ShoppingCart',
-          permission: ['purchase:list-manage', 'purchase:check-overbuy']
+          permission: ['purchase:create', 'purchase:view', 'purchase:edit']
         }
       },
 
@@ -211,7 +209,7 @@ export default [
         meta: {
           title: '报表分析',
           icon: 'TrendCharts',
-          permission: ['report:view-all', 'report:view-project']
+          permission: ['report:view']
         }
       },
 
@@ -231,7 +229,7 @@ export default [
         meta: {
           title: '文档管理',
           icon: 'FolderOpened',
-          permission: ['doc:upload', 'doc:download', 'doc:manage']
+          permission: ['completion:doc-manage']
         }
       },
 
@@ -243,7 +241,7 @@ export default [
         meta: {
           title: '系统管理',
           icon: 'Setting',
-          permission: ['system:user-manage', 'system:role-manage', 'system:dept-manage', 'system:log-view']
+          permission: ['system:user-manage', 'system:role-manage', 'system:dept-manage', 'system:audit-log']
         },
         children: [
           {
@@ -274,7 +272,7 @@ export default [
             path: 'audit-logs',
             name: 'AuditLogManage',
             component: () => import('@/views/system/audit-log/index.vue'),
-            meta: { title: '审计日志', icon: 'Document', permission: 'system:log-view' }
+            meta: { title: '审计日志', icon: 'Document', permission: 'system:audit-log' }
           },
           {
             path: 'configs',
@@ -292,7 +290,7 @@ export default [
             path: 'contract-tpl',
             name: 'ContractTplManage',
             component: () => import('@/views/system/contract-tpl/index.vue'),
-            meta: { title: '合同模板', icon: 'Tickets', permission: 'contract:template-manage' }
+            meta: { title: '合同模板', icon: 'Tickets', permission: 'system:tpl-manage' }
           }
         ]
       }

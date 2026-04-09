@@ -6,10 +6,10 @@
       <h2>{{ project.project_name }}</h2>
       <div class="header-actions">
         <status-tag :status="project.status" />
-        <el-button v-if="project.status==='virtual'" v-permission="'project:convert'" type="primary" size="small" @click="handleConvert">虚拟转实体</el-button>
-        <el-button v-if="project.status==='virtual'" v-permission="'project:terminate'" type="danger" size="small" @click="handleTerminate">中止项目</el-button>
+        <el-button v-if="project.status==='virtual'" v-permission="'project:edit'" type="primary" size="small" @click="handleConvert">虚拟转实体</el-button>
+        <el-button v-if="project.status==='virtual'" v-permission="'project:delete'" type="danger" size="small" @click="handleTerminate">中止项目</el-button>
         <el-button v-if="project.status==='active'" v-permission="'project:suspend'" type="warning" size="small" @click="handleSuspend">暂停项目</el-button>
-        <el-button v-if="project.status==='suspended'" v-permission="'project:resume'" type="success" size="small" @click="handleResume">恢复项目</el-button>
+        <el-button v-if="project.status==='suspended'" v-permission="'project:suspend'" type="success" size="small" @click="handleResume">恢复项目</el-button>
       </div>
     </div>
 

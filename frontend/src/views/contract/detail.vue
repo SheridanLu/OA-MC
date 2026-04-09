@@ -60,7 +60,7 @@
 
       <el-tab-pane label="补充协议" name="supplements">
         <div style="margin-bottom:12px">
-          <el-button type="primary" size="small" v-permission="['contract:sign-income','contract:sign-expense']" @click="supplementVisible = true"><el-icon><Plus /></el-icon>新增补充协议</el-button>
+          <el-button type="primary" size="small" v-permission="'contract:create'" @click="supplementVisible = true"><el-icon><Plus /></el-icon>新增补充协议</el-button>
         </div>
         <el-table :data="supplements" border>
           <el-table-column prop="supplement_no" label="协议编号" width="160" />
