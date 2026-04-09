@@ -1,3 +1,36 @@
+SET NAMES utf8mb4;
+
+-- 初始角色
+DELETE FROM sys_role WHERE deleted = 0;
+INSERT INTO sys_role (role_code, role_name, data_scope, remark, status, deleted) VALUES
+('SUPER_ADMIN', '超级管理员', 1, '拥有所有权限', 1, 0),
+('PROJ_MGR', '项目经理', 3, '管理所属项目', 1, 0),
+('PURCHASE', '采购专员', 2, '采购管理', 1, 0),
+('FINANCE', '财务人员', 1, '财务管理', 1, 0),
+('HR', '人力资源', 1, '人事管理', 1, 0),
+('INVENTORY', '仓库管理员', 2, '库存管理', 1, 0),
+('BUDGET', '预算专员', 2, '预算审核', 1, 0),
+('VIEWER', '查看者', 4, '只读权限', 1, 0);
+
+-- 默认部门
+INSERT INTO sys_dept (name, parent_id, level, path, sort, status, deleted)
+SELECT '总公司', 0, 1, '/1', 1, 1, 0
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_dept WHERE name = '总公司' AND deleted = 0);
+
+-- 管理员账号（密码 admin123 的 BCrypt 哈希）
+INSERT INTO sys_user (username, real_name, phone, email, dept_id, position, password_hash, status, deleted)
+SELECT 'admin', '系统管理员', '13800000000', 'admin@mochu.com', 1, '系统管理员',
+       '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', 1, 0
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_user WHERE username = 'admin');
+
+-- 管理员赋予超管角色
+INSERT INTO sys_user_role (user_id, role_id)
+SELECT u.id, r.id FROM sys_user u, sys_role r
+WHERE u.username = 'admin' AND r.role_code = 'SUPER_ADMIN'
+AND NOT EXISTS (
+    SELECT 1 FROM sys_user_role ur WHERE ur.user_id = u.id AND ur.role_id = r.id
+);
+
 -- V3.2 细粒度权限种子数据
 -- 清理旧权限
 DELETE FROM sys_permission WHERE 1=1;
@@ -107,3 +140,11 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('supplier:view', '供应商查看', 'supplier', 1),
 ('supplier:edit', '供应商编辑', 'supplier', 1);
+
+-- 超管角色赋予所有权限
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT r.id, p.id FROM sys_role r, sys_permission p
+WHERE r.role_code = 'SUPER_ADMIN'
+AND NOT EXISTS (
+    SELECT 1 FROM sys_role_permission rp WHERE rp.role_id = r.id AND rp.permission_id = p.id
+);
