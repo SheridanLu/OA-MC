@@ -156,9 +156,170 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('supplier:view', '供应商查看', 'supplier', 1),
 ('supplier:edit', '供应商编辑', 'supplier', 1);
 
+-- Infra (1)
+INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+('system:dict-manage', '字典管理', 'system', 1);
+
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)
 -- ============================================================
 INSERT INTO sys_role_permission (role_id, permission_id)
 SELECT r.id, p.id FROM sys_role r, sys_permission p
 WHERE r.role_code = 'SUPER_ADMIN';
+
+-- ============================================================
+-- 字典类型种子数据
+-- ============================================================
+TRUNCATE TABLE sys_dict_data;
+TRUNCATE TABLE sys_dict_type;
+
+INSERT INTO sys_dict_type (dict_type, dict_name, status, deleted) VALUES
+('biz_status', '业务状态', 1, 0),
+('contract_type', '合同类型', 1, 0),
+('change_type', '变更类型', 1, 0),
+('material_category', '物料分类', 1, 0),
+('payment_type', '付款类型', 1, 0),
+('invoice_type', '发票类型', 1, 0),
+('reimburse_type', '报销类型', 1, 0),
+('outbound_type', '出库类型', 1, 0),
+('cert_type', '证书类型', 1, 0),
+('education_level', '学历', 1, 0),
+('hr_contract_type', '劳动合同类型', 1, 0),
+('resign_type', '离职类型', 1, 0),
+('exception_biz_type', '异常工单类型', 1, 0),
+('case_type', '案例类型', 1, 0),
+('tax_rate', '税率', 1, 0);
+
+-- ============================================================
+-- 字典数据种子数据
+-- ============================================================
+
+-- biz_status (19)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('biz_status', '草稿', 'draft', 1, 'info', '#909399', 1, 0),
+('biz_status', '待审批', 'pending', 2, 'warning', '#e6a23c', 1, 0),
+('biz_status', '已审批', 'approved', 3, 'success', '#67c23a', 1, 0),
+('biz_status', '已驳回', 'rejected', 4, 'danger', '#f56c6c', 1, 0),
+('biz_status', '已取消', 'cancelled', 5, 'info', '#909399', 1, 0),
+('biz_status', '已确认', 'confirmed', 6, 'success', '#67c23a', 1, 0),
+('biz_status', '已领取', 'collected', 7, 'success', '#67c23a', 1, 0),
+('biz_status', '已退回', 'returned', 8, 'warning', '#e6a23c', 1, 0),
+('biz_status', '已关闭', 'closed', 9, 'info', '#909399', 1, 0),
+('biz_status', '进行中', 'active', 10, '', '#409eff', 1, 0),
+('biz_status', '已暂停', 'suspended', 11, 'warning', '#e6a23c', 1, 0),
+('biz_status', '已终止', 'terminated', 12, 'danger', '#f56c6c', 1, 0),
+('biz_status', '已完成', 'completed', 13, 'success', '#67c23a', 1, 0),
+('biz_status', '虚拟', 'virtual', 14, 'info', '#909399', 1, 0),
+('biz_status', '实体', 'entity', 15, '', '#409eff', 1, 0),
+('biz_status', '逾期', 'overdue', 16, 'danger', '#f56c6c', 1, 0),
+('biz_status', '正常', 'normal', 17, 'success', '#67c23a', 1, 0),
+('biz_status', '已付款', 'paid', 18, 'success', '#67c23a', 1, 0),
+('biz_status', '未付款', 'unpaid', 19, 'warning', '#e6a23c', 1, 0);
+
+-- contract_type (7)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('contract_type', '收入合同', 'income', 1, '', NULL, 1, 0),
+('contract_type', '支出合同', 'expense', 2, '', NULL, 1, 0),
+('contract_type', '劳务合同', 'labor', 3, '', NULL, 1, 0),
+('contract_type', '材料合同', 'material', 4, '', NULL, 1, 0),
+('contract_type', '设备租赁合同', 'equipment_lease', 5, '', NULL, 1, 0),
+('contract_type', '专业分包合同', 'professional', 6, '', NULL, 1, 0),
+('contract_type', '其他合同', 'other', 7, '', NULL, 1, 0);
+
+-- change_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('change_type', '设计变更', 'design', 1, '', NULL, 1, 0),
+('change_type', '工程变更', 'engineering', 2, '', NULL, 1, 0),
+('change_type', '签证变更', 'visa', 3, '', NULL, 1, 0),
+('change_type', '其他变更', 'other', 4, '', NULL, 1, 0);
+
+-- material_category (9)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('material_category', '钢材', 'steel', 1, '', NULL, 1, 0),
+('material_category', '水泥', 'cement', 2, '', NULL, 1, 0),
+('material_category', '砂石', 'sand', 3, '', NULL, 1, 0),
+('material_category', '混凝土', 'concrete', 4, '', NULL, 1, 0),
+('material_category', '木材', 'wood', 5, '', NULL, 1, 0),
+('material_category', '电气材料', 'electric', 6, '', NULL, 1, 0),
+('material_category', '水暖材料', 'plumbing', 7, '', NULL, 1, 0),
+('material_category', '装饰材料', 'decor', 8, '', NULL, 1, 0),
+('material_category', '其他', 'other', 9, '', NULL, 1, 0);
+
+-- payment_type (5)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('payment_type', '预付款', 'advance', 1, '', NULL, 1, 0),
+('payment_type', '进度款', 'progress', 2, '', NULL, 1, 0),
+('payment_type', '结算款', 'final', 3, '', NULL, 1, 0),
+('payment_type', '质保金', 'retention', 4, '', NULL, 1, 0),
+('payment_type', '其他', 'other', 5, '', NULL, 1, 0);
+
+-- invoice_type (3)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('invoice_type', '增值税专用发票', 'special', 1, '', NULL, 1, 0),
+('invoice_type', '增值税普通发票', 'ordinary', 2, '', NULL, 1, 0),
+('invoice_type', '收据', 'receipt', 3, '', NULL, 1, 0);
+
+-- reimburse_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('reimburse_type', '差旅费', 'travel', 1, '', NULL, 1, 0),
+('reimburse_type', '办公费', 'office', 2, '', NULL, 1, 0),
+('reimburse_type', '材料费', 'material', 3, '', NULL, 1, 0),
+('reimburse_type', '其他', 'other', 4, '', NULL, 1, 0);
+
+-- outbound_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('outbound_type', '施工领用', 'construction', 1, '', NULL, 1, 0),
+('outbound_type', '调拨出库', 'transfer', 2, '', NULL, 1, 0),
+('outbound_type', '报废出库', 'scrap', 3, '', NULL, 1, 0),
+('outbound_type', '其他', 'other', 4, '', NULL, 1, 0);
+
+-- cert_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('cert_type', '安全证书', 'safety', 1, '', NULL, 1, 0),
+('cert_type', '资质证书', 'qualification', 2, '', NULL, 1, 0),
+('cert_type', '技能证书', 'skill', 3, '', NULL, 1, 0),
+('cert_type', '特种作业证', 'special', 4, '', NULL, 1, 0);
+
+-- education_level (5)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('education_level', '高中/中专', 'high_school', 1, '', NULL, 1, 0),
+('education_level', '大专', 'associate', 2, '', NULL, 1, 0),
+('education_level', '本科', 'bachelor', 3, '', NULL, 1, 0),
+('education_level', '硕士', 'master', 4, '', NULL, 1, 0),
+('education_level', '博士', 'doctor', 5, '', NULL, 1, 0);
+
+-- hr_contract_type (3)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('hr_contract_type', '固定期限', 'fixed', 1, '', NULL, 1, 0),
+('hr_contract_type', '无固定期限', 'unfixed', 2, '', NULL, 1, 0),
+('hr_contract_type', '以完成工作任务为期限', 'task', 3, '', NULL, 1, 0);
+
+-- resign_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('resign_type', '主动离职', 'voluntary', 1, '', NULL, 1, 0),
+('resign_type', '辞退', 'involuntary', 2, '', NULL, 1, 0),
+('resign_type', '退休', 'retirement', 3, '', NULL, 1, 0),
+('resign_type', '合同到期', 'expiry', 4, '', NULL, 1, 0);
+
+-- exception_biz_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('exception_biz_type', '质量问题', 'quality', 1, '', NULL, 1, 0),
+('exception_biz_type', '安全问题', 'safety', 2, '', NULL, 1, 0),
+('exception_biz_type', '进度问题', 'progress', 3, '', NULL, 1, 0),
+('exception_biz_type', '成本问题', 'cost', 4, '', NULL, 1, 0);
+
+-- case_type (4)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('case_type', '质量案例', 'quality', 1, '', NULL, 1, 0),
+('case_type', '安全案例', 'safety', 2, '', NULL, 1, 0),
+('case_type', '纠纷案例', 'dispute', 3, '', NULL, 1, 0),
+('case_type', '其他案例', 'other', 4, '', NULL, 1, 0);
+
+-- tax_rate (6)
+INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+('tax_rate', '0%', '0', 1, '', NULL, 1, 0),
+('tax_rate', '1%', '1', 2, '', NULL, 1, 0),
+('tax_rate', '3%', '3', 3, '', NULL, 1, 0),
+('tax_rate', '6%', '6', 4, '', NULL, 1, 0),
+('tax_rate', '9%', '9', 5, '', NULL, 1, 0),
+('tax_rate', '13%', '13', 6, '', NULL, 1, 0);

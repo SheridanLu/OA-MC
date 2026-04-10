@@ -247,7 +247,7 @@ export default [
             'system:announcement-manage', 'system:audit-log',
             'system:config', 'system:config:edit',
             'system:delegation', 'system:delegation:edit',
-            'system:tpl-manage'
+            'system:tpl-manage', 'system:dict-manage'
           ]
         },
         children: [
@@ -298,6 +298,18 @@ export default [
             name: 'ContractTplManage',
             component: () => import('@/views/system/contract-tpl/index.vue'),
             meta: { title: '合同模板', icon: 'Tickets', permission: 'system:tpl-manage' }
+          },
+          {
+            path: 'dict',
+            name: 'DictManage',
+            component: () => import('@/views/system/dict/index.vue'),
+            meta: { title: '字典管理', icon: 'Collection', permission: 'system:dict-manage' }
+          },
+          {
+            path: 'dict/:dictType/data',
+            name: 'DictDataManage',
+            component: () => import('@/views/system/dict/data.vue'),
+            meta: { title: '字典数据', hidden: true, permission: 'system:dict-manage' }
           }
         ]
       }

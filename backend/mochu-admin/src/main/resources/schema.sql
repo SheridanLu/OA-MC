@@ -1437,6 +1437,46 @@ CREATE TABLE IF NOT EXISTS sys_contract_tpl_audit (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB;
 
 -- ============================================================
+-- 69. sys_dict_type
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_dict_type (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    dict_type   VARCHAR(100) NOT NULL COMMENT '字典类型编码',
+    dict_name   VARCHAR(100) NOT NULL COMMENT '字典名称',
+    status      TINYINT DEFAULT 1 COMMENT '0=停用 1=正常',
+    remark      VARCHAR(500),
+    creator_id  INT,
+    created_at  DATETIME,
+    updated_at  DATETIME,
+    deleted     TINYINT DEFAULT 0,
+    UNIQUE INDEX uk_dict_type (dict_type),
+    INDEX idx_status (status)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB;
+
+-- ============================================================
+-- 70. sys_dict_data
+-- ============================================================
+CREATE TABLE IF NOT EXISTS sys_dict_data (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    dict_type   VARCHAR(100) NOT NULL COMMENT '关联 sys_dict_type.dict_type',
+    dict_label  VARCHAR(100) NOT NULL COMMENT '字典标签',
+    dict_value  VARCHAR(100) NOT NULL COMMENT '字典值',
+    dict_sort   INT DEFAULT 0 COMMENT '排序',
+    css_class   VARCHAR(100) COMMENT '样式属性',
+    list_class  VARCHAR(100) COMMENT 'Element Plus Tag type',
+    color_hex   VARCHAR(20) COMMENT '颜色值',
+    is_default  TINYINT DEFAULT 0 COMMENT '是否默认',
+    status      TINYINT DEFAULT 1 COMMENT '0=停用 1=正常',
+    remark      VARCHAR(500),
+    creator_id  INT,
+    created_at  DATETIME,
+    updated_at  DATETIME,
+    deleted     TINYINT DEFAULT 0,
+    INDEX idx_dict_type (dict_type),
+    INDEX idx_status (status)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB;
+
+-- ============================================================
 -- Force-convert ALL existing tables to utf8mb4 (fixes garbled
 -- Chinese text when tables were created with latin1/utf8mb3)
 -- ============================================================
@@ -1508,3 +1548,5 @@ ALTER TABLE sys_contract_tpl CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_ge
 ALTER TABLE sys_contract_tpl_version CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE sys_contract_tpl_field CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE sys_contract_tpl_audit CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE sys_dict_type CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE sys_dict_data CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

@@ -26,6 +26,7 @@ import ApprovalTimeline from './components/ApprovalTimeline.vue'
 import NumberingDisplay from './components/NumberingDisplay.vue'
 import SearchForm from './components/SearchForm.vue'
 import PageHeader from './components/PageHeader.vue'
+import DictTag from './components/DictTag.vue'
 
 const app = createApp(App)
 
@@ -39,7 +40,8 @@ const globalComponents = {
   StatusTag, MoneyInput, QuantityInput, MoneyText,
   UserPicker, DeptPicker, ProjectSelect, ContractSelect,
   SupplierSelect, MaterialSelect, FileUpload, ApprovalFlow,
-  ApprovalTimeline, NumberingDisplay, SearchForm, PageHeader
+  ApprovalTimeline, NumberingDisplay, SearchForm, PageHeader,
+  DictTag
 }
 Object.entries(globalComponents).forEach(([name, comp]) => {
   app.component(name, comp)
