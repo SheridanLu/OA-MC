@@ -133,8 +133,15 @@ export const usePermissionStore = defineStore('permission', {
       const userStore = useUserStore()
       this.permissions = userStore.permissions || []
 
-      // 过滤异步路由
-      this.accessRoutes = filterRoutes(asyncRoutes, this.permissions)
+      // SUPER_ADMIN 角色直接获得所有路由，不受权限码过滤
+      const isSuperAdmin = (userStore.roles || []).includes('SUPER_ADMIN')
+
+      if (isSuperAdmin) {
+        this.accessRoutes = asyncRoutes
+      } else {
+        // 过滤异步路由
+        this.accessRoutes = filterRoutes(asyncRoutes, this.permissions)
+      }
 
       // 构建菜单树 — 从 accessRoutes 中过滤 hidden 路由后生成
       this.menuTree = buildMenuFromRoutes(this.accessRoutes, '')

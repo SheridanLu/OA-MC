@@ -228,6 +228,8 @@ public class UserService {
         List<SysUserRole> userRoles = sysUserRoleMapper.selectList(
                 new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, user.getId()));
         vo.setRoleIds(userRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList()));
+        // 查询用户角色编码列表
+        vo.setRoleCodes(sysRoleMapper.selectRoleCodesByUserId(user.getId()));
         // 查询用户权限编码列表
         Set<String> permCodes = sysRoleMapper.selectPermCodesByUserId(user.getId());
         vo.setPermissions(new ArrayList<>(permCodes));

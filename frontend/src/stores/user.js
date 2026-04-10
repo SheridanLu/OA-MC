@@ -7,7 +7,8 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     token: localStorage.getItem('token') || '',
     userInfo: null,
-    permissions: []
+    permissions: [],
+    roles: []
   }),
 
   getters: {
@@ -38,6 +39,7 @@ export const useUserStore = defineStore('user', {
       const res = await getCurrentUser()
       this.userInfo = res.data
       this.permissions = res.data.permissions || []
+      this.roles = res.data.role_codes || []
       return res.data
     },
 
@@ -50,6 +52,7 @@ export const useUserStore = defineStore('user', {
       this.token = ''
       this.userInfo = null
       this.permissions = []
+      this.roles = []
       localStorage.removeItem('token')
       const permissionStore = usePermissionStore()
       permissionStore.resetState()
@@ -60,6 +63,7 @@ export const useUserStore = defineStore('user', {
       this.token = ''
       this.userInfo = null
       this.permissions = []
+      this.roles = []
       localStorage.removeItem('token')
       const permissionStore = usePermissionStore()
       permissionStore.resetState()
