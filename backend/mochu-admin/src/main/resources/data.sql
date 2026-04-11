@@ -156,9 +156,10 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('supplier:view', '供应商查看', 'supplier', 1),
 ('supplier:edit', '供应商编辑', 'supplier', 1);
 
--- Infra (1)
+-- Infra (2)
 INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
-('system:dict-manage', '字典管理', 'system', 1);
+('system:dict-manage', '字典管理', 'system', 1),
+('infra:codegen', '代码生成', 'infra', 1);
 
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)

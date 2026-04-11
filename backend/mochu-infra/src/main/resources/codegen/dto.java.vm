@@ -1,0 +1,19 @@
+package com.mochu.${moduleName}.dto;
+
+#foreach($type in $importTypes)
+import ${type};
+#end
+import lombok.Data;
+
+/**
+ * ${tableComment} DTO
+ */
+@Data
+public class ${ClassName}DTO {
+
+#foreach($col in $formColumns)
+    /** ${col.columnComment} */
+    private ${col.javaType} ${col.javaField};
+
+#end
+}

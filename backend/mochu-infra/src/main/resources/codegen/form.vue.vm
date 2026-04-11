@@ -1,0 +1,93 @@
+<template>
+  <el-dialog v-model="visible" :title="isEdit ? '编辑${tableComment}' : '新增${tableComment}'" width="600px" destroy-on-close>
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+#foreach($col in $formColumns)
+      <el-form-item label="${col.columnComment}" prop="${col.javaField}">
+#if($col.htmlType == "select")
+        <el-select v-model="form.${col.javaField}" clearable placeholder="请选择">
+          <el-option v-for="opt in []" :key="opt.value" :label="opt.label" :value="opt.value" />
+        </el-select>
+#elseif($col.htmlType == "textarea")
+        <el-input v-model="form.${col.javaField}" type="textarea" :rows="3" />
+#elseif($col.htmlType == "datetime")
+        <el-date-picker v-model="form.${col.javaField}" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" />
+#elseif($col.htmlType == "upload")
+        <el-input v-model="form.${col.javaField}" placeholder="请输入文件URL" />
+#else
+        <el-input v-model="form.${col.javaField}" />
+#end
+      </el-form-item>
+#end
+    </el-form>
+    <template #footer>
+      <el-button @click="visible = false">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup>
+import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
+import { create${ClassName}, update${ClassName} } from '@/api/${bizName}'
+
+const emit = defineEmits(['success'])
+const visible = ref(false)
+const isEdit = ref(false)
+const submitting = ref(false)
+const formRef = ref(null)
+const editId = ref(null)
+
+const form = reactive({
+#foreach($col in $formColumns)
+  ${col.javaField}: null,
+#end
+})
+
+const rules = {
+#foreach($col in $formColumns)
+#if($col.nullableFlag == 0)
+  ${col.javaField}: [{ required: true, message: '请填写${col.columnComment}', trigger: 'blur' }],
+#end
+#end
+}
+
+function open(row) {
+  isEdit.value = !!row
+  editId.value = row?.id ?? null
+  if (row) {
+    Object.assign(form, {
+#foreach($col in $formColumns)
+      ${col.javaField}: row.${col.columnName} ?? null,
+#end
+    })
+  } else {
+    Object.assign(form, {
+#foreach($col in $formColumns)
+      ${col.javaField}: null,
+#end
+    })
+  }
+  visible.value = true
+}
+
+async function handleSubmit() {
+  await formRef.value.validate()
+  submitting.value = true
+  try {
+    if (isEdit.value) {
+      await update${ClassName}(editId.value, form)
+      ElMessage.success('修改成功')
+    } else {
+      await create${ClassName}(form)
+      ElMessage.success('新增成功')
+    }
+    visible.value = false
+    emit('success')
+  } finally {
+    submitting.value = false
+  }
+}
+
+defineExpose({ open })
+</script>

@@ -312,6 +312,33 @@ export default [
             meta: { title: '字典数据', hidden: true, permission: 'system:dict-manage' }
           }
         ]
+      },
+
+      // ========== 基础设施 ==========
+      {
+        path: 'infra',
+        name: 'InfraManage',
+        component: () => import('@/layouts/PassThrough.vue'),
+        redirect: '/infra/codegen',
+        meta: {
+          title: '基础设施',
+          icon: 'Cpu',
+          permission: ['infra:codegen']
+        },
+        children: [
+          {
+            path: 'codegen',
+            name: 'CodegenManage',
+            component: () => import('@/views/infra/codegen/index.vue'),
+            meta: { title: '代码生成', icon: 'MagicStick', permission: 'infra:codegen' }
+          },
+          {
+            path: 'codegen/:id/edit',
+            name: 'CodegenEdit',
+            component: () => import('@/views/infra/codegen/edit.vue'),
+            meta: { title: '编辑生成配置', hidden: true, permission: 'infra:codegen' }
+          }
+        ]
       }
     ]
   }

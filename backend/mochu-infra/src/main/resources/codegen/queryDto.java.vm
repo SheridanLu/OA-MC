@@ -1,0 +1,18 @@
+package com.mochu.${moduleName}.dto;
+
+import lombok.Data;
+
+/**
+ * ${tableComment} 查询条件 DTO
+ */
+@Data
+public class ${ClassName}QueryDTO {
+
+#foreach($col in $queryColumns)
+    /** ${col.columnComment} */
+    private ${col.javaType} ${col.javaField};
+
+#end
+    private Integer page;
+    private Integer size;
+}

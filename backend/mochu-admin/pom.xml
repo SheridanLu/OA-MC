@@ -19,6 +19,10 @@
             <groupId>com.mochu</groupId>
             <artifactId>mochu-business</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mochu</groupId>
+            <artifactId>mochu-infra</artifactId>
+        </dependency>
 
         <!-- Knife4j API文档 -->
         <dependency>

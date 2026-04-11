@@ -1,0 +1,27 @@
+package com.mochu.${moduleName}.vo;
+
+#foreach($type in $importTypes)
+import ${type};
+#end
+import java.time.LocalDateTime;
+import lombok.Data;
+
+/**
+ * ${tableComment} VO
+ */
+@Data
+public class ${ClassName}VO {
+
+    private Integer id;
+
+#foreach($col in $columns)
+#if($col.pkFlag != 1)
+    /** ${col.columnComment} */
+    private ${col.javaType} ${col.javaField};
+
+#end
+#end
+    private Integer creatorId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}

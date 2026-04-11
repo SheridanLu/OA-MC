@@ -1,0 +1,55 @@
+package com.mochu.${moduleName}.controller;
+
+import com.mochu.common.result.PageResult;
+import com.mochu.common.result.R;
+import com.mochu.${moduleName}.dto.${ClassName}DTO;
+import com.mochu.${moduleName}.dto.${ClassName}QueryDTO;
+import com.mochu.${moduleName}.service.${ClassName}Service;
+import com.mochu.${moduleName}.vo.${ClassName}VO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * ${tableComment} Controller
+ */
+@RestController
+@RequestMapping("/api/v1/${moduleName}/${bizName}")
+@RequiredArgsConstructor
+public class ${ClassName}Controller {
+
+    private final ${ClassName}Service ${classNameLc}Service;
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('${moduleName}:${bizName}:view')")
+    public R<PageResult<${ClassName}VO>> list(${ClassName}QueryDTO query) {
+        return R.ok(${classNameLc}Service.list${ClassName}(query));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('${moduleName}:${bizName}:view')")
+    public R<${ClassName}VO> getById(@PathVariable Integer id) {
+        return R.ok(${classNameLc}Service.get${ClassName}ById(id));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('${moduleName}:${bizName}:edit')")
+    public R<Void> create(@RequestBody ${ClassName}DTO dto) {
+        ${classNameLc}Service.create${ClassName}(dto);
+        return R.ok();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('${moduleName}:${bizName}:edit')")
+    public R<Void> update(@PathVariable Integer id, @RequestBody ${ClassName}DTO dto) {
+        ${classNameLc}Service.update${ClassName}(id, dto);
+        return R.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('${moduleName}:${bizName}:edit')")
+    public R<Void> delete(@PathVariable Integer id) {
+        ${classNameLc}Service.delete${ClassName}(id);
+        return R.ok();
+    }
+}

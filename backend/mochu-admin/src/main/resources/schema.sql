@@ -1550,3 +1550,54 @@ ALTER TABLE sys_contract_tpl_field CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8
 ALTER TABLE sys_contract_tpl_audit CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE sys_dict_type CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE sys_dict_data CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- ============================================================
+-- 71. infra_codegen_table — 代码生成-表配置
+-- ============================================================
+CREATE TABLE IF NOT EXISTS infra_codegen_table (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    table_name      VARCHAR(200)  NOT NULL COMMENT '表名',
+    table_comment   VARCHAR(500)  DEFAULT '' COMMENT '表描述',
+    module_name     VARCHAR(100)  NOT NULL COMMENT '所属模块(如 system / business)',
+    biz_name        VARCHAR(100)  NOT NULL COMMENT '业务名(如 contract)',
+    class_name      VARCHAR(200)  NOT NULL COMMENT 'Java类名(如 Contract)',
+    template_type   TINYINT       DEFAULT 1 COMMENT '模板类型 1单表 2主子 3树表',
+    author          VARCHAR(100)  DEFAULT '' COMMENT '作者',
+    remark          VARCHAR(500)  DEFAULT '' COMMENT '备注',
+    creator_id      INT,
+    created_at      DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted         TINYINT       DEFAULT 0,
+    UNIQUE KEY uk_table_name (table_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- 72. infra_codegen_column — 代码生成-列配置
+-- ============================================================
+CREATE TABLE IF NOT EXISTS infra_codegen_column (
+    id                      INT AUTO_INCREMENT PRIMARY KEY,
+    table_id                INT           NOT NULL COMMENT '关联表ID',
+    column_name             VARCHAR(200)  NOT NULL COMMENT '列名',
+    column_comment          VARCHAR(500)  DEFAULT '' COMMENT '列描述',
+    data_type               VARCHAR(100)  NOT NULL COMMENT '数据库类型(varchar/int/datetime等)',
+    java_type               VARCHAR(100)  NOT NULL COMMENT 'Java类型(String/Integer/LocalDateTime等)',
+    java_field              VARCHAR(200)  NOT NULL COMMENT 'Java字段名(camelCase)',
+    dict_type               VARCHAR(200)  DEFAULT '' COMMENT '关联字典类型',
+    html_type               VARCHAR(50)   DEFAULT 'input' COMMENT '前端组件(input/select/datetime/textarea/upload)',
+    pk_flag                 TINYINT       DEFAULT 0 COMMENT '是否主键',
+    nullable_flag           TINYINT       DEFAULT 1 COMMENT '是否允许空',
+    create_operation        TINYINT       DEFAULT 1 COMMENT '新增时显示',
+    update_operation        TINYINT       DEFAULT 1 COMMENT '编辑时显示',
+    list_operation          TINYINT       DEFAULT 1 COMMENT '列表时显示',
+    query_operation         TINYINT       DEFAULT 0 COMMENT '是否查询条件',
+    query_condition         VARCHAR(20)   DEFAULT 'EQ' COMMENT '查询方式(EQ/NE/LIKE/GT/GTE/LT/LTE/BETWEEN)',
+    column_sort             INT           DEFAULT 0 COMMENT '排序',
+    creator_id              INT,
+    created_at              DATETIME      DEFAULT CURRENT_TIMESTAMP,
+    updated_at              DATETIME      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted                 TINYINT       DEFAULT 0,
+    KEY idx_table_id (table_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE infra_codegen_table CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+ALTER TABLE infra_codegen_column CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

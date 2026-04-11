@@ -1,0 +1,98 @@
+package com.mochu.${moduleName}.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mochu.common.constant.Constants;
+import com.mochu.common.exception.BusinessException;
+import com.mochu.common.result.PageResult;
+import com.mochu.common.security.SecurityUtils;
+import com.mochu.${moduleName}.dto.${ClassName}DTO;
+import com.mochu.${moduleName}.dto.${ClassName}QueryDTO;
+import com.mochu.${moduleName}.entity.${ClassName};
+import com.mochu.${moduleName}.mapper.${ClassName}Mapper;
+import com.mochu.${moduleName}.vo.${ClassName}VO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * ${tableComment} Service
+ */
+@Service
+@RequiredArgsConstructor
+public class ${ClassName}Service {
+
+    private final ${ClassName}Mapper ${classNameLc}Mapper;
+
+    public PageResult<${ClassName}VO> list${ClassName}(${ClassName}QueryDTO query) {
+        int page = (query.getPage() == null || query.getPage() < 1) ? Constants.DEFAULT_PAGE : query.getPage();
+        int size = (query.getSize() == null || query.getSize() < 1) ? Constants.DEFAULT_SIZE : query.getSize();
+        Page<${ClassName}> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<${ClassName}> wrapper = new LambdaQueryWrapper<>();
+#foreach($col in $queryColumns)
+        if (query.get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}() != null) {
+#if($col.queryCondition == "LIKE")
+            wrapper.like(${ClassName}::get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}, query.get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}());
+#else
+            wrapper.eq(${ClassName}::get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}, query.get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}());
+#end
+        }
+#end
+        wrapper.orderByDesc(${ClassName}::getCreatedAt);
+        ${classNameLc}Mapper.selectPage(pageParam, wrapper);
+        List<${ClassName}VO> records = pageParam.getRecords().stream().map(this::toVO).collect(Collectors.toList());
+        return new PageResult<>(records, pageParam.getTotal(), page, size);
+    }
+
+    public ${ClassName}VO get${ClassName}ById(Integer id) {
+        ${ClassName} entity = ${classNameLc}Mapper.selectById(id);
+        if (entity == null) throw new BusinessException("${tableComment}不存在");
+        return toVO(entity);
+    }
+
+    public void create${ClassName}(${ClassName}DTO dto) {
+        ${ClassName} entity = toEntity(dto);
+        entity.setCreatorId(SecurityUtils.getCurrentUserId());
+        ${classNameLc}Mapper.insert(entity);
+    }
+
+    public void update${ClassName}(Integer id, ${ClassName}DTO dto) {
+        ${ClassName} entity = ${classNameLc}Mapper.selectById(id);
+        if (entity == null) throw new BusinessException("${tableComment}不存在");
+        mergeEntity(entity, dto);
+        ${classNameLc}Mapper.updateById(entity);
+    }
+
+    public void delete${ClassName}(Integer id) {
+        if (${classNameLc}Mapper.selectById(id) == null) throw new BusinessException("${tableComment}不存在");
+        ${classNameLc}Mapper.deleteById(id);
+    }
+
+    private ${ClassName} toEntity(${ClassName}DTO dto) {
+        ${ClassName} e = new ${ClassName}();
+        mergeEntity(e, dto);
+        return e;
+    }
+
+    private void mergeEntity(${ClassName} e, ${ClassName}DTO dto) {
+#foreach($col in $formColumns)
+        e.set${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}(dto.get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}());
+#end
+    }
+
+    private ${ClassName}VO toVO(${ClassName} e) {
+        ${ClassName}VO vo = new ${ClassName}VO();
+        vo.setId(e.getId());
+#foreach($col in $columns)
+#if($col.pkFlag != 1)
+        vo.set${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}(e.get${col.javaField.substring(0,1).toUpperCase()}${col.javaField.substring(1)}());
+#end
+#end
+        vo.setCreatorId(e.getCreatorId());
+        vo.setCreatedAt(e.getCreatedAt());
+        vo.setUpdatedAt(e.getUpdatedAt());
+        return vo;
+    }
+}

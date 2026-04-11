@@ -1,0 +1,26 @@
+package com.mochu.${moduleName}.entity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.mochu.common.entity.BaseEntity;
+#foreach($type in $importTypes)
+import ${type};
+#end
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * ${tableComment}
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("${tableName}")
+public class ${ClassName} extends BaseEntity {
+
+#foreach($col in $columns)
+#if($col.pkFlag != 1)
+    /** ${col.columnComment} */
+    private ${col.javaType} ${col.javaField};
+
+#end
+#end
+}
