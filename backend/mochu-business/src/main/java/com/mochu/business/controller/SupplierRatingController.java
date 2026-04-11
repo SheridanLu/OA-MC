@@ -29,7 +29,7 @@ public class SupplierRatingController {
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('supplier:view')")
+    @PreAuthorize("hasAnyAuthority('supplier:view','supplier:rating')")
     public R<List<Map<String, Object>>> summary() {
         return R.ok(ratingService.supplierRatingSummary());
     }

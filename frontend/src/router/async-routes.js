@@ -246,7 +246,7 @@ export default [
         path: 'report/dynamic',
         name: 'ReportDynamic',
         component: () => import('@/views/report/dynamic.vue'),
-        meta: { title: '动态报表', hidden: true }
+        meta: { title: '动态报表', hidden: true, permission: 'report:view' }
       },
 
       // ========== 通讯录 ==========
