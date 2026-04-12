@@ -10,6 +10,7 @@ import com.mochu.infra.vo.CodegenColumnVO;
 import com.mochu.infra.vo.CodegenTableVO;
 import com.mochu.infra.vo.DbTableVO;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +56,7 @@ public class CodegenController {
 
     @PutMapping("/tables/{id}")
     @PreAuthorize("hasAuthority('infra:codegen')")
-    public R<Void> updateTable(@PathVariable Integer id, @RequestBody CodegenTableDTO dto) {
+    public R<Void> updateTable(@PathVariable Integer id, @Valid @RequestBody CodegenTableDTO dto) {
         codegenService.updateTable(id, dto);
         return R.ok();
     }
@@ -78,7 +79,7 @@ public class CodegenController {
     @PutMapping("/tables/{id}/columns")
     @PreAuthorize("hasAuthority('infra:codegen')")
     public R<Void> updateColumns(@PathVariable Integer id,
-                                 @RequestBody List<CodegenColumnDTO> dtos) {
+                                 @Valid @RequestBody List<CodegenColumnDTO> dtos) {
         codegenService.updateColumns(id, dtos);
         return R.ok();
     }

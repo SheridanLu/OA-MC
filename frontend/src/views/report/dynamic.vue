@@ -65,6 +65,12 @@ const tableColumns = ref([])
 const chartRef = ref(null)
 const chartVisible = ref(false)
 let chartInstance = null
+let echarts = null
+
+async function ensureEcharts() {
+  if (!echarts) echarts = await import('echarts')
+  return echarts
+}
 
 async function loadTemplate() {
   if (!templateId.value) return
@@ -146,9 +152,11 @@ async function loadBuiltin(type) {
 
 async function renderChart(rows) {
   try {
-    const echarts = await import('echarts')
+    const ec = await ensureEcharts()
     if (chartInstance) chartInstance.dispose()
-    chartInstance = echarts.init(chartRef.value)
+    const el = chartRef.value
+    if (!el) return
+    chartInstance = ec.init(el)
     const categories = rows.map(r => r[xField.value] ?? '')
     let option
     if (chartType.value === 'pie') {

@@ -11,7 +11,7 @@ export function useApproval() {
   async function approve(instanceId, comment = '') {
     approving.value = true
     try {
-      await approveInstance(instanceId, { comment })
+      await approveInstance(instanceId, comment)
       ElMessage.success('审批通过')
     } finally {
       approving.value = false
@@ -21,7 +21,7 @@ export function useApproval() {
   async function reject(instanceId, comment = '') {
     approving.value = true
     try {
-      await rejectInstance(instanceId, { comment })
+      await rejectInstance(instanceId, comment)
       ElMessage.success('已驳回')
     } finally {
       approving.value = false

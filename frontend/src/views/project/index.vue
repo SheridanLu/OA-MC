@@ -34,7 +34,7 @@
     <!-- 操作栏 + 表格 -->
     <el-card shadow="never" style="margin-top: 12px">
       <div style="margin-bottom: 12px">
-        <el-button type="primary" @click="handleAdd">新建项目</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'project:create'">新建项目</el-button>
       </div>
 
       <el-table :data="tableData" v-loading="loading" stripe border style="width: 100%">
@@ -64,8 +64,8 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleEdit(row)" :disabled="row.status === 'pending'">编辑</el-button>
-            <el-dropdown v-if="row.status === 'active' || row.status === 'completed'" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px">
+            <el-button type="primary" link size="small" @click="handleEdit(row)" :disabled="row.status === 'pending'" v-permission="'project:edit'">编辑</el-button>
+            <el-dropdown v-if="row.status === 'active' || row.status === 'completed'" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px" v-permission="'project:edit'">
               <el-button type="warning" link size="small">状态<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -75,7 +75,7 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-button v-if="row.status !== 'pending'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="row.status !== 'pending'" type="danger" link size="small" @click="handleDelete(row)" v-permission="'project:delete'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

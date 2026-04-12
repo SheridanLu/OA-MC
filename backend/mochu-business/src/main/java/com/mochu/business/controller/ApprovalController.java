@@ -80,7 +80,7 @@ public class ApprovalController {
 
     @PostMapping("/{instanceId}/approve")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> approve(@PathVariable Integer instanceId, @RequestBody ApprovalOpinionDTO dto) {
+    public R<Void> approve(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.approve(instanceId, userId, dto.getOpinion());
         return R.ok();
@@ -88,7 +88,7 @@ public class ApprovalController {
 
     @PostMapping("/{instanceId}/reject")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> reject(@PathVariable Integer instanceId, @RequestBody ApprovalOpinionDTO dto) {
+    public R<Void> reject(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.reject(instanceId, userId, dto.getOpinion());
         return R.ok();
@@ -120,7 +120,7 @@ public class ApprovalController {
 
     @PostMapping("/cosign/{cosignId}/approve")
     @PreAuthorize("hasAuthority('approval:operate')")
-    public R<Void> approveCosign(@PathVariable Integer cosignId, @RequestBody ApprovalOpinionDTO dto) {
+    public R<Void> approveCosign(@PathVariable Integer cosignId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.approveCosign(cosignId, userId, dto.getOpinion());
         return R.ok();

@@ -30,7 +30,7 @@
     <!-- 表格 -->
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增公告</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'system:announcement-manage'">新增公告</el-button>
       </div>
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="id" label="ID" width="60" />
@@ -55,13 +55,13 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" fixed="right" width="280">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="success" v-if="row.status === 'draft'" @click="handlePublish(row)">发布</el-button>
-            <el-button link type="warning" v-if="row.status === 'published'" @click="handleOffline(row)">下线</el-button>
-            <el-button link :type="row.is_top === 1 ? 'info' : 'primary'" @click="handleToggleTop(row)">
+            <el-button link type="primary" @click="handleEdit(row)" v-permission="'system:announcement-manage'">编辑</el-button>
+            <el-button link type="success" v-if="row.status === 'draft'" @click="handlePublish(row)" v-permission="'system:announcement-manage'">发布</el-button>
+            <el-button link type="warning" v-if="row.status === 'published'" @click="handleOffline(row)" v-permission="'system:announcement-manage'">下线</el-button>
+            <el-button link :type="row.is_top === 1 ? 'info' : 'primary'" @click="handleToggleTop(row)" v-permission="'system:announcement-manage'">
               {{ row.is_top === 1 ? '取消置顶' : '置顶' }}
             </el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" @click="handleDelete(row)" v-permission="'system:announcement-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

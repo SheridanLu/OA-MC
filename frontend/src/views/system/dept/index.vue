@@ -2,7 +2,7 @@
   <div class="dept-page">
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd(0)">新增顶级部门</el-button>
+        <el-button type="primary" @click="handleAdd(0)" v-permission="'system:dept-manage'">新增顶级部门</el-button>
       </div>
       <el-table :data="treeData" v-loading="loading" row-key="id" default-expand-all>
         <el-table-column prop="name" label="部门名称" width="250" />
@@ -16,12 +16,12 @@
         </el-table-column>
         <el-table-column label="操作" width="250">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleAdd(row.id)">新增子部门</el-button>
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link :type="row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(row)">
+            <el-button link type="primary" @click="handleAdd(row.id)" v-permission="'system:dept-manage'">新增子部门</el-button>
+            <el-button link type="primary" @click="handleEdit(row)" v-permission="'system:dept-manage'">编辑</el-button>
+            <el-button link :type="row.status === 1 ? 'warning' : 'success'" @click="handleToggleStatus(row)" v-permission="'system:dept-manage'">
               {{ row.status === 1 ? '停用' : '启用' }}
             </el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="danger" @click="handleDelete(row)" v-permission="'system:dept-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -4,6 +4,7 @@ import com.mochu.business.dto.ProjectDTO;
 import com.mochu.business.dto.ProjectMemberDTO;
 import com.mochu.business.dto.ProjectQueryDTO;
 import com.mochu.business.dto.StatusUpdateDTO;
+import com.mochu.business.dto.TerminateDTO;
 import com.mochu.business.entity.BizProject;
 import com.mochu.business.entity.BizProjectMember;
 import com.mochu.business.service.ProjectService;
@@ -16,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 项目管理接口
@@ -104,8 +104,8 @@ public class ProjectController {
 
     @PostMapping("/{id}/terminate")
     @PreAuthorize("hasAuthority('project:suspend')")
-    public R<Void> terminate(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        projectService.terminateProject(id, body.get("reason"));
+    public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
+        projectService.terminateProject(id, dto.getReason());
         return R.ok();
     }
 

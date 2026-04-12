@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDictDataList, createDictData, updateDictData, deleteDictData } from '@/api/dict'
@@ -108,7 +108,7 @@ const router = useRouter()
 const dictType = route.params.dictType
 const dictStore = useDictStore()
 
-const { loading, tableData, total, query, fetchData, handleSearch, handleSizeChange, handleCurrentChange } = useTable(
+const { loading, tableData, total, query, fetchData, handleSizeChange, handleCurrentChange } = useTable(
   (params) => getDictDataList({ ...params, dictType }),
   {}
 )
@@ -170,4 +170,6 @@ async function handleDelete(row) {
   dictStore.invalidate(dictType)
   fetchData()
 }
+
+onMounted(fetchData)
 </script>

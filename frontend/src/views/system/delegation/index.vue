@@ -19,7 +19,7 @@
     <!-- 操作栏 + 表格 -->
     <el-card shadow="never" style="margin-top: 12px">
       <div style="margin-bottom: 12px">
-        <el-button type="primary" @click="handleAdd">新增委托</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'approval:delegation-manage'">新增委托</el-button>
       </div>
 
       <el-table :data="tableData" v-loading="loading" stripe border style="width: 100%">
@@ -39,8 +39,8 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 1" type="warning" link size="small" @click="handleRevoke(row)">撤销</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="row.status === 1" type="warning" link size="small" @click="handleRevoke(row)" v-permission="'approval:delegation-manage'">撤销</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)" v-permission="'approval:delegation-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

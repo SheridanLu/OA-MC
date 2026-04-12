@@ -13,7 +13,7 @@
     </search-form>
 
     <page-header title="代码生成">
-      <el-button type="primary" @click="openImport">导入表</el-button>
+      <el-button type="primary" @click="openImport" v-permission="'infra:codegen-manage'">导入表</el-button>
     </page-header>
 
     <el-table v-loading="loading" :data="tableData" border stripe>
@@ -26,10 +26,10 @@
       <el-table-column prop="created_at" label="创建时间" width="160" />
       <el-table-column label="操作" width="220" align="center" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" @click="goEdit(row)">编辑</el-button>
+          <el-button link type="primary" @click="goEdit(row)" v-permission="'infra:codegen-manage'">编辑</el-button>
           <el-button link type="success" @click="handlePreview(row)">预览</el-button>
           <el-button link type="warning" @click="handleDownload(row)">下载</el-button>
-          <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+          <el-button link type="danger" @click="handleDelete(row)" v-permission="'infra:codegen-manage'">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCodegenTableList, getDbTableList, importDbTable, deleteCodegenTable, downloadCode } from '@/api/codegen'
@@ -73,6 +73,8 @@ import CodegenPreview from './preview.vue'
 const router = useRouter()
 const { loading, tableData, total, query, fetchData, handleSearch, handleReset, handleSizeChange, handleCurrentChange } =
   useTable(getCodegenTableList, { tableName: '' })
+
+onMounted(() => { fetchData() })
 
 const importVisible = ref(false)
 const dbLoading = ref(false)

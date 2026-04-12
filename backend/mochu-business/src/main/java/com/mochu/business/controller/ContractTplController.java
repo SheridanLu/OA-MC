@@ -2,6 +2,7 @@ package com.mochu.business.controller;
 
 import com.mochu.business.dto.ContractTplDTO;
 import com.mochu.business.dto.TplFieldUpdateDTO;
+import com.mochu.business.dto.VersionStatusDTO;
 import com.mochu.business.entity.SysContractTpl;
 import com.mochu.business.entity.SysContractTplAudit;
 import com.mochu.business.entity.SysContractTplField;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 合同模板管理接口
@@ -119,9 +119,9 @@ public class ContractTplController {
 
     @PatchMapping("/versions/{versionId}/status")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
-    public R<Void> updateVersionStatus(@PathVariable Integer versionId, @RequestBody Map<String, Integer> body) {
+    public R<Void> updateVersionStatus(@PathVariable Integer versionId, @Valid @RequestBody VersionStatusDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        tplService.updateVersionStatus(versionId, body.get("status"), userId);
+        tplService.updateVersionStatus(versionId, dto.getStatus(), userId);
         return R.ok();
     }
 

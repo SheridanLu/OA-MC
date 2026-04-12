@@ -171,14 +171,22 @@ public class InventoryEnhanceService {
             inventoryMapper.insert(toInv);
         } else {
             BigDecimal oldTotal = toInv.getTotalAmount() != null ? toInv.getTotalAmount() : BigDecimal.ZERO;
-            BigDecimal newQty = toInv.getCurrentQuantity().add(transfer.getQty());
+            BigDecimal oldQty = toInv.getCurrentQuantity();
+            BigDecimal newQty = oldQty.add(transfer.getQty());
             BigDecimal newTotal = oldTotal.add(transfer.getTotalAmount());
             toInv.setCurrentQuantity(newQty);
             toInv.setTotalAmount(newTotal);
             if (newQty.compareTo(BigDecimal.ZERO) > 0) {
                 toInv.setAvgPrice(newTotal.divide(newQty, 6, java.math.RoundingMode.HALF_UP));
             }
-            inventoryMapper.updateById(toInv);
+            // 乐观锁：确保目标库存未被并发修改
+            int toAffected = inventoryMapper.update(toInv,
+                    new LambdaQueryWrapper<BizInventory>()
+                            .eq(BizInventory::getId, toInv.getId())
+                            .eq(BizInventory::getCurrentQuantity, oldQty));
+            if (toAffected == 0) {
+                throw new BusinessException("目标库存已被其他操作修改，请刷新后重试");
+            }
         }
 
         transfer.setStatus("confirmed");

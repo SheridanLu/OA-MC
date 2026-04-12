@@ -12,7 +12,7 @@
             <el-button type="primary" @click="fetchData">搜索</el-button>
           </el-form-item>
         </el-form>
-        <el-button type="primary" @click="handleAdd">新建模板</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'system:tpl-manage'">新建模板</el-button>
       </div>
 
       <el-table :data="tableData" v-loading="loading" stripe border>
@@ -29,11 +29,11 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleUploadVersion(row)">上传版本</el-button>
+            <el-button type="primary" link size="small" @click="handleUploadVersion(row)" v-permission="'system:tpl-manage'">上传版本</el-button>
             <el-button type="success" link size="small" @click="handleViewVersions(row)">版本列表</el-button>
-            <el-button type="warning" link size="small" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="warning" link size="small" @click="handleEdit(row)" v-permission="'system:tpl-manage'">编辑</el-button>
             <el-button type="info" link size="small" @click="handleAuditLog(row)">日志</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)" v-permission="'system:tpl-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,9 +101,9 @@
         <el-table-column prop="created_at" label="上传时间" width="170" />
         <el-table-column label="操作" width="280">
           <template #default="{ row }">
-            <el-button v-if="row.status !== 1" type="success" link size="small" @click="toggleVersion(row, 1)">启用</el-button>
-            <el-button v-else type="warning" link size="small" @click="toggleVersion(row, 0)">停用</el-button>
-            <el-button v-if="row.status !== 1" type="primary" link size="small" @click="handleSubmitApproval(row)">提交审批</el-button>
+            <el-button v-if="row.status !== 1" type="success" link size="small" @click="toggleVersion(row, 1)" v-permission="'system:tpl-manage'">启用</el-button>
+            <el-button v-else type="warning" link size="small" @click="toggleVersion(row, 0)" v-permission="'system:tpl-manage'">停用</el-button>
+            <el-button v-if="row.status !== 1" type="primary" link size="small" @click="handleSubmitApproval(row)" v-permission="'system:tpl-manage'">提交审批</el-button>
             <el-button type="primary" link size="small" @click="handlePreview(row)">预览</el-button>
             <el-button type="info" link size="small" @click="handleViewFields(row)">字段</el-button>
           </template>

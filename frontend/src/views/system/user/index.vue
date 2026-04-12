@@ -28,7 +28,7 @@
     <!-- 操作栏 + 表格 -->
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增用户</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'system:user-manage'">新增用户</el-button>
       </div>
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="id" label="ID" width="60" />
@@ -48,10 +48,10 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" fixed="right" width="240">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="primary" @click="handleRoles(row)">角色</el-button>
-            <el-button link type="warning" @click="handleResetPwd(row)">重置密码</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleEdit(row)" v-permission="'system:user-manage'">编辑</el-button>
+            <el-button link type="primary" @click="handleRoles(row)" v-permission="'system:user-manage'">角色</el-button>
+            <el-button link type="warning" @click="handleResetPwd(row)" v-permission="'system:user-manage'">重置密码</el-button>
+            <el-button link type="danger" @click="handleDelete(row)" v-permission="'system:user-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

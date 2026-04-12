@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizSupplierRating;
 import com.mochu.business.service.SupplierRatingService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class SupplierRatingController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('supplier:rating')")
-    public R<Void> create(@RequestBody SupplierRatingDTO dto) {
+    public R<Void> create(@Valid @RequestBody SupplierRatingDTO dto) {
         ratingService.createRating(dto);
         return R.ok();
     }

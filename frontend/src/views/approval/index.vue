@@ -80,8 +80,8 @@
             <el-table-column prop="created_at" label="创建时间" width="170" />
             <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
-                <el-button type="primary" link size="small" @click="handleEditFlow(row)">编辑</el-button>
-                <el-button type="danger" link size="small" @click="handleDeleteFlow(row)">删除</el-button>
+                <el-button type="primary" link size="small" @click="handleEditFlow(row)" v-permission="'approval:flow-manage'">编辑</el-button>
+                <el-button type="danger" link size="small" @click="handleDeleteFlow(row)" v-permission="'approval:flow-manage'">删除</el-button>
               </template>
             </el-table-column>
           </el-table>

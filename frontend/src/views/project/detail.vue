@@ -84,7 +84,7 @@
       <!-- 项目成员 -->
       <el-tab-pane label="项目成员" name="members">
         <div style="margin-bottom:12px">
-          <el-button type="primary" size="small" @click="memberPickerVisible = true"><el-icon><Plus /></el-icon>添加成员</el-button>
+          <el-button type="primary" size="small" @click="memberPickerVisible = true" v-permission="'project:edit'"><el-icon><Plus /></el-icon>添加成员</el-button>
         </div>
         <el-table :data="members" border>
           <el-table-column prop="real_name" label="姓名" width="100" />
@@ -93,7 +93,7 @@
           <el-table-column prop="phone" label="手机" width="130" />
           <el-table-column label="操作" width="80">
             <template #default="{ row }">
-              <el-button link type="danger" size="small" @click="removeMember(row)">移除</el-button>
+              <el-button link type="danger" size="small" @click="removeMember(row)" v-permission="'project:edit'">移除</el-button>
             </template>
           </el-table-column>
         </el-table>

@@ -14,7 +14,7 @@
 
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增角色</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'system:role-manage'">新增角色</el-button>
       </div>
       <el-table :data="tableData" v-loading="loading" stripe>
         <el-table-column prop="id" label="ID" width="60" />
@@ -41,9 +41,9 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="primary" @click="handlePermissions(row)">权限</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleEdit(row)" v-permission="'system:role-manage'">编辑</el-button>
+            <el-button link type="primary" @click="handlePermissions(row)" v-permission="'system:role-manage'">权限</el-button>
+            <el-button link type="danger" @click="handleDelete(row)" v-permission="'system:role-manage'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

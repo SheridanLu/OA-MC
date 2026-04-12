@@ -5,6 +5,7 @@ import com.mochu.bpm.service.BpmTaskService;
 import com.mochu.bpm.vo.BpmTaskVO;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -33,28 +34,28 @@ public class BpmTaskController {
 
     @PostMapping("/{taskId}/complete")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
-    public R<Void> complete(@PathVariable String taskId, @RequestBody TaskActionDTO dto) {
+    public R<Void> complete(@PathVariable String taskId, @Valid @RequestBody TaskActionDTO dto) {
         bpmTaskService.completeTask(taskId, dto);
         return R.ok();
     }
 
     @PostMapping("/{taskId}/reject")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
-    public R<Void> reject(@PathVariable String taskId, @RequestBody TaskActionDTO dto) {
+    public R<Void> reject(@PathVariable String taskId, @Valid @RequestBody TaskActionDTO dto) {
         bpmTaskService.rejectTask(taskId, dto);
         return R.ok();
     }
 
     @PostMapping("/{taskId}/transfer")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
-    public R<Void> transfer(@PathVariable String taskId, @RequestBody TaskActionDTO dto) {
+    public R<Void> transfer(@PathVariable String taskId, @Valid @RequestBody TaskActionDTO dto) {
         bpmTaskService.transferTask(taskId, dto);
         return R.ok();
     }
 
     @PostMapping("/{taskId}/delegate")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
-    public R<Void> delegate(@PathVariable String taskId, @RequestBody TaskActionDTO dto) {
+    public R<Void> delegate(@PathVariable String taskId, @Valid @RequestBody TaskActionDTO dto) {
         bpmTaskService.delegateTask(taskId, dto);
         return R.ok();
     }

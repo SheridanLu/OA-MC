@@ -66,6 +66,11 @@ request.interceptors.request.use(
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
       config.headers['X-Idempotency-Key'] = uuid()
     }
+    // 请求体 camelCase → snake_case 转换（适配后端 Jackson SNAKE_CASE 策略）
+    // 必须在 HMAC 签名之前完成，保证签名 body 与实际发送 body 一致
+    if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
+      config.data = convertKeysToSnakeCase(config.data)
+    }
     // HMAC-SHA256 签名 — V3.2 §3.2 敏感接口安全
     // 注意: sign_secret 存储在 sessionStorage 中（关闭标签页即清除），
     // 降低 XSS 持久化攻击风险。后续应改为登录时由后端下发临时密钥。
@@ -80,10 +85,6 @@ request.interceptors.request.use(
       config.headers['X-Nonce'] = nonce
       config.headers['X-Sign'] = sign
     }
-    // 请求体 camelCase → snake_case 转换（适配后端 Jackson SNAKE_CASE 策略）
-    if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
-      config.data = convertKeysToSnakeCase(config.data)
-    }
     // FormData 不设 Content-Type，由浏览器自动设置 multipart boundary
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type']
@@ -96,6 +97,11 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   (response) => {
+    // Blob 响应（文件下载）不走 code 检查，直接返回原始 response
+    if (response.config.responseType === 'blob') {
+      return response
+    }
+
     // Token 自动刷新 — 同步到 localStorage 和 Pinia
     const newToken = response.headers['x-new-token']
     if (newToken) {

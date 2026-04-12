@@ -35,7 +35,7 @@
 
     <el-card shadow="never" style="margin-top: 12px">
       <div style="margin-bottom: 12px">
-        <el-button type="primary" @click="handleAdd">新建合同</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'contract:create'">新建合同</el-button>
       </div>
 
       <el-table :data="tableData" v-loading="loading" stripe border style="width: 100%">
@@ -63,9 +63,9 @@
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="$router.push(`/contracts/${row.id}`)">详情</el-button>
             <el-button type="primary" link size="small" @click="handleEdit(row)"
-              :disabled="row.status === 'pending' || row.status === 'approved'">编辑</el-button>
+              :disabled="row.status === 'pending' || row.status === 'approved'" v-permission="'contract:edit'">编辑</el-button>
             <el-button type="danger" link size="small" @click="handleDelete(row)"
-              v-if="row.status !== 'pending' && row.status !== 'approved'">删除</el-button>
+              v-if="row.status !== 'pending' && row.status !== 'approved'" v-permission="'contract:delete'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

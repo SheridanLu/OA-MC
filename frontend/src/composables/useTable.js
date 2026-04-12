@@ -36,11 +36,14 @@ export function useTable(fetchApi, defaultQuery = {}) {
     fetchData()
   }
 
-  function handleSizeChange() {
+  function handleSizeChange(val) {
+    if (val != null) query.size = val
+    query.page = 1
     fetchData()
   }
 
-  function handleCurrentChange() {
+  function handleCurrentChange(val) {
+    if (val != null) query.page = val
     fetchData()
   }
 

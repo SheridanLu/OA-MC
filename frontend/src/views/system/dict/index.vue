@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDictTypeList, createDictType, updateDictType, deleteDictType } from '@/api/dict'
@@ -138,4 +138,6 @@ async function handleDelete(row) {
 function goData(dictType) {
   router.push(`/system/dict/${dictType}/data`)
 }
+
+onMounted(fetchData)
 </script>

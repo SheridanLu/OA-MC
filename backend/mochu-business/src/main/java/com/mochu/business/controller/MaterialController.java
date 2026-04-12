@@ -33,6 +33,7 @@ public class MaterialController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('material:view')")
     public R<List<BizMaterialBase>> listAll() {
         return R.ok(materialService.listAll());
     }

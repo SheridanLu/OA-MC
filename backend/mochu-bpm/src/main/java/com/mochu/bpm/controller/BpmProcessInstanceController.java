@@ -7,6 +7,7 @@ import com.mochu.bpm.service.BpmProcessInstanceService;
 import com.mochu.bpm.vo.ProcessInstanceVO;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class BpmProcessInstanceController {
 
     @PostMapping("/start")
     @PreAuthorize("hasAuthority('bpm:task-operate')")
-    public R<String> start(@RequestBody StartProcessDTO dto) {
+    public R<String> start(@Valid @RequestBody StartProcessDTO dto) {
         return R.ok(instanceService.startProcess(dto));
     }
 
@@ -67,7 +68,7 @@ public class BpmProcessInstanceController {
 
     @PostMapping("/rules")
     @PreAuthorize("hasAuthority('bpm:rule-manage')")
-    public R<Void> saveRule(@RequestBody OaRuleDTO dto) {
+    public R<Void> saveRule(@Valid @RequestBody OaRuleDTO dto) {
         instanceService.saveOaRule(dto);
         return R.ok();
     }

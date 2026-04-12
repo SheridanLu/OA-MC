@@ -6,6 +6,7 @@ import com.mochu.business.entity.BizInventoryAlert;
 import com.mochu.business.entity.BizInventoryTransfer;
 import com.mochu.business.service.InventoryEnhanceService;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class InventoryEnhanceController {
 
     @PostMapping("/alerts")
     @PreAuthorize("hasAuthority('inventory:alert-manage')")
-    public R<Void> saveAlert(@RequestBody InventoryAlertDTO dto) {
+    public R<Void> saveAlert(@Valid @RequestBody InventoryAlertDTO dto) {
         enhanceService.saveAlert(dto);
         return R.ok();
     }
@@ -59,7 +60,7 @@ public class InventoryEnhanceController {
 
     @PostMapping("/transfers")
     @PreAuthorize("hasAuthority('inventory:transfer')")
-    public R<Void> createTransfer(@RequestBody InventoryTransferDTO dto) {
+    public R<Void> createTransfer(@Valid @RequestBody InventoryTransferDTO dto) {
         enhanceService.createTransfer(dto);
         return R.ok();
     }

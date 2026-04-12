@@ -23,13 +23,20 @@ function checkPermission(el, binding) {
     hasPermission = permissionStore.hasAllPermissions(value.all)
   }
 
+  // 使用 display:none 代替 removeChild，避免永久移除 DOM 导致权限变更后无法恢复
   if (!hasPermission) {
-    el.parentNode && el.parentNode.removeChild(el)
+    el.style.display = 'none'
+    el.setAttribute('aria-hidden', 'true')
+  } else {
+    el.style.display = ''
+    el.removeAttribute('aria-hidden')
   }
 }
 
 export const permissionDirective = {
   mounted(el, binding) {
+    // 保存原始 display 值，以便恢复
+    el._originalDisplay = el.style.display
     checkPermission(el, binding)
   },
   updated(el, binding) {

@@ -9,6 +9,7 @@ import com.mochu.system.dto.DictTypeQueryDTO;
 import com.mochu.system.service.DictService;
 import com.mochu.system.vo.DictDataVO;
 import com.mochu.system.vo.DictTypeVO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -38,14 +39,14 @@ public class DictController {
 
     @PostMapping("/types")
     @PreAuthorize("hasAuthority('system:dict-manage')")
-    public R<Void> createDictType(@RequestBody DictTypeDTO dto) {
+    public R<Void> createDictType(@Valid @RequestBody DictTypeDTO dto) {
         dictService.createDictType(dto);
         return R.ok();
     }
 
     @PutMapping("/types/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
-    public R<Void> updateDictType(@PathVariable Integer id, @RequestBody DictTypeDTO dto) {
+    public R<Void> updateDictType(@PathVariable Integer id, @Valid @RequestBody DictTypeDTO dto) {
         dictService.updateDictType(id, dto);
         return R.ok();
     }
@@ -72,14 +73,14 @@ public class DictController {
 
     @PostMapping("/data")
     @PreAuthorize("hasAuthority('system:dict-manage')")
-    public R<Void> createDictData(@RequestBody DictDataDTO dto) {
+    public R<Void> createDictData(@Valid @RequestBody DictDataDTO dto) {
         dictService.createDictData(dto);
         return R.ok();
     }
 
     @PutMapping("/data/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
-    public R<Void> updateDictData(@PathVariable Integer id, @RequestBody DictDataDTO dto) {
+    public R<Void> updateDictData(@PathVariable Integer id, @Valid @RequestBody DictDataDTO dto) {
         dictService.updateDictData(id, dto);
         return R.ok();
     }

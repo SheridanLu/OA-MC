@@ -238,7 +238,8 @@ public class ReportTemplateService {
         // 禁止分号（阻止多语句注入）
         if (sql.contains(";")) throw new BusinessException("SQL 中不允许包含分号");
         // 去除注释后再检查
-        String stripped = sql.replaceAll("/\\*.*?\\*/", " ").replaceAll("--[^\n]*", " ");
+        // (?s) 启用 DOTALL 模式，使 . 匹配换行符，正确剥离跨行 /* */ 注释
+        String stripped = sql.replaceAll("(?s)/\\*.*?\\*/", " ").replaceAll("--[^\n]*", " ");
         String upper = stripped.trim().toUpperCase();
         // 只允许 SELECT
         if (!upper.startsWith("SELECT")) throw new BusinessException("只允许 SELECT 查询语句");

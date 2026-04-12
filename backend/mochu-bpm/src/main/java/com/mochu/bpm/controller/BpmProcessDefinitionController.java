@@ -4,6 +4,7 @@ import com.mochu.bpm.dto.ProcessDeployDTO;
 import com.mochu.bpm.service.BpmProcessDefinitionService;
 import com.mochu.bpm.vo.ProcessDefinitionVO;
 import com.mochu.common.result.R;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class BpmProcessDefinitionController {
 
     @PostMapping("/deploy")
     @PreAuthorize("hasAuthority('bpm:process-manage')")
-    public R<String> deploy(@RequestBody ProcessDeployDTO dto) {
+    public R<String> deploy(@Valid @RequestBody ProcessDeployDTO dto) {
         return R.ok(processDefService.deployProcess(dto));
     }
 
@@ -58,7 +59,7 @@ public class BpmProcessDefinitionController {
 
     @PutMapping("/{processDefId}/ext")
     @PreAuthorize("hasAuthority('bpm:process-manage')")
-    public R<Void> updateExt(@PathVariable String processDefId, @RequestBody ProcessDeployDTO dto) {
+    public R<Void> updateExt(@PathVariable String processDefId, @Valid @RequestBody ProcessDeployDTO dto) {
         processDefService.updateExt(processDefId, dto);
         return R.ok();
     }

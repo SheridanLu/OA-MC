@@ -6,6 +6,7 @@ import com.mochu.business.dto.CompletionFinishDTO;
 import com.mochu.business.dto.DrawingDTO;
 import com.mochu.business.dto.ExceptionTaskDTO;
 import com.mochu.business.dto.LaborSettlementDTO;
+import com.mochu.business.dto.ResolveExceptionDTO;
 import com.mochu.business.entity.BizCase;
 import com.mochu.business.entity.BizCompletionDoc;
 import com.mochu.business.entity.BizCompletionFinish;
@@ -20,8 +21,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * 竣工验收模块接口 — 完工验收 / 劳务结算 / 案例管理 / 异常工单 / 竣工图纸 / 竣工资料
@@ -221,8 +220,8 @@ public class CompletionController {
 
     @PatchMapping("/exceptions/{id}/resolve")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
-    public R<Void> resolveException(@PathVariable Integer id, @RequestBody Map<String, String> body) {
-        completionService.resolveException(id, body.get("resolve_remark"));
+    public R<Void> resolveException(@PathVariable Integer id, @Valid @RequestBody ResolveExceptionDTO dto) {
+        completionService.resolveException(id, dto.getResolveRemark());
         return R.ok();
     }
 

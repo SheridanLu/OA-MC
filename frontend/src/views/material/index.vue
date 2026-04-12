@@ -21,7 +21,7 @@
     <!-- 操作栏 + 数据表格 -->
     <el-card shadow="never" style="margin-top: 12px">
       <div style="margin-bottom: 12px">
-        <el-button type="primary" @click="handleAdd">新增材料</el-button>
+        <el-button type="primary" @click="handleAdd" v-permission="'material:edit'">新增材料</el-button>
       </div>
 
       <el-table :data="tableData" v-loading="loading" stripe border style="width: 100%">
@@ -45,8 +45,8 @@
         </el-table-column>
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(row)" v-permission="'material:edit'">编辑</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)" v-permission="'material:edit'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

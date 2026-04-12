@@ -2,6 +2,7 @@ package com.mochu.business.controller;
 
 import com.mochu.business.dto.ContractDTO;
 import com.mochu.business.dto.StatusUpdateDTO;
+import com.mochu.business.dto.TerminateDTO;
 import com.mochu.business.entity.BizContract;
 import com.mochu.business.entity.BizInvoice;
 import com.mochu.business.entity.BizPaymentApply;
@@ -83,9 +84,9 @@ public class ContractController {
 
     @PostMapping("/{id}/terminate")
     @PreAuthorize("hasAuthority('contract:terminate')")
-    public R<Void> terminate(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+    public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
-        contractService.terminateContract(id, body.get("reason"), userId);
+        contractService.terminateContract(id, dto.getReason(), userId);
         return R.ok();
     }
 
