@@ -497,6 +497,9 @@ public class ApprovalService {
      * 我的待审批列表
      */
     public PageResult<Map<String, Object>> getMyPending(Integer userId, Integer page, Integer size) {
+        if (userId == null) {
+            throw new BusinessException(401, "未登录或登录已过期");
+        }
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
         int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
 
@@ -546,6 +549,9 @@ public class ApprovalService {
      * 我发起的审批列表
      */
     public PageResult<Map<String, Object>> getMyInitiated(Integer userId, Integer page, Integer size) {
+        if (userId == null) {
+            throw new BusinessException(401, "未登录或登录已过期");
+        }
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
         int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
 

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<R<Void>> handleAccessDenied(AccessDeniedException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(R.fail(HttpStatus.FORBIDDEN.value(), "无权限访问"));
+    }
+
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<R<Void>> handleNoCredentials(AuthenticationCredentialsNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(R.fail(HttpStatus.UNAUTHORIZED.value(), "未认证，请先登录"));
     }
 
     @ExceptionHandler(Exception.class)
