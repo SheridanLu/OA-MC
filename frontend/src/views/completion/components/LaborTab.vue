@@ -17,8 +17,9 @@
         <template #default="{ row }"><status-tag :status="row.status" /></template>
       </el-table-column>
       <el-table-column prop="created_at" label="创建时间" width="170" />
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="220">
         <template #default="{ row }">
+          <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'labor_settlement')">提交审批</el-button>
           <el-button type="primary" link size="small" v-permission="'completion:labor-manage'" @click="openEdit(row)">编辑</el-button>
           <el-button type="danger" link size="small" v-permission="'completion:labor-manage'" @click="handleDelete(row)">删除</el-button>
         </template>
@@ -80,6 +81,7 @@
 import { onMounted } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getLaborList, createLabor, updateLabor, deleteLabor } from '@/api/completion'
+import { submitApproval } from '@/api/approval'
 import { useTable } from '@/composables/useTable'
 import { useForm } from '@/composables/useForm'
 
@@ -107,6 +109,13 @@ async function handleDelete(row) {
   await ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' })
   await deleteLabor(row.id)
   ElMessage.success('删除成功')
+  fetchData()
+}
+
+async function handleSubmitApproval(row, bizType) {
+  await ElMessageBox.confirm('确定提交审批？提交后将进入审批流程。', '提交审批', { type: 'info' })
+  await submitApproval({ bizType, bizId: row.id, action: 'submit' })
+  ElMessage.success('已提交审批')
   fetchData()
 }
 

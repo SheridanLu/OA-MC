@@ -182,6 +182,7 @@ import {
   getGanttTaskList, createGanttTask, updateGanttTask, updateGanttTaskStatus, deleteGanttTask,
   getAllMilestones
 } from '@/api/progress'
+import { submitApproval } from '@/api/approval'
 
 const props = defineProps({
   projectId: { type: [Number, String], default: null }
@@ -333,9 +334,16 @@ const submitGantt = async () => {
 const statusLabel = { draft: '草稿', pending: '审批中', approved: '已审批', locked: '已锁定' }
 
 const handleStatusChange = async (row, status) => {
-  await ElMessageBox.confirm(`确定将状态改为"${statusLabel[status]}"？`, '提示', { type: 'warning' })
-  await updateGanttTaskStatus(row.id, status)
-  ElMessage.success('状态已更新')
+  if (status === 'pending') {
+    // 走审批流程
+    await ElMessageBox.confirm('确定提交审批？提交后将进入审批流程。', '提交审批', { type: 'info' })
+    await submitApproval({ bizType: 'gantt_task', bizId: row.id, action: 'submit' })
+    ElMessage.success('已提交审批')
+  } else {
+    await ElMessageBox.confirm(`确定将状态改为"${statusLabel[status]}"？`, '提示', { type: 'warning' })
+    await updateGanttTaskStatus(row.id, status)
+    ElMessage.success('状态已更新')
+  }
   fetchData()
 }
 

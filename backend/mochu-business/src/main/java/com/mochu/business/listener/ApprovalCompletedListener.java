@@ -23,6 +23,7 @@ public class ApprovalCompletedListener {
     private final BizInboundOrderMapper inboundOrderMapper;
     private final BizOutboundOrderMapper outboundOrderMapper;
     private final BizReturnOrderMapper returnOrderMapper;
+    private final BizInventoryCheckMapper inventoryCheckMapper;
     private final BizGanttTaskMapper ganttTaskMapper;
     private final BizChangeOrderMapper changeOrderMapper;
     private final BizStatementMapper statementMapper;
@@ -93,8 +94,11 @@ public class ApprovalCompletedListener {
                 }
             }
             case "inventory_check" -> {
-                // 盘点单没有独立mapper，复用inventory逻辑由前端处理
-                log.info("盘点单审批完成, bizId={}", bizId);
+                BizInventoryCheck ic = inventoryCheckMapper.selectById(bizId);
+                if (ic != null) {
+                    ic.setStatus(targetStatus);
+                    inventoryCheckMapper.updateById(ic);
+                }
             }
             case "gantt_task" -> {
                 BizGanttTask gt = ganttTaskMapper.selectById(bizId);

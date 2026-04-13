@@ -16,8 +16,9 @@
         <template #default="{ row }"><status-tag :status="row.status" /></template>
       </el-table-column>
       <el-table-column prop="created_at" label="创建时间" width="170" />
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="220">
         <template #default="{ row }">
+          <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'reimburse')">提交审批</el-button>
           <el-button v-permission="'finance:reimburse-manage'" type="primary" link size="small" @click="openEdit(row)">编辑</el-button>
           <el-button v-permission="'finance:reimburse-manage'" type="danger" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
@@ -63,6 +64,7 @@
 
 <script setup>
 import { getReimburseList, createReimburse, updateReimburse, deleteReimburse } from '@/api/finance'
+import { submitApproval } from '@/api/approval'
 import { useTable } from '@/composables/useTable'
 import { useForm } from '@/composables/useForm'
 import { useDict } from '@/composables/useDict'
@@ -81,6 +83,13 @@ const rules = {
 }
 
 const onSuccess = () => fetchData()
+
+const handleSubmitApproval = async (row, bizType) => {
+  await ElMessageBox.confirm('确定提交审批？提交后将进入审批流程。', '提交审批', { type: 'info' })
+  await submitApproval({ bizType, bizId: row.id, action: 'submit' })
+  ElMessage.success('已提交审批')
+  fetchData()
+}
 
 const handleDelete = (row) => {
   ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' }).then(async () => {

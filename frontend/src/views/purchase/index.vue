@@ -38,8 +38,9 @@
               </template>
             </el-table-column>
             <el-table-column prop="created_at" label="创建时间" width="170" />
-            <el-table-column label="操作" width="160">
+            <el-table-column label="操作" width="220">
               <template #default="{ row }">
+                <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'purchase')">提交审批</el-button>
                 <el-button type="primary" link size="small" @click="handleEditPurchase(row)" v-permission="'purchase:list-manage'">编辑</el-button>
                 <el-button type="danger" link size="small" @click="handleDeletePurchase(row)" v-permission="'purchase:list-manage'">删除</el-button>
               </template>
@@ -71,8 +72,9 @@
               </template>
             </el-table-column>
             <el-table-column prop="created_at" label="创建时间" width="170" />
-            <el-table-column label="操作" width="160">
+            <el-table-column label="操作" width="220">
               <template #default="{ row }">
+                <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'spot_purchase')">提交审批</el-button>
                 <el-button type="primary" link size="small" @click="handleEditSpot(row)" v-permission="'purchase:spot-manage'">编辑</el-button>
                 <el-button type="danger" link size="small" @click="handleDeleteSpot(row)" v-permission="'purchase:spot-manage'">删除</el-button>
               </template>
@@ -213,6 +215,7 @@ import {
   getSpotPurchaseList, createSpotPurchase, updateSpotPurchase, deleteSpotPurchase
 } from '@/api/purchase'
 import { getAllProjects } from '@/api/project'
+import { submitApproval } from '@/api/approval'
 
 const loading = ref(false)
 const spotLoading = ref(false)
@@ -291,6 +294,14 @@ const loadProjects = async () => {
 
 const handleSearch = () => { queryForm.page = 1; fetchPurchases() }
 const handleReset = () => { queryForm.status = ''; queryForm.page = 1; fetchPurchases() }
+
+const handleSubmitApproval = async (row, bizType) => {
+  await ElMessageBox.confirm('确定提交审批？提交后将进入审批流程。', '提交审批', { type: 'info' })
+  await submitApproval({ bizType, bizId: row.id, action: 'submit' })
+  ElMessage.success('已提交审批')
+  if (bizType === 'purchase') fetchPurchases()
+  else fetchSpots()
+}
 
 // ====== 采购清单 CRUD ======
 const handleAddPurchase = () => {

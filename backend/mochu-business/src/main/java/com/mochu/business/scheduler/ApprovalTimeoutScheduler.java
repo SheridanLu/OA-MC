@@ -134,7 +134,7 @@ public class ApprovalTimeoutScheduler {
     }
 
     /**
-     * 72h自动转办 — 转给同角色的其他用户
+     * 72h自动转办 — role节点转给同角色其他用户; user/dept_leader节点抄送上级并记录
      */
     private void autoTransfer(BizApprovalInstance inst) {
         SysFlowDef flowDef = flowDefMapper.selectById(inst.getFlowDefId());
@@ -144,25 +144,51 @@ public class ApprovalTimeoutScheduler {
         if (idx < 0 || idx >= nodes.size()) return;
 
         ApprovalService.FlowNode node = nodes.get(idx);
-        if (!"role".equals(node.getApproverType())) return;
-
-        List<Integer> allRoleUsers = sysUserRoleMapper.selectList(
-                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getRoleId, node.getApproverId())
-        ).stream().map(SysUserRole::getUserId).collect(Collectors.toList());
-
-        // 找一个还没处理的用户
-        List<Integer> currentApprovers = resolveApproverIds(node, inst);
         Integer targetUser = null;
-        for (Integer uid : allRoleUsers) {
-            if (!currentApprovers.contains(uid)) {
-                targetUser = uid;
-                break;
+
+        if ("role".equals(node.getApproverType())) {
+            // 角色节点：转给同角色的其他用户
+            List<Integer> allRoleUsers = sysUserRoleMapper.selectList(
+                    new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getRoleId, node.getApproverId())
+            ).stream().map(SysUserRole::getUserId).collect(Collectors.toList());
+
+            List<Integer> currentApprovers = resolveApproverIds(node, inst);
+            for (Integer uid : allRoleUsers) {
+                if (!currentApprovers.contains(uid)) {
+                    targetUser = uid;
+                    break;
+                }
+            }
+            if (targetUser == null && !allRoleUsers.isEmpty()) {
+                targetUser = allRoleUsers.get(0);
+            }
+        } else if ("user".equals(node.getApproverType())) {
+            // 指定用户节点：转给该用户的部门负责人
+            SysUser user = sysUserMapper.selectById(node.getApproverId());
+            if (user != null && user.getDeptId() != null) {
+                SysDept dept = sysDeptMapper.selectById(user.getDeptId());
+                if (dept != null && dept.getLeaderId() != null && !dept.getLeaderId().equals(node.getApproverId())) {
+                    targetUser = dept.getLeaderId();
+                }
+            }
+        } else if ("dept_leader".equals(node.getApproverType())) {
+            // 部门负责人节点：转给上级部门的负责人
+            SysUser initiator = sysUserMapper.selectById(inst.getInitiatorId());
+            if (initiator != null && initiator.getDeptId() != null) {
+                SysDept dept = sysDeptMapper.selectById(initiator.getDeptId());
+                if (dept != null && dept.getParentId() != null && dept.getParentId() > 0) {
+                    SysDept parentDept = sysDeptMapper.selectById(dept.getParentId());
+                    if (parentDept != null && parentDept.getLeaderId() != null) {
+                        targetUser = parentDept.getLeaderId();
+                    }
+                }
             }
         }
-        if (targetUser == null && !allRoleUsers.isEmpty()) {
-            targetUser = allRoleUsers.get(0);
+
+        if (targetUser == null) {
+            log.warn("审批自动转办: 无法找到目标用户, instanceId={}, nodeType={}", inst.getId(), node.getApproverType());
+            return;
         }
-        if (targetUser == null) return;
 
         // 写入自动转办记录
         BizApprovalRecord record = new BizApprovalRecord();
@@ -175,8 +201,9 @@ public class ApprovalTimeoutScheduler {
         record.setCreatedAt(LocalDateTime.now());
         recordMapper.insert(record);
 
-        // 重置超时计时
+        // 重置超时计时和提醒级别（让新审批人也能收到催办）
         inst.setDeadlineAt(LocalDateTime.now());
+        inst.setReminderLevel(0);
         inst.setUpdatedAt(LocalDateTime.now());
         instanceMapper.updateById(inst);
 
@@ -186,7 +213,7 @@ public class ApprovalTimeoutScheduler {
         String title = "[系统转办] " + node.getNodeName() + " - " + flowDef.getFlowName();
         todoService.createTodo(targetUser, todoBizType, inst.getId(), title, "原审批人超时72小时，系统自动转办");
 
-        log.info("审批自动转办: instanceId={}, targetUser={}", inst.getId(), targetUser);
+        log.info("审批自动转办: instanceId={}, targetUser={}, nodeType={}", inst.getId(), targetUser, node.getApproverType());
     }
 
     /**

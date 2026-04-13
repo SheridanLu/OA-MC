@@ -184,6 +184,12 @@
           </el-table-column>
           <el-table-column prop="opinion" label="意见" min-width="150" show-overflow-tooltip />
           <el-table-column prop="completed_at" label="完成时间" width="170" />
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <el-button v-if="row.status === 'pending'" type="success" link size="small" @click="handleCosignApprove(row)">审批</el-button>
+              <span v-else style="color: #909399; font-size: 12px">已完成</span>
+            </template>
+          </el-table-column>
         </el-table>
       </template>
 
@@ -203,11 +209,35 @@
             </template>
           </el-table-column>
           <el-table-column prop="handled_at" label="处理时间" width="170" />
+          <el-table-column label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <el-button v-if="!row.is_handled" type="primary" link size="small" @click="handleMarkCcDone(row)">标记已处理</el-button>
+              <span v-else style="color: #909399; font-size: 12px">已处理</span>
+            </template>
+          </el-table-column>
         </el-table>
       </template>
     </el-dialog>
 
     <!-- ==================== 新建/编辑流程对话框 ==================== -->
+
+    <!-- ==================== 会签审批对话框 ==================== -->
+    <el-dialog v-model="cosignDlg" title="会签审批" width="500px" @closed="resetCosign">
+      <el-form label-width="80px">
+        <el-form-item label="会签人">
+          <span>{{ cosignRow.cosigner_name }}</span>
+        </el-form-item>
+        <el-form-item label="审批意见">
+          <el-input v-model="cosignOpinion" type="textarea" :rows="3" placeholder="请输入会签意见" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="cosignDlg = false">取消</el-button>
+        <el-button type="success" :loading="submitting" @click="submitCosignApprove">确认通过</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- ==================== 新建/编辑流程对话框(原位置) ==================== -->
     <el-dialog v-model="flowDlg" :title="isEditFlow ? '编辑流程' : '新建流程'" width="700px" @closed="resetFlowForm">
       <el-form ref="flowFormRef" :model="flowForm" :rules="flowRules" label-width="90px">
         <el-row :gutter="16">
@@ -281,7 +311,8 @@ import {
   getFlowDefList, createFlowDef, updateFlowDef, deleteFlowDef,
   getMyPending, getMyInitiated, getInstanceDetail,
   approveInstance, rejectInstance, withdrawInstance,
-  transferInstance, addCosigner, sendReadHandle, sendCc
+  transferInstance, addCosigner, sendReadHandle, sendCc,
+  approveCosign, markCcHandled
 } from '@/api/approval'
 import { getUserList } from '@/api/user'
 
@@ -341,6 +372,11 @@ const userSearching = ref(false)
 // ====== 审批详情 ======
 const detailDlg = ref(false)
 const detailData = ref({})
+
+// ====== 会签审批 ======
+const cosignDlg = ref(false)
+const cosignRow = ref({})
+const cosignOpinion = ref('')
 
 // ====== 流程定义 ======
 const flowDlg = ref(false)
@@ -477,6 +513,38 @@ const handleViewDetail = async (row) => {
     const res = await getInstanceDetail(row.id)
     detailData.value = res.data
     detailDlg.value = true
+  } catch { /* ignore */ }
+}
+
+// ====== 会签审批 ======
+const handleCosignApprove = (row) => {
+  cosignRow.value = row
+  cosignOpinion.value = ''
+  cosignDlg.value = true
+}
+
+const submitCosignApprove = async () => {
+  submitting.value = true
+  try {
+    await approveCosign(cosignRow.value.id, cosignOpinion.value)
+    ElMessage.success('会签审批通过')
+    cosignDlg.value = false
+    // 刷新详情数据
+    const res = await getInstanceDetail(detailData.value.id)
+    detailData.value = res.data
+  } finally { submitting.value = false }
+}
+
+const resetCosign = () => { cosignRow.value = {}; cosignOpinion.value = '' }
+
+// ====== CC 标记已处理 ======
+const handleMarkCcDone = async (row) => {
+  try {
+    await markCcHandled(row.id)
+    ElMessage.success('已标记为已处理')
+    // 刷新详情数据
+    const res = await getInstanceDetail(detailData.value.id)
+    detailData.value = res.data
   } catch { /* ignore */ }
 }
 

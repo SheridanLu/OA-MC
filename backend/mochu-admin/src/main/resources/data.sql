@@ -341,3 +341,118 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('tax_rate', '6%', '6', 4, '', NULL, 1, 0),
 ('tax_rate', '9%', '9', 5, '', NULL, 1, 0),
 ('tax_rate', '13%', '13', 6, '', NULL, 1, 0);
+
+-- ============================================================
+-- V3.2 审批流程定义种子数据 (18条)
+-- ============================================================
+DELETE FROM sys_flow_def WHERE deleted = 0;
+
+-- 4.1 项目立项: 采购员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('project', '项目立项审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.2 合同(常规): 采购员→财务→法务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('contract', '常规合同审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"法务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.3 合同(支出超量): 采购员→预算员→财务→法务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('contract', '支出合同超量审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"法务审核","approver_type":"role","approver_id":4},{"node_order":5,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ '{"field":"contract_type","op":"eq","value":"expense","and":{"field":"over_budget","op":"eq","value":true}}',
+ 1, 2, NULL, 0);
+
+-- 4.4 采购清单: 预算员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('purchase', '采购清单审批',
+ '[{"node_order":1,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.5 零星采购(常规): 采购员→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('spot_purchase', '零星采购审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.6 零星采购(超阈值): 采购员→预算员→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('spot_purchase', '零星采购超阈值审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ '{"field":"amount","op":"gt","value":5000}',
+ 1, 2, NULL, 0);
+
+-- 4.7 入库单: 采购员→财务
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('inbound', '入库单审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.8 出库单: 项目经理→采购员确认→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('outbound', '出库单审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"采购员确认","approver_type":"role","approver_id":3},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.9 退库单: 项目经理→采购员确认→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('return_order', '退库单审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"采购员确认","approver_type":"role","approver_id":3},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.10 盘点单: 采购员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('inventory_check', '盘点单审批',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.11 里程碑进度: 项目经理→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('gantt_task', '里程碑进度审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.12 变更单: 项目经理→预算员→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('change_order', '变更单审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.13 对账单: 项目经理→采购员→预算员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('statement', '对账单审批',
+ '[{"node_order":1,"node_name":"项目经理确认","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":3,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":4,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":5,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.14 付款申请: 项目经理→采购员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('payment', '付款申请审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.15 报销: 员工提交→主管审批→财务审批→财务付款确认
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('reimburse', '报销审批',
+ '[{"node_order":1,"node_name":"主管审批","approver_type":"dept_leader","approver_id":null},{"node_order":2,"node_name":"财务审批","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"财务付款确认","approver_type":"role","approver_id":4}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.16 完工验收: 项目经理→预算员→采购员→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('completion', '完工验收审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.17 劳务结算: 项目经理→预算员→采购员→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('labor_settlement', '劳务结算审批',
+ '[{"node_order":1,"node_name":"项目经理审核","approver_type":"role","approver_id":2},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":4,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":5,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
+
+-- 4.18 工资表: HR→财务→总经理
+INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
+('salary', '工资表审批',
+ '[{"node_order":1,"node_name":"HR审核","approver_type":"role","approver_id":5},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ NULL, 1, 1, NULL, 0);
