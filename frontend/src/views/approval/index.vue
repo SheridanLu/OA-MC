@@ -211,8 +211,9 @@
           <el-table-column prop="handled_at" label="处理时间" width="170" />
           <el-table-column label="操作" width="100" fixed="right">
             <template #default="{ row }">
-              <el-button v-if="!row.is_handled" type="primary" link size="small" @click="handleMarkCcDone(row)">标记已处理</el-button>
-              <span v-else style="color: #909399; font-size: 12px">已处理</span>
+              <el-button v-if="row.cc_type === 'read_handle' && !row.is_handled" type="primary" link size="small" @click="handleMarkCcDone(row)">标记已处理</el-button>
+              <span v-else-if="row.is_handled" style="color: #909399; font-size: 12px">已处理</span>
+              <span v-else style="color: #909399; font-size: 12px">-</span>
             </template>
           </el-table-column>
         </el-table>

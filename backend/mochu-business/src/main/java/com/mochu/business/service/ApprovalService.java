@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mochu.business.dto.FlowDefDTO;
 import com.mochu.business.entity.*;
 import com.mochu.business.event.ApprovalCompletedEvent;
+import com.mochu.business.event.ApprovalSubmittedEvent;
 import com.mochu.business.mapper.*;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
@@ -153,6 +154,9 @@ public class ApprovalService {
         if (!nodes.isEmpty()) {
             createTodoForNode(nodes.get(0), instance);
         }
+
+        // 回写业务单据状态为 pending
+        eventPublisher.publishEvent(new ApprovalSubmittedEvent(this, bizType, bizId));
     }
 
     /** 兼容无条件调用 */

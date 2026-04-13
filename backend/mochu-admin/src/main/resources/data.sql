@@ -345,7 +345,12 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 -- ============================================================
 -- V3.2 审批流程定义种子数据 (18条)
 -- ============================================================
-DELETE FROM sys_flow_def WHERE deleted = 0;
+DELETE FROM sys_flow_def WHERE deleted = 0 AND biz_type IN (
+  'project', 'contract', 'purchase', 'spot_purchase',
+  'inbound', 'outbound', 'return_order', 'inventory_check',
+  'gantt_task', 'change_order', 'statement', 'payment',
+  'reimburse', 'completion', 'labor_settlement', 'salary'
+);
 
 -- 4.1 项目立项: 采购员→财务→总经理
 INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
