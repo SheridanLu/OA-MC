@@ -88,7 +88,7 @@
             v-model="form.deptId"
             :data="deptTree"
             node-key="id"
-            :props="{ label: 'name', children: 'children' }"
+            :props="{ label: 'dept_name', children: 'children' }"
             placeholder="请选择部门"
             check-strictly
             clearable

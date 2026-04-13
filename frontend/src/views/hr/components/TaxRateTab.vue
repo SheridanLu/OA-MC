@@ -84,7 +84,7 @@ async function loadData() {
   loading.value = true
   try {
     const res = await getTaxRateTable()
-    tableData.value = res.data || []
+    tableData.value = (res.data && res.data.records) ? res.data.records : []
   } finally {
     loading.value = false
   }

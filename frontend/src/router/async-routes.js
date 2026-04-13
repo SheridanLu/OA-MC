@@ -254,7 +254,7 @@ export default [
         path: 'contacts',
         name: 'ContactManage',
         component: () => import('@/views/contact/index.vue'),
-        meta: { title: '通讯录', icon: 'Phone' }
+        meta: { title: '通讯录', icon: 'Phone', permission: ['system:user-manage'] }
       },
 
       // ========== 文档管理 ==========

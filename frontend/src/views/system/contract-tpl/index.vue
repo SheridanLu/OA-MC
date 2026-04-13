@@ -155,7 +155,7 @@
 
     <!-- 预览 -->
     <el-dialog v-model="previewVisible" title="模板预览" width="80%">
-      <div class="tpl-preview" v-html="previewHtml"></div>
+      <div class="tpl-preview" v-html="sanitizedPreviewHtml"></div>
     </el-dialog>
 
     <!-- 审计日志 -->
@@ -171,9 +171,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
+import DOMPurify from 'dompurify'
 import { getContractTypes, getTplList, createTpl, createTplWithFile, updateTpl, deleteTpl,
          uploadTplVersion, getTplVersions, updateVersionStatus, submitVersionApproval,
          previewVersion, getVersionFields, updateVersionFields, getTplAuditLogs } from '@/api/contractTpl'
@@ -207,6 +208,7 @@ const currentVersionId = ref(null)
 
 const previewVisible = ref(false)
 const previewHtml = ref('')
+const sanitizedPreviewHtml = computed(() => DOMPurify.sanitize(previewHtml.value || ''))
 
 const auditVisible = ref(false)
 const auditLogs = ref([])
@@ -306,7 +308,7 @@ const handleSubmitApproval = async (row) => {
 
 const handlePreview = async (row) => {
   const res = await previewVersion(row.id)
-  previewHtml.value = res.data || '<p>无内容</p>'
+  previewHtml.value = typeof res.data === 'string' ? res.data : (res.data?.html || '<p>无内容</p>')
   previewVisible.value = true
 }
 

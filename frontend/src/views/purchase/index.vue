@@ -22,7 +22,7 @@
         <!-- ==================== 采购清单 ==================== -->
         <el-tab-pane label="采购清单" name="list">
           <div style="margin-bottom: 12px">
-            <el-button type="primary" @click="handleAddPurchase" v-permission="'purchase:list-manage'">新建采购清单</el-button>
+            <el-button type="primary" @click="handleAddPurchase" v-permission="'purchase:edit'">新建采购清单</el-button>
           </div>
           <el-table :data="purchaseData" v-loading="loading" stripe border>
             <el-table-column prop="list_no" label="清单编号" width="140" />
@@ -41,8 +41,8 @@
             <el-table-column label="操作" width="220">
               <template #default="{ row }">
                 <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'purchase')">提交审批</el-button>
-                <el-button type="primary" link size="small" @click="handleEditPurchase(row)" v-permission="'purchase:list-manage'">编辑</el-button>
-                <el-button type="danger" link size="small" @click="handleDeletePurchase(row)" v-permission="'purchase:list-manage'">删除</el-button>
+                <el-button type="primary" link size="small" @click="handleEditPurchase(row)" v-permission="'purchase:edit'">编辑</el-button>
+                <el-button type="danger" link size="small" @click="handleDeletePurchase(row)" v-permission="'purchase:edit'">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -54,7 +54,7 @@
         <!-- ==================== 零星采购 ==================== -->
         <el-tab-pane label="零星采购" name="spot">
           <div style="margin-bottom: 12px">
-            <el-button type="primary" @click="handleAddSpot" v-permission="'purchase:spot-manage'">新建零星采购</el-button>
+            <el-button type="primary" @click="handleAddSpot" v-permission="'purchase:edit'">新建零星采购</el-button>
           </div>
           <el-table :data="spotData" v-loading="spotLoading" stripe border>
             <el-table-column prop="purchase_no" label="采购编号" width="140" />
@@ -75,8 +75,8 @@
             <el-table-column label="操作" width="220">
               <template #default="{ row }">
                 <el-button v-if="row.status === 'draft'" type="warning" link size="small" @click="handleSubmitApproval(row, 'spot_purchase')">提交审批</el-button>
-                <el-button type="primary" link size="small" @click="handleEditSpot(row)" v-permission="'purchase:spot-manage'">编辑</el-button>
-                <el-button type="danger" link size="small" @click="handleDeleteSpot(row)" v-permission="'purchase:spot-manage'">删除</el-button>
+                <el-button type="primary" link size="small" @click="handleEditSpot(row)" v-permission="'purchase:edit'">编辑</el-button>
+                <el-button type="danger" link size="small" @click="handleDeleteSpot(row)" v-permission="'purchase:edit'">删除</el-button>
               </template>
             </el-table-column>
           </el-table>

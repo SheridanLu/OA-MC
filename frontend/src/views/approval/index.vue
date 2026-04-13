@@ -590,16 +590,17 @@ const submitFlow = async () => {
   await flowFormRef.value.validate()
   const validNodes = flowForm.nodes.filter(n => n.nodeName && (n.approverType === 'dept_leader' || n.approverId))
   if (validNodes.length === 0) { ElMessage.warning('请至少配置一个完整的审批节点'); return }
-  const nodesWithOrder = validNodes.map((n, i) => ({
-    node_order: i + 1, node_name: n.nodeName,
-    approver_type: n.approverType, approver_id: n.approverType === 'dept_leader' ? null : n.approverId
-  }))
   const payload = {
     bizType: flowForm.bizType,
     flowName: flowForm.flowName,
     version: flowForm.version,
     status: flowForm.status,
-    nodesJson: JSON.stringify(nodesWithOrder)
+    nodesJson: JSON.stringify(validNodes.map((n, i) => ({
+      nodeOrder: i + 1,
+      nodeName: n.nodeName,
+      approverType: n.approverType,
+      approverId: n.approverType === 'dept_leader' ? null : n.approverId
+    })))
   }
   submitting.value = true
   try {
