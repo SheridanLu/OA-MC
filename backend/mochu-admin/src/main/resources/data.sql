@@ -1,48 +1,40 @@
 SET NAMES utf8mb4;
 
 -- ============================================================
--- 清空系统种子表，彻底修复乱码问题
--- （已有数据可能在错误字符集下写入，无法通过 UPDATE 修复）
+-- Safe idempotent seed: only insert if not exists
 -- ============================================================
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE sys_role_permission;
-TRUNCATE TABLE sys_user_role;
-TRUNCATE TABLE sys_permission;
-TRUNCATE TABLE sys_role;
-TRUNCATE TABLE sys_dept;
-DELETE FROM sys_user WHERE username = 'admin';
-SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
 -- Roles
 -- ============================================================
-INSERT INTO sys_role (role_code, role_name, data_scope, remark, status, deleted) VALUES
-('SUPER_ADMIN', '超级管理员', 1, '拥有所有权限', 1, 0),
-('PROJ_MGR', '项目经理', 3, '管理所属项目', 1, 0),
-('PURCHASE', '采购专员', 2, '采购管理', 1, 0),
-('FINANCE', '财务人员', 1, '财务管理', 1, 0),
-('HR', '人力资源', 1, '人事管理', 1, 0),
-('INVENTORY', '仓库管理员', 2, '库存管理', 1, 0),
-('BUDGET', '预算专员', 2, '预算审核', 1, 0),
-('VIEWER', '查看者', 4, '只读权限', 1, 0);
+INSERT IGNORE INTO sys_role (id, role_code, role_name, data_scope, remark, status, deleted) VALUES
+(1, 'SUPER_ADMIN', '超级管理员', 1, '拥有所有权限', 1, 0),
+(2, 'PROJ_MGR', '项目经理', 3, '管理所属项目', 1, 0),
+(3, 'PURCHASE', '采购专员', 2, '采购管理', 1, 0),
+(4, 'FINANCE', '财务人员', 1, '财务管理', 1, 0),
+(5, 'HR', '人力资源', 1, '人事管理', 1, 0),
+(6, 'INVENTORY', '仓库管理员', 2, '库存管理', 1, 0),
+(7, 'BUDGET', '预算专员', 2, '预算审核', 1, 0),
+(8, 'VIEWER', '查看者', 4, '只读权限', 1, 0),
+(9, 'LEGAL', '法务人员', 1, '合同法务审核', 1, 0);
 
 -- ============================================================
 -- Default department
 -- ============================================================
-INSERT INTO sys_dept (name, parent_id, level, path, sort, status, deleted)
-VALUES ('总公司', 0, 1, '/1', 1, 1, 0);
+INSERT IGNORE INTO sys_dept (id, name, parent_id, level, path, sort, status, deleted)
+VALUES (1, '总公司', 0, 1, '/1', 1, 1, 0);
 
 -- ============================================================
 -- Admin user (password: admin123 BCrypt hash)
 -- ============================================================
-INSERT INTO sys_user (username, real_name, phone, email, dept_id, position, password_hash, status, deleted)
+INSERT IGNORE INTO sys_user (username, real_name, phone, email, dept_id, position, password_hash, status, deleted)
 VALUES ('admin', '系统管理员', '13800000000', 'admin@mochu.com', 1, '系统管理员',
         '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', 1, 0);
 
 -- ============================================================
 -- Admin -> SUPER_ADMIN role binding
 -- ============================================================
-INSERT INTO sys_user_role (user_id, role_id)
+INSERT IGNORE INTO sys_user_role (user_id, role_id)
 SELECT u.id, r.id FROM sys_user u, sys_role r
 WHERE u.username = 'admin' AND r.role_code = 'SUPER_ADMIN';
 
@@ -51,7 +43,7 @@ WHERE u.username = 'admin' AND r.role_code = 'SUPER_ADMIN';
 -- ============================================================
 
 -- System (10)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('system:user-manage', '用户管理', 'system', 1),
 ('system:role-manage', '角色管理', 'system', 1),
 ('system:dept-manage', '部门管理', 'system', 1),
@@ -64,7 +56,7 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('system:tpl-manage', '合同模板管理', 'system', 1);
 
 -- Project (6)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('project:create', '项目创建', 'project', 1),
 ('project:view-all', '查看所有项目', 'project', 1),
 ('project:view-own', '查看本人项目', 'project', 1),
@@ -73,7 +65,7 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('project:suspend', '项目暂停/恢复', 'project', 1);
 
 -- Contract (6)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('contract:create', '合同创建', 'contract', 1),
 ('contract:view-all', '查看所有合同', 'contract', 1),
 ('contract:view-own', '查看本人合同', 'contract', 1),
@@ -82,21 +74,21 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('contract:terminate', '合同终止', 'contract', 1);
 
 -- Purchase (4)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('purchase:create', '采购单创建', 'purchase', 1),
 ('purchase:view', '采购单查看', 'purchase', 1),
 ('purchase:edit', '采购单编辑', 'purchase', 1),
 ('purchase:delete', '采购单删除', 'purchase', 1);
 
 -- Material (4)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('material:view', '物资查看', 'material', 1),
 ('material:edit', '物资编辑', 'material', 1),
 ('material:inbound', '入库操作', 'material', 1),
 ('material:outbound', '出库操作', 'material', 1);
 
 -- Inventory (6)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('inventory:inbound', '入库单管理', 'inventory', 1),
 ('inventory:outbound', '出库单管理', 'inventory', 1),
 ('inventory:return', '退库单管理', 'inventory', 1),
@@ -105,7 +97,7 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('inventory:check-approve', '盘点审批', 'inventory', 1);
 
 -- Finance (8)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('finance:statement-manage', '对账单管理', 'finance', 1),
 ('finance:payment-create', '付款申请创建', 'finance', 1),
 ('finance:payment-confirm', '付款确认', 'finance', 1),
@@ -116,7 +108,7 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('finance:cost-summary', '成本汇总查看', 'finance', 1);
 
 -- HR (8)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('hr:salary-manage', '薪资管理', 'hr', 1),
 ('hr:salary-config', '薪资配置', 'hr', 1),
 ('hr:contract-manage', '劳动合同管理', 'hr', 1),
@@ -127,71 +119,164 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('hr:asset-transfer', '资产交接', 'hr', 1);
 
 -- Progress (4)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('progress:gantt-manage', '甘特图管理', 'progress', 1),
 ('progress:milestone-manage', '里程碑管理', 'progress', 1),
 ('progress:change-manage', '变更单管理', 'progress', 1),
 ('progress:report', '进度汇报', 'progress', 1);
 
 -- Completion (4)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('completion:finish-manage', '完工验收管理', 'completion', 1),
 ('completion:labor-manage', '劳务结算管理', 'completion', 1),
 ('completion:drawing-manage', '竣工图纸管理', 'completion', 1),
 ('completion:doc-manage', '竣工资料管理', 'completion', 1);
 
 -- Approval (3)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('approval:flow-manage', '审批流程管理', 'approval', 1),
 ('approval:operate', '审批操作', 'approval', 1),
 ('approval:view', '审批查看', 'approval', 1);
 
 -- Report (2)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('report:view', '报表查看', 'report', 1),
 ('report:export', '报表导出', 'report', 1);
 
 -- Supplier (2)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('supplier:view', '供应商查看', 'supplier', 1),
 ('supplier:edit', '供应商编辑', 'supplier', 1);
 
 -- Infra (2)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('system:dict-manage', '字典管理', 'system', 1),
 ('infra:codegen', '代码生成', 'infra', 1);
 
 -- BPM (4)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('bpm:process-manage', '流程定义管理', 'bpm', 1),
 ('bpm:task-operate', '流程任务操作', 'bpm', 1),
 ('bpm:instance-view', '流程实例查看', 'bpm', 1),
 ('bpm:rule-manage', '流程规则管理', 'bpm', 1);
 
 -- ERP 增强 (3)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('supplier:rating', '供应商评价', 'supplier', 1),
 ('inventory:transfer', '库存调拨', 'inventory', 1),
 ('inventory:alert-manage', '库存预警管理', 'inventory', 1);
 
 -- Report 增强 (1)
-INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('report:template-manage', '报表模板管理', 'report', 1);
 
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)
 -- ============================================================
-INSERT INTO sys_role_permission (role_id, permission_id)
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
 SELECT r.id, p.id FROM sys_role r, sys_permission p
 WHERE r.role_code = 'SUPER_ADMIN';
+
+-- PROJ_MGR permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 2, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'project:create', 'project:view-own', 'project:edit',
+  'contract:view-own', 'contract:edit',
+  'purchase:view',
+  'material:view', 'material:outbound',
+  'inventory:outbound', 'inventory:return', 'inventory:stock-view',
+  'finance:payment-create', 'finance:statement-manage', 'finance:reimburse-manage',
+  'progress:gantt-manage', 'progress:milestone-manage', 'progress:change-manage', 'progress:report',
+  'completion:finish-manage', 'completion:labor-manage', 'completion:drawing-manage', 'completion:doc-manage',
+  'approval:operate', 'approval:view'
+);
+
+-- PURCHASE permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 3, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'project:create', 'project:view-all',
+  'contract:create', 'contract:view-all', 'contract:edit',
+  'purchase:create', 'purchase:view', 'purchase:edit', 'purchase:delete',
+  'material:view', 'material:edit', 'material:inbound',
+  'inventory:inbound', 'inventory:stock-view',
+  'supplier:view', 'supplier:edit',
+  'system:tpl-manage',
+  'approval:operate', 'approval:view'
+);
+
+-- FINANCE permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 4, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'project:view-all',
+  'contract:view-all',
+  'purchase:view',
+  'material:view',
+  'inventory:inbound', 'inventory:outbound', 'inventory:return', 'inventory:stock-view',
+  'inventory:check', 'inventory:check-approve',
+  'finance:statement-manage', 'finance:payment-create', 'finance:payment-confirm',
+  'finance:invoice-manage', 'finance:reimburse-manage', 'finance:receipt-create',
+  'finance:cost-view', 'finance:cost-summary',
+  'hr:salary-manage', 'hr:salary-config',
+  'report:view', 'report:export',
+  'approval:operate', 'approval:view'
+);
+
+-- HR permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 5, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'hr:salary-manage', 'hr:salary-config', 'hr:contract-manage', 'hr:certificate-manage',
+  'hr:entry-manage', 'hr:resign-manage', 'hr:social-insurance', 'hr:asset-transfer',
+  'system:user-manage', 'system:announcement-manage',
+  'approval:operate', 'approval:view'
+);
+
+-- INVENTORY permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 6, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'material:view', 'material:edit', 'material:inbound', 'material:outbound',
+  'inventory:inbound', 'inventory:outbound', 'inventory:return', 'inventory:stock-view',
+  'inventory:check', 'inventory:check-approve', 'inventory:transfer', 'inventory:alert-manage',
+  'approval:operate', 'approval:view'
+);
+
+-- BUDGET permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 7, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'project:view-all',
+  'contract:view-all',
+  'purchase:create', 'purchase:view', 'purchase:edit',
+  'material:view',
+  'inventory:stock-view',
+  'finance:cost-view', 'finance:cost-summary',
+  'progress:gantt-manage', 'progress:change-manage',
+  'report:view', 'report:export',
+  'approval:operate', 'approval:view'
+);
+
+-- VIEWER permissions (read-only)
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 8, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'project:view-own',
+  'contract:view-own',
+  'purchase:view',
+  'material:view',
+  'inventory:stock-view',
+  'report:view',
+  'approval:view'
+);
+
+-- LEGAL permissions
+INSERT IGNORE INTO sys_role_permission (role_id, permission_id)
+SELECT 9, p.id FROM sys_permission p WHERE p.perm_code IN (
+  'contract:view-all', 'contract:edit',
+  'system:tpl-manage',
+  'approval:operate', 'approval:view'
+);
 
 -- ============================================================
 -- 字典类型种子数据
 -- ============================================================
-TRUNCATE TABLE sys_dict_data;
-TRUNCATE TABLE sys_dict_type;
-
-INSERT INTO sys_dict_type (dict_type, dict_name, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_type (dict_type, dict_name, status, deleted) VALUES
 ('biz_status', '业务状态', 1, 0),
 ('contract_type', '合同类型', 1, 0),
 ('change_type', '变更类型', 1, 0),
@@ -213,7 +298,7 @@ INSERT INTO sys_dict_type (dict_type, dict_name, status, deleted) VALUES
 -- ============================================================
 
 -- biz_status (19)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('biz_status', '草稿', 'draft', 1, 'info', '#909399', 1, 0),
 ('biz_status', '待审批', 'pending', 2, 'warning', '#e6a23c', 1, 0),
 ('biz_status', '已审批', 'approved', 3, 'success', '#67c23a', 1, 0),
@@ -235,7 +320,7 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('biz_status', '未付款', 'unpaid', 19, 'warning', '#e6a23c', 1, 0);
 
 -- contract_type (7)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('contract_type', '收入合同', 'income', 1, '', NULL, 1, 0),
 ('contract_type', '支出合同', 'expense', 2, '', NULL, 1, 0),
 ('contract_type', '劳务合同', 'labor', 3, '', NULL, 1, 0),
@@ -245,14 +330,14 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('contract_type', '其他合同', 'other', 7, '', NULL, 1, 0);
 
 -- change_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('change_type', '设计变更', 'design', 1, '', NULL, 1, 0),
 ('change_type', '工程变更', 'engineering', 2, '', NULL, 1, 0),
 ('change_type', '签证变更', 'visa', 3, '', NULL, 1, 0),
 ('change_type', '其他变更', 'other', 4, '', NULL, 1, 0);
 
 -- material_category (9)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('material_category', '钢材', 'steel', 1, '', NULL, 1, 0),
 ('material_category', '水泥', 'cement', 2, '', NULL, 1, 0),
 ('material_category', '砂石', 'sand', 3, '', NULL, 1, 0),
@@ -264,7 +349,7 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('material_category', '其他', 'other', 9, '', NULL, 1, 0);
 
 -- payment_type (5)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('payment_type', '预付款', 'advance', 1, '', NULL, 1, 0),
 ('payment_type', '进度款', 'progress', 2, '', NULL, 1, 0),
 ('payment_type', '结算款', 'final', 3, '', NULL, 1, 0),
@@ -272,34 +357,34 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('payment_type', '其他', 'other', 5, '', NULL, 1, 0);
 
 -- invoice_type (3)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('invoice_type', '增值税专用发票', 'special', 1, '', NULL, 1, 0),
 ('invoice_type', '增值税普通发票', 'ordinary', 2, '', NULL, 1, 0),
 ('invoice_type', '收据', 'receipt', 3, '', NULL, 1, 0);
 
 -- reimburse_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('reimburse_type', '差旅费', 'travel', 1, '', NULL, 1, 0),
 ('reimburse_type', '办公费', 'office', 2, '', NULL, 1, 0),
 ('reimburse_type', '材料费', 'material', 3, '', NULL, 1, 0),
 ('reimburse_type', '其他', 'other', 4, '', NULL, 1, 0);
 
 -- outbound_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('outbound_type', '施工领用', 'construction', 1, '', NULL, 1, 0),
 ('outbound_type', '调拨出库', 'transfer', 2, '', NULL, 1, 0),
 ('outbound_type', '报废出库', 'scrap', 3, '', NULL, 1, 0),
 ('outbound_type', '其他', 'other', 4, '', NULL, 1, 0);
 
 -- cert_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('cert_type', '安全证书', 'safety', 1, '', NULL, 1, 0),
 ('cert_type', '资质证书', 'qualification', 2, '', NULL, 1, 0),
 ('cert_type', '技能证书', 'skill', 3, '', NULL, 1, 0),
 ('cert_type', '特种作业证', 'special', 4, '', NULL, 1, 0);
 
 -- education_level (5)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('education_level', '高中/中专', 'high_school', 1, '', NULL, 1, 0),
 ('education_level', '大专', 'associate', 2, '', NULL, 1, 0),
 ('education_level', '本科', 'bachelor', 3, '', NULL, 1, 0),
@@ -307,34 +392,34 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('education_level', '博士', 'doctor', 5, '', NULL, 1, 0);
 
 -- hr_contract_type (3)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('hr_contract_type', '固定期限', 'fixed', 1, '', NULL, 1, 0),
 ('hr_contract_type', '无固定期限', 'unfixed', 2, '', NULL, 1, 0),
 ('hr_contract_type', '以完成工作任务为期限', 'task', 3, '', NULL, 1, 0);
 
 -- resign_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('resign_type', '主动离职', 'voluntary', 1, '', NULL, 1, 0),
 ('resign_type', '辞退', 'involuntary', 2, '', NULL, 1, 0),
 ('resign_type', '退休', 'retirement', 3, '', NULL, 1, 0),
 ('resign_type', '合同到期', 'expiry', 4, '', NULL, 1, 0);
 
 -- exception_biz_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('exception_biz_type', '质量问题', 'quality', 1, '', NULL, 1, 0),
 ('exception_biz_type', '安全问题', 'safety', 2, '', NULL, 1, 0),
 ('exception_biz_type', '进度问题', 'progress', 3, '', NULL, 1, 0),
 ('exception_biz_type', '成本问题', 'cost', 4, '', NULL, 1, 0);
 
 -- case_type (4)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('case_type', '质量案例', 'quality', 1, '', NULL, 1, 0),
 ('case_type', '安全案例', 'safety', 2, '', NULL, 1, 0),
 ('case_type', '纠纷案例', 'dispute', 3, '', NULL, 1, 0),
 ('case_type', '其他案例', 'other', 4, '', NULL, 1, 0);
 
 -- tax_rate (6)
-INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
+INSERT IGNORE INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES
 ('tax_rate', '0%', '0', 1, '', NULL, 1, 0),
 ('tax_rate', '1%', '1', 2, '', NULL, 1, 0),
 ('tax_rate', '3%', '3', 3, '', NULL, 1, 0),
@@ -361,13 +446,13 @@ INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, statu
 -- 4.2 合同(常规): 采购员→财务→法务→总经理
 INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
 ('contract', '常规合同审批',
- '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"法务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":3,"node_name":"法务审核","approver_type":"role","approver_id":9},{"node_order":4,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
  NULL, 1, 1, NULL, 0);
 
 -- 4.3 合同(支出超量): 采购员→预算员→财务→法务→总经理
 INSERT INTO sys_flow_def (biz_type, flow_name, nodes_json, condition_json, status, version, creator_id, deleted) VALUES
 ('contract', '支出合同超量审批',
- '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"法务审核","approver_type":"role","approver_id":4},{"node_order":5,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
+ '[{"node_order":1,"node_name":"采购员审核","approver_type":"role","approver_id":3},{"node_order":2,"node_name":"预算员审核","approver_type":"role","approver_id":7},{"node_order":3,"node_name":"财务审核","approver_type":"role","approver_id":4},{"node_order":4,"node_name":"法务审核","approver_type":"role","approver_id":9},{"node_order":5,"node_name":"总经理审批","approver_type":"role","approver_id":1}]',
  '{"field":"contract_type","op":"eq","value":"expense","and":{"field":"over_budget","op":"eq","value":true}}',
  1, 2, NULL, 0);
 

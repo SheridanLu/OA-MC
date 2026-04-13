@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 审批提交事件监听器 — 提交审批后将业务单据状态改为 pending
@@ -34,6 +35,7 @@ public class ApprovalSubmittedListener {
     private final BizSalaryMapper salaryMapper;
 
     @EventListener
+    @Transactional
     public void onApprovalSubmitted(ApprovalSubmittedEvent event) {
         String bizType = event.getBizType();
         Integer bizId = event.getBizId();

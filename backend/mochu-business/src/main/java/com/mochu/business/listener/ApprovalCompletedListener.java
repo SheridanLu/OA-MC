@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 审批完成事件监听器 — 审批通过/驳回后回写业务单据状态
@@ -32,14 +33,24 @@ public class ApprovalCompletedListener {
     private final BizCompletionFinishMapper completionFinishMapper;
     private final BizLaborSettlementMapper laborSettlementMapper;
     private final BizSalaryMapper salaryMapper;
+    private final SysContractTplVersionMapper contractTplVersionMapper;
 
     @EventListener
+    @Transactional
     public void onApprovalCompleted(ApprovalCompletedEvent event) {
         String bizType = event.getBizType();
         Integer bizId = event.getBizId();
         String finalStatus = event.getFinalStatus(); // "approved" or "rejected"
 
-        String targetStatus = "approved".equals(finalStatus) ? resolveApprovedStatus(bizType) : resolveDraftStatus(bizType);
+        String targetStatus;
+        if ("approved".equals(finalStatus)) {
+            targetStatus = resolveApprovedStatus(bizType);
+        } else if ("rejected".equals(finalStatus)) {
+            targetStatus = "rejected";
+        } else {
+            // cancelled or other → revert to draft
+            targetStatus = "draft";
+        }
 
         log.info("审批完成回调: bizType={}, bizId={}, finalStatus={}, targetStatus={}", bizType, bizId, finalStatus, targetStatus);
 
@@ -156,6 +167,13 @@ public class ApprovalCompletedListener {
                     salaryMapper.updateById(sal);
                 }
             }
+            case "contract_tpl" -> {
+                SysContractTplVersion version = contractTplVersionMapper.selectById(bizId);
+                if (version != null) {
+                    version.setStatus(resolveContractTplStatus(finalStatus));
+                    contractTplVersionMapper.updateById(version);
+                }
+            }
             default -> log.warn("未知的业务类型: {}", bizType);
         }
     }
@@ -170,10 +188,12 @@ public class ApprovalCompletedListener {
         };
     }
 
-    /**
-     * 审批驳回后的目标状态
-     */
-    private String resolveDraftStatus(String bizType) {
-        return "draft";
+    private Integer resolveContractTplStatus(String finalStatus) {
+        return switch (finalStatus) {
+            case "approved" -> 1;
+            default -> 0;
+        };
     }
+
+    // resolveDraftStatus removed — rejection/cancellation logic now handled inline in onApprovalCompleted
 }

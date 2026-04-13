@@ -5,6 +5,7 @@ import com.mochu.common.result.R;
 import com.mochu.system.service.TodoService;
 import com.mochu.system.vo.TodoVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,6 +22,7 @@ public class TodoController {
      * 我的待办列表 — GET /api/v1/todos
      */
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public R<PageResult<TodoVO>> list(
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) Integer page,
@@ -32,6 +34,7 @@ public class TodoController {
      * 待办数量 — GET /api/v1/todos/count
      */
     @GetMapping("/count")
+    @PreAuthorize("isAuthenticated()")
     public R<Long> count() {
         return R.ok(todoService.countPending());
     }
@@ -40,6 +43,7 @@ public class TodoController {
      * 标记已处理 — PATCH /api/v1/todos/{id}/done
      */
     @PatchMapping("/{id}/done")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> markDone(@PathVariable Integer id) {
         todoService.markDone(id);
         return R.ok();

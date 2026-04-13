@@ -18,7 +18,7 @@ public class ContactController {
     private final ContactService contactService;
 
     @GetMapping("/external")
-    @PreAuthorize("hasAuthority('system:user-manage')")
+    @PreAuthorize("hasAuthority('supplier:view')")
     public R<PageResult<BizExternalContact>> listExternal(
             @RequestParam(required = false) String contactType,
             @RequestParam(required = false) String keyword,
@@ -28,7 +28,7 @@ public class ContactController {
     }
 
     @GetMapping("/external/{id}")
-    @PreAuthorize("hasAuthority('system:user-manage')")
+    @PreAuthorize("hasAuthority('supplier:view')")
     public R<BizExternalContact> getExternalById(@PathVariable Integer id) {
         BizExternalContact contact = contactService.getExternalById(id);
         if (contact == null) return R.fail(404, "联系人不存在");
@@ -36,21 +36,21 @@ public class ContactController {
     }
 
     @PostMapping("/external")
-    @PreAuthorize("hasAuthority('system:user-manage')")
+    @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> createExternal(@Valid @RequestBody ExternalContactDTO dto) {
         contactService.createExternal(dto);
         return R.ok();
     }
 
     @PutMapping("/external/{id}")
-    @PreAuthorize("hasAuthority('system:user-manage')")
+    @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> updateExternal(@PathVariable Integer id, @Valid @RequestBody ExternalContactDTO dto) {
         contactService.updateExternal(id, dto);
         return R.ok();
     }
 
     @DeleteMapping("/external/{id}")
-    @PreAuthorize("hasAuthority('system:user-manage')")
+    @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> deleteExternal(@PathVariable Integer id) {
         contactService.deleteExternal(id);
         return R.ok();

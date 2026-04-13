@@ -111,7 +111,7 @@ public class InventoryEnhanceService {
         }
 
         BizInventoryTransfer transfer = new BizInventoryTransfer();
-        transfer.setTransferNo(noGeneratorService.generateNo("TR"));
+        transfer.setTransferNo(noGeneratorService.generate("TR"));
         transfer.setFromProjectId(dto.getFromProjectId());
         transfer.setToProjectId(dto.getToProjectId());
         transfer.setMaterialId(dto.getMaterialId());

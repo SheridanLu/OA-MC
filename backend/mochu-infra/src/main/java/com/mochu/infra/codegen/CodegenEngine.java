@@ -31,7 +31,7 @@ public class CodegenEngine {
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
         velocityEngine.setProperty(RuntimeConstants.INPUT_ENCODING, "UTF-8");
-        velocityEngine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
+        velocityEngine.setProperty("output.encoding", "UTF-8");
         velocityEngine.init();
     }
 

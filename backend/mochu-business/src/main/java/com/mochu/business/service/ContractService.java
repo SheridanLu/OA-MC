@@ -166,9 +166,10 @@ public class ContractService {
                 bizContext.put("contract_type", dto.getContractType());
                 approvalService.submitForApproval("contract", entity.getId(), initiatorId, bizContext);
             } catch (Exception e) {
-                log.warn("合同审批提交失败，保存为草稿: {}", e.getMessage());
+                log.error("合同审批提交失败，合同ID={}: {}", entity.getId(), e.getMessage(), e);
                 entity.setStatus("draft");
                 contractMapper.updateById(entity);
+                throw new BusinessException("合同创建成功但审批提交失败，已保存为草稿: " + e.getMessage());
             }
         }
     }

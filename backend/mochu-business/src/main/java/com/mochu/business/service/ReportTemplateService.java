@@ -245,7 +245,7 @@ public class ReportTemplateService {
         if (!upper.startsWith("SELECT")) throw new BusinessException("只允许 SELECT 查询语句");
         // 禁止危险关键词（使用单词边界避免误伤列名如 UPDATED_AT）
         for (String keyword : List.of("DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER",
-                "CREATE", "CALL", "EXEC", "GRANT", "REVOKE", "OUTFILE", "DUMPFILE", "LOAD_FILE")) {
+                "CREATE", "CALL", "EXEC", "GRANT", "REVOKE", "UNION", "INTO OUTFILE", "INTO DUMPFILE", "LOAD_FILE")) {
             if (upper.matches(".*\\b" + keyword + "\\b.*")) throw new BusinessException("SQL 中包含禁止的操作: " + keyword);
         }
     }

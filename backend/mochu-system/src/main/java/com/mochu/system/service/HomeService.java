@@ -1,7 +1,10 @@
 package com.mochu.system.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.system.entity.SysTodo;
+import com.mochu.system.mapper.SysTodoMapper;
 import com.mochu.system.vo.AnnouncementVO;
 import com.mochu.system.vo.HomeVO;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +30,7 @@ public class HomeService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final AnnouncementService announcementService;
+    private final SysTodoMapper sysTodoMapper;
 
     /**
      * 获取首页数据
@@ -72,11 +77,29 @@ public class HomeService {
 
     /**
      * 待办列表 — V3.2 §5.9.2
-     * 业务模块完成后关联 biz_approval_instance 查询
+     * 查询当前用户未处理的待办，按创建时间倒序，最多20条
      */
     public List<Map<String, Object>> getTodoList() {
-        // TODO: 关联 biz_approval_instance 查询当前用户待审批的记录
-        return new ArrayList<>();
+        Integer userId = SecurityUtils.getCurrentUserId();
+        LambdaQueryWrapper<SysTodo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysTodo::getUserId, userId)
+               .eq(SysTodo::getStatus, 0)
+               .orderByDesc(SysTodo::getCreatedAt)
+               .last("LIMIT 20");
+        List<SysTodo> todos = sysTodoMapper.selectList(wrapper);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (SysTodo todo : todos) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", todo.getId());
+            item.put("bizType", todo.getBizType());
+            item.put("bizId", todo.getBizId());
+            item.put("title", todo.getTitle());
+            item.put("content", todo.getContent());
+            item.put("createdAt", todo.getCreatedAt());
+            result.add(item);
+        }
+        return result;
     }
 
     /**

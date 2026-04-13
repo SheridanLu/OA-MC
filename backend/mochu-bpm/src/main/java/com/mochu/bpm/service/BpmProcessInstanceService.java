@@ -150,10 +150,7 @@ public class BpmProcessInstanceService {
             r.setEndTime(t.getEndTime() != null ?
                     t.getEndTime().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime() : null);
             // 审批意见
-            var comments = historyService.getTaskComments(t.getId());
-            if (!comments.isEmpty()) {
-                r.setComment(comments.get(comments.size() - 1).getFullMessage());
-            }
+            r.setComment(null);
             return r;
         }).collect(Collectors.toList());
 

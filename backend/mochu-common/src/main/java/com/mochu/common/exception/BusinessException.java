@@ -1,11 +1,8 @@
 package com.mochu.common.exception;
 
-import lombok.Getter;
-
 /**
  * 业务异常 — 携带 HTTP 状态码
  */
-@Getter
 public class BusinessException extends RuntimeException {
 
     private final int code;
@@ -17,5 +14,9 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(String message) {
         this(400, message);
+    }
+
+    public int getCode() {
+        return code;
     }
 }

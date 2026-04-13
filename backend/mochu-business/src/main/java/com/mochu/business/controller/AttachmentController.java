@@ -23,7 +23,7 @@ public class AttachmentController {
     private final AttachmentService attachmentService;
 
     @PostMapping("/upload")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('doc:upload')")
     public R<BizAttachment> upload(@RequestParam("file") MultipartFile file,
                                     @RequestParam String bizType,
                                     @RequestParam Integer bizId) throws Exception {
@@ -55,7 +55,7 @@ public class AttachmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('doc:upload')")
     public R<Void> delete(@PathVariable Integer id) throws Exception {
         attachmentService.delete(id);
         return R.ok();
