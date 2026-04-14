@@ -2,6 +2,7 @@ package com.mochu.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mochu.business.dto.IncomeSplitItemDTO;
 import com.mochu.business.dto.InvoiceDTO;
 import com.mochu.business.dto.PaymentApplyDTO;
 import com.mochu.business.dto.ReceiptDTO;
@@ -10,9 +11,11 @@ import com.mochu.business.dto.StatementDTO;
 import com.mochu.business.entity.*;
 import com.mochu.business.mapper.*;
 import com.mochu.common.constant.Constants;
+import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 /**
  * 财务管理服务 — 对账单 / 付款申请 / 发票 / 报销 / 成本台账 / 收款
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FinanceService {
@@ -34,7 +38,11 @@ public class FinanceService {
     private final BizReimburseMapper reimburseMapper;
     private final BizCostLedgerMapper costLedgerMapper;
     private final BizReceiptMapper receiptMapper;
+    private final BizContractMapper contractMapper;
+    private final BizIncomeSplitMapper incomeSplitMapper;
+    private final BizIncomeSplitItemMapper incomeSplitItemMapper;
     private final NoGeneratorService noGeneratorService;
+    private final ApprovalService approvalService;
 
     // ====================== 对账单 ======================
 
@@ -383,5 +391,145 @@ public class FinanceService {
                 .collect(Collectors.groupingBy(
                         BizCostLedger::getCostType,
                         Collectors.reducing(BigDecimal.ZERO, BizCostLedger::getAmount, BigDecimal::add)));
+    }
+
+    // ====================== P6: 收入合同拆分校验 ======================
+
+    /**
+     * P6 §4.12: 收入拆分校验 — 所有任务金额之和 = 收入合同含税金额
+     */
+    public void createIncomeSplit(Integer contractId, List<IncomeSplitItemDTO> items,
+                                   Integer userId) {
+        BizContract contract = contractMapper.selectById(contractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+
+        BigDecimal totalSplit = items.stream()
+                .map(IncomeSplitItemDTO::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalSplit.compareTo(contract.getAmountWithTax()) != 0) {
+            throw new BusinessException("拆分金额之和必须等于合同含税金额("
+                    + contract.getAmountWithTax() + ")");
+        }
+
+        // 创建拆分主记录
+        BizIncomeSplit split = new BizIncomeSplit();
+        split.setContractId(contractId);
+        split.setProjectId(contract.getProjectId());
+        split.setAmount(totalSplit);
+        split.setStatus("draft");
+        split.setCreatorId(userId);
+        incomeSplitMapper.insert(split);
+
+        // 保存拆分明细
+        for (IncomeSplitItemDTO item : items) {
+            BizIncomeSplitItem splitItem = new BizIncomeSplitItem();
+            splitItem.setSplitId(split.getId());
+            splitItem.setTaskName(item.getTaskName());
+            splitItem.setAmount(item.getAmount());
+            splitItem.setRemark(item.getRemark());
+            incomeSplitItemMapper.insert(splitItem);
+        }
+    }
+
+    // ====================== P6: 付款编号按类型 ======================
+
+    /**
+     * P6 §4.12: 创建付款申请 — 按类型使用不同编号前缀
+     * 人工费: PA / 材料款: MP
+     */
+    public void createPaymentWithTypeNo(PaymentApplyDTO dto, Integer userId) {
+        // 根据付款类型使用不同编号
+        String prefix;
+        switch (dto.getPaymentType() != null ? dto.getPaymentType() : "labor") {
+            case "material":
+                prefix = "MP"; // 材料款
+                break;
+            case "labor":
+            default:
+                prefix = "PA"; // 人工费
+                break;
+        }
+        String paymentNo = noGeneratorService.generate(prefix);
+
+        // 人工费付款必须关联已审批对账单 (40002)
+        if ("labor".equals(dto.getPaymentType())) {
+            if (dto.getStatementId() == null) {
+                throw new BusinessException(ErrorCode.NO_STATEMENT_TO_LINK.getCode(),
+                        ErrorCode.NO_STATEMENT_TO_LINK.getMessage());
+            }
+            BizStatement stmt = statementMapper.selectById(dto.getStatementId());
+            if (stmt == null || !"approved".equals(stmt.getStatus())) {
+                throw new BusinessException(ErrorCode.NO_STATEMENT_TO_LINK.getCode(),
+                        ErrorCode.NO_STATEMENT_TO_LINK.getMessage());
+            }
+        }
+
+        // 付款金额 ≤ 合同可付余额 (40001)
+        if (dto.getContractId() != null) {
+            BizContract contract = contractMapper.selectById(dto.getContractId());
+            if (contract != null && contract.getAmountWithTax() != null) {
+                BigDecimal paid = getPaidAmount(dto.getContractId());
+                BigDecimal remaining = contract.getAmountWithTax().subtract(paid);
+                if (dto.getAmount() != null && dto.getAmount().compareTo(remaining) > 0) {
+                    throw new BusinessException(ErrorCode.PAYMENT_EXCEED_BALANCE.getCode(),
+                            ErrorCode.PAYMENT_EXCEED_BALANCE.getMessage());
+                }
+            }
+        }
+
+        // 创建付款申请
+        BizPaymentApply apply = new BizPaymentApply();
+        BeanUtils.copyProperties(dto, apply);
+        apply.setPaymentNo(paymentNo);
+        apply.setStatus("draft");
+        apply.setCreatorId(userId);
+        paymentApplyMapper.insert(apply);
+    }
+
+    /**
+     * 获取合同已付金额
+     */
+    private BigDecimal getPaidAmount(Integer contractId) {
+        List<BizPaymentApply> payments = paymentApplyMapper.selectList(
+                new LambdaQueryWrapper<BizPaymentApply>()
+                        .eq(BizPaymentApply::getContractId, contractId)
+                        .in(BizPaymentApply::getStatus, "approved", "paid")
+                        .eq(BizPaymentApply::getDeleted, 0));
+        return payments.stream()
+                .map(BizPaymentApply::getAmount)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    // ====================== P6: 收款登记（无需审批）======================
+
+    /**
+     * P6 §4.12: 收款登记 — FINANCE 录入，无需审批
+     */
+    public void createReceiptConfirmed(ReceiptDTO dto, Integer userId) {
+        BizReceipt receipt = new BizReceipt();
+        BeanUtils.copyProperties(dto, receipt);
+        receipt.setReceiptNo(noGeneratorService.generate("SK"));
+        receipt.setStatus("confirmed"); // 直接确认，无审批流程
+        receipt.setCreatorId(userId);
+        receiptMapper.insert(receipt);
+    }
+
+    // ====================== P6: 日常报销 ======================
+
+    /**
+     * P6 §4.12: 日常报销 — 审批：员工→直接主管→财务审批→财务付款确认
+     */
+    public void createReimburseWithApproval(ReimburseDTO dto, Integer userId) {
+        BizReimburse reimburse = new BizReimburse();
+        BeanUtils.copyProperties(dto, reimburse);
+        reimburse.setReimburseNo(noGeneratorService.generate("BX"));
+        reimburse.setStatus("draft");
+        reimburse.setCreatorId(userId);
+        reimburseMapper.insert(reimburse);
+
+        // 提交审批
+        approvalService.submitForApproval("reimburse", reimburse.getId(), userId);
     }
 }

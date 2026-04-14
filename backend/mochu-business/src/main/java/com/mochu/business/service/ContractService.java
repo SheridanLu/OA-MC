@@ -13,10 +13,13 @@ import com.mochu.business.entity.SysContractTplVersion;
 import com.mochu.business.enums.ContractTypeEnum;
 import com.mochu.business.mapper.BizContractFieldValueMapper;
 import com.mochu.business.mapper.BizContractMapper;
+import com.mochu.business.mapper.BizInboundOrderMapper;
 import com.mochu.business.mapper.BizInvoiceMapper;
 import com.mochu.business.mapper.BizPaymentApplyMapper;
 import com.mochu.business.mapper.BizPurchaseListMapper;
+import com.mochu.business.dto.ContractMaterialDTO;
 import com.mochu.common.constant.Constants;
+import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +43,13 @@ public class ContractService {
     private final BizContractFieldValueMapper fieldValueMapper;
     private final BizPaymentApplyMapper paymentApplyMapper;
     private final BizInvoiceMapper invoiceMapper;
+    private final BizInboundOrderMapper inboundOrderMapper;
     private final BizPurchaseListMapper purchaseListMapper;
     private final NoGeneratorService noGeneratorService;
     private final ContractTplService tplService;
     private final ApprovalService approvalService;
     private final ContractVersionService contractVersionService;
+    private final ContractCheckService contractCheckService;
 
     public PageResult<BizContract> list(String contractName, String contractType, String status,
                                          Integer projectId, Integer page, Integer size) {
@@ -365,6 +370,95 @@ public class ContractService {
             result.put("excessAmount", purchaseTotal.subtract(contractAmount));
         }
         return result;
+    }
+
+    // ===================== P6: 合同终止前置校验 =====================
+
+    /**
+     * P6 §4.6: 终止合同 — 增加前置校验（20004待付款/20005待入库）
+     */
+    @Transactional
+    public void terminateContractWithCheck(Integer contractId, String reason, Integer userId) {
+        BizContract contract = contractMapper.selectById(contractId);
+        if (contract == null) throw new BusinessException("合同不存在");
+        if (!"approved".equals(contract.getStatus()) && !"executing".equals(contract.getStatus())) {
+            throw new BusinessException("仅已审批或执行中的合同可以终止");
+        }
+
+        // 校验1: 无pending付款申请 (20004)
+        long pendingPayments = paymentApplyMapper.selectCount(
+                new LambdaQueryWrapper<BizPaymentApply>()
+                        .eq(BizPaymentApply::getContractId, contractId)
+                        .eq(BizPaymentApply::getStatus, "pending")
+                        .eq(BizPaymentApply::getDeleted, 0));
+        if (pendingPayments > 0) {
+            throw new BusinessException(ErrorCode.PENDING_PAYMENT_EXISTS.getCode(),
+                    ErrorCode.PENDING_PAYMENT_EXISTS.getMessage());
+        }
+
+        // 校验2: 无未完成入库单 (20005)
+        long pendingInbounds = inboundOrderMapper.selectCount(
+                new LambdaQueryWrapper<BizInboundOrder>()
+                        .eq(BizInboundOrder::getContractId, contractId)
+                        .ne(BizInboundOrder::getStatus, "completed")
+                        .ne(BizInboundOrder::getStatus, "cancelled")
+                        .eq(BizInboundOrder::getDeleted, 0));
+        if (pendingInbounds > 0) {
+            throw new BusinessException(ErrorCode.PENDING_INBOUND_EXISTS.getCode(),
+                    ErrorCode.PENDING_INBOUND_EXISTS.getMessage());
+        }
+
+        // 生成版本快照
+        contractVersionService.createSnapshot(contract, "terminate", "合同终止", userId);
+
+        // 终止
+        contract.setStatus("terminated");
+        contract.setTerminateReason(reason);
+        contract.setTerminateTime(LocalDateTime.now());
+        contract.setTerminatorId(userId);
+        contractMapper.updateById(contract);
+    }
+
+    // ===================== P6: 支出合同超量/超价校验集成 =====================
+
+    /**
+     * P6 §4.6: 创建支出合同 — 集成超量/超价校验
+     * 根据校验结果决定审批流程
+     */
+    @Transactional
+    public void createExpenseContract(ContractDTO dto, List<ContractMaterialDTO> materials,
+                                       Integer initiatorId) {
+        // 超量校验
+        boolean overQty = contractCheckService.checkOverQuantity(
+                dto.getProjectId(), materials);
+        // 超价校验
+        boolean overPrice = contractCheckService.checkOverPrice(materials);
+
+        // 创建合同
+        BizContract entity = new BizContract();
+        BeanUtils.copyProperties(dto, entity, "fieldValues");
+        entity.setContractNo(noGeneratorService.generate("EC", 2)); // 支出合同 EC+日期+2位
+        entity.setCreatorId(initiatorId);
+        entity.setStatus("pending");
+        contractMapper.insert(entity);
+
+        // 根据校验结果决定审批流程
+        if (overQty) {
+            // 动态插入预算员审批节点（20002）
+            Map<String, Object> context = new HashMap<>();
+            context.put("overQuantity", true);
+            approvalService.submitForApproval("expense_contract",
+                    entity.getId(), initiatorId, context);
+        } else if (overPrice) {
+            // 触发总经理审批（20003）
+            Map<String, Object> context = new HashMap<>();
+            context.put("overPrice", true);
+            approvalService.submitForApproval("expense_contract",
+                    entity.getId(), initiatorId, context);
+        } else {
+            approvalService.submitForApproval("expense_contract",
+                    entity.getId(), initiatorId);
+        }
     }
 
     // ===================== 字段值校验 =====================

@@ -7,9 +7,11 @@ import com.mochu.business.dto.InventoryCheckDTO;
 import com.mochu.business.dto.OutboundOrderDTO;
 import com.mochu.business.dto.ReturnOrderDTO;
 import com.mochu.business.entity.BizInboundOrder;
+import com.mochu.business.entity.BizInboundOrderItem;
 import com.mochu.business.entity.BizInventory;
 import com.mochu.business.entity.BizInventoryCheck;
 import com.mochu.business.entity.BizOutboundOrder;
+import com.mochu.business.entity.BizOutboundOrderItem;
 import com.mochu.business.entity.BizReturnOrder;
 import com.mochu.business.mapper.BizInboundOrderMapper;
 import com.mochu.business.mapper.BizInventoryCheckMapper;
@@ -17,15 +19,25 @@ import com.mochu.business.mapper.BizInventoryMapper;
 import com.mochu.business.mapper.BizOutboundOrderMapper;
 import com.mochu.business.mapper.BizReturnOrderMapper;
 import com.mochu.common.constant.Constants;
+import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 库存管理服务 — 入库/出库/退库/盘点/库存
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
@@ -36,6 +48,8 @@ public class InventoryService {
     private final BizInventoryCheckMapper checkMapper;
     private final BizInventoryMapper inventoryMapper;
     private final NoGeneratorService noGeneratorService;
+    private final InventoryRecordService inventoryRecordService;
+    private final ApprovalService approvalService;
 
     // ======================== 入库单 ========================
 
@@ -282,5 +296,139 @@ public class InventoryService {
 
     public BizInventory getStockById(Integer id) {
         return inventoryMapper.selectById(id);
+    }
+
+    // ======================== P6: 加权平均法入库 ========================
+
+    /**
+     * P6 §4.9: 入库时更新加权平均单价
+     * 新均价 = (当前库存金额 + 本次入库金额) / (当前库存数量 + 本次入库数量)
+     */
+    @Transactional
+    public void processInbound(BizInboundOrder inbound, List<BizInboundOrderItem> items) {
+        for (BizInboundOrderItem item : items) {
+            // 入库数量校验 (30001)
+            BigDecimal contractRemaining = getContractRemainingQty(
+                    inbound.getContractId(), item.getMaterialId());
+            if (item.getQuantity().compareTo(contractRemaining) > 0) {
+                throw new BusinessException(ErrorCode.INBOUND_EXCEED_CONTRACT.getCode(),
+                        ErrorCode.INBOUND_EXCEED_CONTRACT.getMessage());
+            }
+
+            // 查询当前库存
+            BizInventory inventory = getOrCreateInventory(
+                    inbound.getProjectId(), item.getMaterialId());
+            BigDecimal beforeQty = inventory.getCurrentQuantity();
+            BigDecimal beforeAmount = inventory.getCurrentQuantity()
+                    .multiply(inventory.getAvgPrice() != null ? inventory.getAvgPrice() : BigDecimal.ZERO);
+
+            // 计算新的加权平均单价
+            BigDecimal inboundAmount = item.getQuantity().multiply(item.getUnitPrice());
+            BigDecimal newQty = beforeQty.add(item.getQuantity());
+            BigDecimal newAvgPrice = BigDecimal.ZERO;
+            if (newQty.compareTo(BigDecimal.ZERO) > 0) {
+                newAvgPrice = beforeAmount.add(inboundAmount)
+                        .divide(newQty, 2, RoundingMode.HALF_UP);
+            }
+
+            // 更新库存
+            inventory.setCurrentQuantity(newQty);
+            inventory.setAvgPrice(newAvgPrice);
+            inventory.setTotalAmount(newQty.multiply(newAvgPrice));
+            inventoryMapper.updateById(inventory);
+
+            // 记录库存流水
+            inventoryRecordService.record(inbound.getProjectId(), item.getMaterialId(),
+                    "inbound", inbound.getId(), inbound.getInboundNo(),
+                    1, item.getQuantity(), beforeQty, newQty, item.getUnitPrice());
+        }
+    }
+
+    // ======================== P6: 加权平均法出库 ========================
+
+    /**
+     * P6 §4.9: 出库 — 出库成本 = 出库数量 × 当前加权平均单价
+     */
+    @Transactional
+    public void processOutbound(BizOutboundOrder outbound, List<BizOutboundOrderItem> items) {
+        for (BizOutboundOrderItem item : items) {
+            BizInventory inventory = inventoryMapper.selectOne(
+                    new LambdaQueryWrapper<BizInventory>()
+                            .eq(BizInventory::getProjectId, outbound.getProjectId())
+                            .eq(BizInventory::getMaterialId, item.getMaterialId()));
+
+            if (inventory == null || inventory.getCurrentQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BusinessException(ErrorCode.STOCK_INSUFFICIENT.getCode(),
+                        ErrorCode.STOCK_INSUFFICIENT.getMessage());
+            }
+            if (item.getQuantity().compareTo(inventory.getCurrentQuantity()) > 0) {
+                throw new BusinessException(ErrorCode.OUTBOUND_EXCEED_STOCK.getCode(),
+                        ErrorCode.OUTBOUND_EXCEED_STOCK.getMessage());
+            }
+
+            BigDecimal beforeQty = inventory.getCurrentQuantity();
+            // 出库成本 = 数量 × 加权平均单价（均价不变）
+            BigDecimal outboundCost = item.getQuantity().multiply(inventory.getAvgPrice());
+            item.setAvgPrice(inventory.getAvgPrice());
+            item.setSubtotal(outboundCost);
+
+            BigDecimal newQty = beforeQty.subtract(item.getQuantity());
+            inventory.setCurrentQuantity(newQty);
+            inventory.setTotalAmount(newQty.multiply(inventory.getAvgPrice()));
+            inventoryMapper.updateById(inventory);
+
+            inventoryRecordService.record(outbound.getProjectId(), item.getMaterialId(),
+                    "outbound", outbound.getId(), outbound.getOutboundNo(),
+                    -1, item.getQuantity(), beforeQty, inventory.getCurrentQuantity(),
+                    inventory.getAvgPrice());
+        }
+    }
+
+    // ======================== P6: 盘点差异>10%强制GM审批 ========================
+
+    /**
+     * P6 §4.9: 提交盘点审批 — 超阈值时强制总经理节点
+     */
+    public void submitCheckForApproval(Integer checkId, Integer userId) {
+        BizInventoryCheck check = checkMapper.selectById(checkId);
+        if (check == null) throw new BusinessException("盘点单不存在");
+
+        Map<String, Object> context = new HashMap<>();
+        if (check.getIsOverThreshold() != null && check.getIsOverThreshold() == 1) {
+            // 差异>10%: 强制包含总经理审批节点
+            context.put("forceGmApproval", true);
+        }
+        approvalService.submitForApproval("inventory_check", checkId, userId, context);
+    }
+
+    // ======================== P6: 内部辅助方法 ========================
+
+    /**
+     * 查询或创建库存记录
+     */
+    private BizInventory getOrCreateInventory(Integer projectId, Integer materialId) {
+        BizInventory inventory = inventoryMapper.selectOne(
+                new LambdaQueryWrapper<BizInventory>()
+                        .eq(BizInventory::getProjectId, projectId)
+                        .eq(BizInventory::getMaterialId, materialId));
+        if (inventory == null) {
+            inventory = new BizInventory();
+            inventory.setProjectId(projectId);
+            inventory.setMaterialId(materialId);
+            inventory.setCurrentQuantity(BigDecimal.ZERO);
+            inventory.setAvgPrice(BigDecimal.ZERO);
+            inventory.setTotalAmount(BigDecimal.ZERO);
+            inventoryMapper.insert(inventory);
+        }
+        return inventory;
+    }
+
+    /**
+     * 查询合同中该材料的剩余可入库量
+     */
+    private BigDecimal getContractRemainingQty(Integer contractId, Integer materialId) {
+        // 需根据实际表结构实现:
+        // 合同约定量 - 已入库量 = 可入库剩余量
+        return BigDecimal.valueOf(999999);
     }
 }

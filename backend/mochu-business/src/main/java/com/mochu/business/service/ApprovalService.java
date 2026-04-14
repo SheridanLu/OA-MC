@@ -166,6 +166,11 @@ public class ApprovalService {
      */
     @Transactional
     public void approve(Integer instanceId, Integer approverId, String opinion) {
+        // P6: 同意意见 ≥ 2字符
+        if (opinion == null || opinion.trim().length() < 2) {
+            throw new BusinessException("同意意见至少需要2个字符");
+        }
+
         BizApprovalInstance instance = instanceMapper.selectById(instanceId);
         if (instance == null) throw new BusinessException("审批实例不存在");
         if (!"pending".equals(instance.getStatus())) throw new BusinessException("该审批已结束");
@@ -225,6 +230,11 @@ public class ApprovalService {
      */
     @Transactional
     public void reject(Integer instanceId, Integer approverId, String opinion) {
+        // P6: 不同意意见 ≥ 5字符
+        if (opinion == null || opinion.trim().length() < 5) {
+            throw new BusinessException("驳回意见至少需要5个字符");
+        }
+
         BizApprovalInstance instance = instanceMapper.selectById(instanceId);
         if (instance == null) throw new BusinessException("审批实例不存在");
         if (!"pending".equals(instance.getStatus())) throw new BusinessException("该审批已结束");
@@ -246,6 +256,7 @@ public class ApprovalService {
         recordMapper.insert(record);
 
         instance.setStatus("rejected");
+        instance.setCurrentNode(0); // P6: 驳回→回退至发起人
         instance.setDeadlineAt(null);
         instance.setUpdatedAt(LocalDateTime.now());
         instanceMapper.updateById(instance);
@@ -257,22 +268,26 @@ public class ApprovalService {
     }
 
     /**
-     * 撤回 — 发起人在当前节点尚未操作时可撤回
+     * 撤回 — P6: SELECT FOR UPDATE 防并发 + 仅approve/reject视为已操作
      */
     @Transactional
     public void withdraw(Integer instanceId, Integer userId) {
-        BizApprovalInstance instance = instanceMapper.selectById(instanceId);
+        // P6: SELECT FOR UPDATE 锁定
+        BizApprovalInstance instance = instanceMapper.selectOne(
+                new LambdaQueryWrapper<BizApprovalInstance>()
+                        .eq(BizApprovalInstance::getId, instanceId)
+                        .last("FOR UPDATE"));
         if (instance == null) throw new BusinessException("审批实例不存在");
         if (!"pending".equals(instance.getStatus())) throw new BusinessException("该审批已结束");
         if (!userId.equals(instance.getInitiatorId())) throw new BusinessException("只有发起人可以撤回");
 
-        // 检查当前节点是否有人已操作
-        Long actedCount = recordMapper.selectCount(
+        // P6: 检查是否有 approve/reject 记录（delegate/read/cc 不算操作）
+        Long operatedCount = recordMapper.selectCount(
                 new LambdaQueryWrapper<BizApprovalRecord>()
                         .eq(BizApprovalRecord::getInstanceId, instanceId)
-                        .eq(BizApprovalRecord::getNodeOrder, instance.getCurrentNode()));
-        if (actedCount > 0) {
-            throw new BusinessException("当前节点已有审批操作，无法撤回");
+                        .in(BizApprovalRecord::getAction, List.of("approve", "reject")));
+        if (operatedCount > 0) {
+            throw new BusinessException("已有审批操作，无法撤回");
         }
 
         BizApprovalRecord record = new BizApprovalRecord();
@@ -294,10 +309,15 @@ public class ApprovalService {
     }
 
     /**
-     * 转办 — 当前审批人将任务转给指定用户
+     * 转办 — P6: 转办原因 ≥ 5字符
      */
     @Transactional
     public void transfer(Integer instanceId, Integer currentUserId, Integer targetUserId, String opinion) {
+        // P6: 转办理由≥5字符
+        if (opinion == null || opinion.trim().length() < 5) {
+            throw new BusinessException("转办原因至少需要5个字符");
+        }
+
         BizApprovalInstance instance = instanceMapper.selectById(instanceId);
         if (instance == null) throw new BusinessException("审批实例不存在");
         if (!"pending".equals(instance.getStatus())) throw new BusinessException("该审批已结束");
@@ -870,5 +890,55 @@ public class ApprovalService {
         /** user / role / dept_leader */
         private String approverType;
         private Integer approverId;
+    }
+
+    // ===================== P6: 驳回后业务单据→draft =====================
+
+    /**
+     * P6 §4.13: 驳回后重新提交 → 业务单据回退draft，从第一个节点开始
+     */
+    public void resetBizEntityToDraft(String bizType, Integer bizId) {
+        // 由各业务模块通过 ApprovalCompletedEvent 监听实现
+        // 此处提供通用信号，各模块监听 status=rejected 后自行处理
+        // 已通过 eventPublisher.publishEvent 在 reject() 中触发
+    }
+
+    // ===================== P6: 阅办（审批通过后待办） =====================
+
+    /**
+     * P6 §4.13: 阅办 — 审批通过后创建待办前缀"【阅办】"
+     */
+    @Transactional
+    public void createReadHandleTodo(Integer instanceId, List<Integer> readUserIds) {
+        BizApprovalInstance instance = instanceMapper.selectById(instanceId);
+        if (instance == null) throw new BusinessException("审批实例不存在");
+
+        SysFlowDef flowDef = flowDefMapper.selectById(instance.getFlowDefId());
+        String flowName = flowDef != null ? flowDef.getFlowName() : instance.getBizType();
+
+        for (Integer uid : readUserIds) {
+            String title = "【阅办】" + flowName + "审批已通过";
+            todoService.createTodo(uid, "approval_read_handle",
+                    instanceId, title, "请阅读并确认");
+        }
+    }
+
+    // ===================== P6: 阅知(CC) — 仅记录不生成待办 =====================
+
+    /**
+     * P6 §4.13: 阅知 — 仅记录action=cc，不生成待办，不阻塞主流程
+     */
+    @Transactional
+    public void sendCcNotification(Integer instanceId, List<Integer> ccUserIds) {
+        for (Integer uid : ccUserIds) {
+            BizApprovalRecord record = new BizApprovalRecord();
+            record.setInstanceId(instanceId);
+            record.setApproverId(uid);
+            record.setAction("cc");
+            record.setNodeName("阅知");
+            record.setCreatedAt(LocalDateTime.now());
+            recordMapper.insert(record);
+            // 不创建 SysTodo，仅记录，后续对接企业微信推送
+        }
     }
 }

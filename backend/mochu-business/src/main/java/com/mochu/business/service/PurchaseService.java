@@ -14,13 +14,17 @@ import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PurchaseService {
@@ -29,6 +33,7 @@ public class PurchaseService {
     private final BizPurchaseListItemMapper purchaseListItemMapper;
     private final BizSpotPurchaseMapper spotPurchaseMapper;
     private final NoGeneratorService noGeneratorService;
+    private final ApprovalService approvalService;
 
     // ==================== 采购清单 ====================
 
@@ -192,5 +197,77 @@ public class PurchaseService {
 
     public void deleteSpotPurchase(Integer id) {
         spotPurchaseMapper.deleteById(id);
+    }
+
+    // ==================== P6: 采购清单唯一性校验 ====================
+
+    /**
+     * P6 §4.8: 创建采购清单 — 同一项目仅允许1份有效(approved)采购清单
+     */
+    @Transactional
+    public void createPurchaseListWithCheck(PurchaseListDTO dto, Integer userId) {
+        // 校验：同一项目是否已有approved的采购清单
+        long existCount = purchaseListMapper.selectCount(
+                new LambdaQueryWrapper<BizPurchaseList>()
+                        .eq(BizPurchaseList::getProjectId, dto.getProjectId())
+                        .eq(BizPurchaseList::getStatus, "approved")
+                        .eq(BizPurchaseList::getDeleted, 0));
+        if (existCount > 0) {
+            throw new BusinessException("该项目已有有效采购清单，不可重复创建");
+        }
+
+        // 调用原有创建逻辑
+        createPurchaseList(dto);
+    }
+
+    // ==================== P6: 零星采购超预警阈值 ====================
+
+    /**
+     * P6 §4.8: 零星采购 — 超预警阈值时变更审批路径
+     */
+    @Transactional
+    public void createSpotPurchaseWithApproval(SpotPurchaseDTO dto, Integer userId) {
+        BizSpotPurchase entity = new BizSpotPurchase();
+        BeanUtils.copyProperties(dto, entity);
+        entity.setPurchaseNo(noGeneratorService.generate("LP"));
+        entity.setStatus("draft");
+        entity.setCreatorId(userId);
+
+        if (dto.getAmount() == null && dto.getQuantity() != null && dto.getUnitPrice() != null) {
+            entity.setAmount(dto.getQuantity().multiply(dto.getUnitPrice()));
+        }
+
+        spotPurchaseMapper.insert(entity);
+
+        // 判断是否超预警阈值
+        BigDecimal threshold = getSpotPurchaseThreshold();
+        BigDecimal amount = entity.getAmount() != null ? entity.getAmount() : BigDecimal.ZERO;
+        if (amount.compareTo(threshold) > 0) {
+            // 超阈值审批路径
+            Map<String, Object> ctx = new HashMap<>();
+            ctx.put("overThreshold", true);
+            ctx.put("amount", amount);
+            approvalService.submitForApproval("spot_purchase",
+                    entity.getId(), userId, ctx);
+        } else {
+            // 正常审批路径
+            approvalService.submitForApproval("spot_purchase",
+                    entity.getId(), userId);
+        }
+    }
+
+    /**
+     * P6 §4.8: 材料编码 M+6位全局递增
+     */
+    public String generateMaterialCode() {
+        return noGeneratorService.generateGlobal("M", 6);
+    }
+
+    /**
+     * 获取零星采购预警阈值（默认5000）
+     */
+    private BigDecimal getSpotPurchaseThreshold() {
+        // 可从 sys_config 表读取，默认5000
+        return new BigDecimal("5000");
     }
 }

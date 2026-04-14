@@ -6,15 +6,25 @@ import com.mochu.business.dto.*;
 import com.mochu.business.entity.*;
 import com.mochu.business.mapper.*;
 import com.mochu.common.constant.Constants;
+import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.system.mapper.SysUserMapper;
+import com.mochu.system.entity.SysUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.YearMonth;
 
 /**
  * 人力资源管理服务
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HrService {
@@ -26,8 +36,10 @@ public class HrService {
     private final BizHrResignMapper resignMapper;
     private final BizSalaryConfigMapper salaryConfigMapper;
     private final BizSocialInsuranceMapper socialInsuranceMapper;
+    private final BizSocialInsuranceConfigMapper socialInsuranceConfigMapper;
     private final BizTaxRateMapper taxRateMapper;
     private final BizAssetTransferMapper assetTransferMapper;
+    private final SysUserMapper sysUserMapper;
     private final NoGeneratorService noGeneratorService;
 
     // ======================= 薪资 =======================
@@ -536,5 +548,94 @@ public class HrService {
 
     public void deleteAssetTransfer(Integer id) {
         assetTransferMapper.deleteById(id);
+    }
+
+    // ======================= P6: 薪资配置生效日期校验 =======================
+
+    /**
+     * P6 §4.15: 创建薪资配置 — effective_date 不早于当月 + 员工校验
+     */
+    public void createSalaryConfigWithValidation(SalaryConfigDTO dto, Integer userId) {
+        // 校验员工存在且在职 (11001)
+        SysUser user = sysUserMapper.selectById(dto.getUserId());
+        if (user == null || user.getStatus() != 1) {
+            throw new BusinessException(ErrorCode.EMPLOYEE_NOT_FOUND.getCode(),
+                    ErrorCode.EMPLOYEE_NOT_FOUND.getMessage());
+        }
+
+        // effective_date 不早于当月 (11002)
+        if (dto.getEffectiveDate() != null) {
+            YearMonth configMonth = YearMonth.from(dto.getEffectiveDate());
+            YearMonth currentMonth = YearMonth.now();
+            if (configMonth.isBefore(currentMonth)) {
+                throw new BusinessException(ErrorCode.EFFECTIVE_DATE_INVALID.getCode(),
+                        ErrorCode.EFFECTIVE_DATE_INVALID.getMessage());
+            }
+        }
+
+        // 旧配置 → inactive
+        salaryConfigMapper.update(null, new LambdaUpdateWrapper<BizSalaryConfig>()
+                .eq(BizSalaryConfig::getUserId, dto.getUserId())
+                .eq(BizSalaryConfig::getStatus, "active")
+                .set(BizSalaryConfig::getStatus, "inactive"));
+
+        // 新建
+        BizSalaryConfig config = new BizSalaryConfig();
+        BeanUtils.copyProperties(dto, config, "id", "page", "size");
+        config.setStatus("active");
+        config.setCreatorId(userId);
+        salaryConfigMapper.insert(config);
+    }
+
+    // ======================= P6: 社保详细配置计算 =======================
+
+    /**
+     * P6 §4.15: 计算社保个人扣款总额
+     */
+    public BigDecimal calculatePersonalDeduction(BizSocialInsuranceConfig config) {
+        BigDecimal pension = config.getPensionBase()
+                .multiply(config.getPensionPersonalRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal medical = config.getMedicalBase()
+                .multiply(config.getMedicalPersonalRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal unemployment = config.getUnemploymentBase()
+                .multiply(config.getUnemploymentPersonalRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal housing = config.getHousingBase()
+                .multiply(config.getHousingPersonalRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        return pension.add(medical).add(unemployment).add(housing);
+    }
+
+    /**
+     * P6 §4.15: 计算社保企业承担总额
+     */
+    public BigDecimal calculateCompanyContribution(BizSocialInsuranceConfig config) {
+        BigDecimal pension = config.getPensionBase()
+                .multiply(config.getPensionCompanyRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal medical = config.getMedicalBase()
+                .multiply(config.getMedicalCompanyRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal unemployment = config.getUnemploymentBase()
+                .multiply(config.getUnemploymentCompanyRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal housing = config.getHousingBase()
+                .multiply(config.getHousingCompanyRate())
+                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        return pension.add(medical).add(unemployment).add(housing);
+    }
+
+    /**
+     * P6: 查询用户当前有效社保配置
+     */
+    public BizSocialInsuranceConfig getActiveSocialInsuranceConfig(Integer userId) {
+        return socialInsuranceConfigMapper.selectOne(
+                new LambdaQueryWrapper<BizSocialInsuranceConfig>()
+                        .eq(BizSocialInsuranceConfig::getUserId, userId)
+                        .eq(BizSocialInsuranceConfig::getStatus, "active")
+                        .orderByDesc(BizSocialInsuranceConfig::getEffectiveDate)
+                        .last("LIMIT 1"));
     }
 }

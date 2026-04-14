@@ -8,28 +8,39 @@ import com.mochu.business.dto.CompletionFinishDTO;
 import com.mochu.business.dto.DrawingDTO;
 import com.mochu.business.dto.ExceptionTaskDTO;
 import com.mochu.business.dto.LaborSettlementDTO;
+import com.mochu.business.entity.BizAttachment;
 import com.mochu.business.entity.BizCase;
 import com.mochu.business.entity.BizCompletionDoc;
 import com.mochu.business.entity.BizCompletionFinish;
 import com.mochu.business.entity.BizDrawing;
 import com.mochu.business.entity.BizExceptionTask;
 import com.mochu.business.entity.BizLaborSettlement;
+import com.mochu.business.entity.BizProject;
+import com.mochu.business.event.ApprovalCompletedEvent;
+import com.mochu.business.mapper.BizAttachmentMapper;
 import com.mochu.business.mapper.BizCaseMapper;
 import com.mochu.business.mapper.BizCompletionDocMapper;
 import com.mochu.business.mapper.BizCompletionFinishMapper;
 import com.mochu.business.mapper.BizDrawingMapper;
 import com.mochu.business.mapper.BizExceptionTaskMapper;
 import com.mochu.business.mapper.BizLaborSettlementMapper;
+import com.mochu.business.mapper.BizProjectMapper;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 竣工验收模块服务 — 完工验收 / 劳务结算 / 案例管理 / 异常工单 / 竣工图纸 / 竣工资料
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CompletionService {
@@ -40,6 +51,8 @@ public class CompletionService {
     private final BizExceptionTaskMapper exceptionTaskMapper;
     private final BizDrawingMapper drawingMapper;
     private final BizCompletionDocMapper completionDocMapper;
+    private final BizProjectMapper projectMapper;
+    private final BizAttachmentMapper attachmentMapper;
     private final NoGeneratorService noGeneratorService;
 
     // ==================== 完工验收 ====================
@@ -363,5 +376,59 @@ public class CompletionService {
 
     public void deleteDoc(Integer id) {
         completionDocMapper.deleteById(id);
+    }
+
+    // ==================== P6: 完工验收审批→项目状态变更 ====================
+
+    /**
+     * P6 §4.14: 完工验收审批通过 → 项目 status → completion_accepted
+     */
+    @EventListener
+    public void onCompletionApproved(ApprovalCompletedEvent event) {
+        if ("completion_acceptance".equals(event.getBizType())
+                && "approved".equals(event.getFinalStatus())) {
+            BizProject project = projectMapper.selectById(event.getBizId());
+            if (project != null) {
+                project.setStatus("completion_accepted");
+                projectMapper.updateById(project);
+                log.info("项目已完工验收: {}", project.getProjectNo());
+            }
+        }
+    }
+
+    // ==================== P6: 竣工文档归档 ====================
+
+    /**
+     * P6 §4.14: 竣工文档归档 — 按类别自动归集
+     */
+    public Map<String, List<BizAttachment>> getArchiveByCategory(Integer projectId) {
+        List<BizAttachment> allDocs = attachmentMapper.selectList(
+                new LambdaQueryWrapper<BizAttachment>()
+                        .eq(BizAttachment::getProjectId, projectId)
+                        .eq(BizAttachment::getDeleted, 0));
+
+        Map<String, List<BizAttachment>> archive = new LinkedHashMap<>();
+        archive.put("合同文档", filterByBizType(allDocs, "contract"));
+        archive.put("变更文档", filterByBizType(allDocs, "change", "change_order"));
+        archive.put("进度文档", filterByBizType(allDocs, "progress", "progress_report"));
+        archive.put("财务文档", filterByBizType(allDocs, "payment", "payment_apply", "invoice", "receipt", "statement"));
+        archive.put("图纸文档", filterByBizType(allDocs, "drawing", "completion_drawing"));
+        return archive;
+    }
+
+    private List<BizAttachment> filterByBizType(List<BizAttachment> all, String... types) {
+        Set<String> typeSet = Set.of(types);
+        return all.stream()
+                .filter(a -> typeSet.contains(a.getBizType()))
+                .collect(Collectors.toList());
+    }
+
+    // ==================== P6: 劳务结算编号 ====================
+
+    /**
+     * P6 §4.14: 劳务结算编号 LS+YYMMDD+3位
+     */
+    public String generateLaborSettlementNo() {
+        return noGeneratorService.generate("LS");
     }
 }

@@ -15,9 +15,12 @@ import com.mochu.system.mapper.SysUserMapper;
 import com.mochu.system.vo.AnnouncementVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -170,5 +173,39 @@ public class AnnouncementService {
             }
         }
         return vo;
+    }
+
+    // ===================== P6: 公告范围过滤 =====================
+
+    /**
+     * P6 §4.16: 查询对当前用户可见的公告（按部门ID过滤 scope）
+     */
+    public List<AnnouncementVO> getVisibleAnnouncements(Integer userDeptId) {
+        List<SysAnnouncement> all = announcementMapper.selectList(
+                new LambdaQueryWrapper<SysAnnouncement>()
+                        .eq(SysAnnouncement::getStatus, "published")
+                        .orderByDesc(SysAnnouncement::getIsTop)
+                        .orderByDesc(SysAnnouncement::getCreatedAt));
+
+        return all.stream().filter(a -> {
+            if ("all".equals(a.getScope())) return true;
+            if (a.getScope() == null || a.getScope().isBlank()) return true;
+            String[] deptIds = a.getScope().split(",");
+            return Arrays.asList(deptIds).contains(String.valueOf(userDeptId));
+        }).map(this::toVO).collect(Collectors.toList());
+    }
+
+    // ===================== P6: 公告自动过期 =====================
+
+    /**
+     * P6 §4.16: 自动过期 — 每日 00:10 执行
+     */
+    @Scheduled(cron = "0 10 0 * * ?")
+    public void expireAnnouncements() {
+        announcementMapper.update(null, new LambdaUpdateWrapper<SysAnnouncement>()
+                .eq(SysAnnouncement::getStatus, "published")
+                .le(SysAnnouncement::getExpireTime, LocalDateTime.now())
+                .isNotNull(SysAnnouncement::getExpireTime)
+                .set(SysAnnouncement::getStatus, "expired"));
     }
 }

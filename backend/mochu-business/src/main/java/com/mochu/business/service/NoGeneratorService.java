@@ -56,4 +56,69 @@ public class NoGeneratorService {
     public String generate(String prefix) {
         return generate(prefix, 3);
     }
+
+    // ==================== P6 新增方法 ====================
+
+    private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("yyMM");
+
+    /**
+     * P6 §4.4: 虚拟项目编号 — 按月重置
+     * 格式: V+YYMM+3位顺序号，每月重置
+     * 例: V2604001
+     *
+     * @param prefix   前缀（如 V）
+     * @param seqWidth 序号位数
+     */
+    @Transactional
+    public String generateMonthly(String prefix, int seqWidth) {
+        String datePart = LocalDate.now().format(MONTH_FMT);
+        BizNoSeed seed = noSeedMapper.selectForUpdate(prefix, datePart);
+
+        int nextSeq;
+        if (seed == null) {
+            nextSeq = 1;
+            seed = new BizNoSeed();
+            seed.setPrefix(prefix);
+            seed.setDatePart(datePart);
+            seed.setCurrentSeq(nextSeq);
+            noSeedMapper.insert(seed);
+        } else {
+            nextSeq = seed.getCurrentSeq() + 1;
+            seed.setCurrentSeq(nextSeq);
+            noSeedMapper.updateSeq(seed);
+        }
+
+        String seqStr = String.format("%0" + seqWidth + "d", nextSeq);
+        return prefix + datePart + seqStr;
+    }
+
+    /**
+     * P6 §4.8: 全局递增编号 — 不按日期重置
+     * 用于材料编码: M000001, M000002, ...
+     *
+     * @param prefix   前缀（如 M）
+     * @param seqWidth 序号位数
+     */
+    @Transactional
+    public String generateGlobal(String prefix, int seqWidth) {
+        String datePart = "GLOBAL";
+        BizNoSeed seed = noSeedMapper.selectForUpdate(prefix, datePart);
+
+        int nextSeq;
+        if (seed == null) {
+            nextSeq = 1;
+            seed = new BizNoSeed();
+            seed.setPrefix(prefix);
+            seed.setDatePart(datePart);
+            seed.setCurrentSeq(nextSeq);
+            noSeedMapper.insert(seed);
+        } else {
+            nextSeq = seed.getCurrentSeq() + 1;
+            seed.setCurrentSeq(nextSeq);
+            noSeedMapper.updateSeq(seed);
+        }
+
+        String seqStr = String.format("%0" + seqWidth + "d", nextSeq);
+        return prefix + seqStr;
+    }
 }
