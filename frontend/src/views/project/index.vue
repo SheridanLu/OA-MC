@@ -16,12 +16,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="queryForm.status" placeholder="全部" clearable style="width: 120px">
+          <el-select v-model="queryForm.status" placeholder="全部" clearable style="width: 140px">
             <el-option label="草稿" value="draft" />
             <el-option label="待审批" value="pending" />
+            <el-option label="跟踪中" value="tracking" />
             <el-option label="进行中" value="active" />
-            <el-option label="已完工" value="completed" />
+            <el-option label="已暂停" value="suspended" />
+            <el-option label="已完工验收" value="completion_accepted" />
+            <el-option label="已竣工验收" value="final_accepted" />
+            <el-option label="已完成审计" value="audit_done" />
+            <el-option label="已完成" value="completed" />
             <el-option label="已关闭" value="closed" />
+            <el-option label="已终止" value="terminated" />
+            <el-option label="已转实体" value="converted" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -65,13 +72,18 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleEdit(row)" :disabled="row.status === 'pending'" v-permission="'project:edit'">编辑</el-button>
-            <el-dropdown v-if="row.status === 'active' || row.status === 'completed'" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px" v-permission="'project:edit'">
+            <el-dropdown v-if="['active','suspended','completion_accepted','final_accepted','audit_done','completed'].includes(row.status)" @command="(cmd) => handleStatusChange(row, cmd)" style="margin-left: 8px" v-permission="'project:edit'">
               <el-button type="warning" link size="small">状态<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="active">进行中</el-dropdown-item>
-                  <el-dropdown-item command="completed">已完工</el-dropdown-item>
+                  <el-dropdown-item command="suspended">已暂停</el-dropdown-item>
+                  <el-dropdown-item command="completion_accepted">已完工验收</el-dropdown-item>
+                  <el-dropdown-item command="final_accepted">已竣工验收</el-dropdown-item>
+                  <el-dropdown-item command="audit_done">已完成审计</el-dropdown-item>
+                  <el-dropdown-item command="completed">已完成</el-dropdown-item>
                   <el-dropdown-item command="closed">已关闭</el-dropdown-item>
+                  <el-dropdown-item command="terminated">已终止</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -204,9 +216,16 @@ const contractTypeOptions = ref([])
 const statusMap = {
   draft: { text: '草稿', type: 'info' },
   pending: { text: '待审批', type: 'warning' },
-  active: { text: '进行中', type: 'primary' },
-  completed: { text: '已完工', type: 'success' },
-  closed: { text: '已关闭', type: 'danger' }
+  tracking: { text: '跟踪中', type: 'info' },
+  active: { text: '进行中', type: '' },
+  suspended: { text: '已暂停', type: 'warning' },
+  completion_accepted: { text: '已完工验收', type: 'success' },
+  final_accepted: { text: '已竣工验收', type: 'success' },
+  audit_done: { text: '已完成审计', type: 'success' },
+  completed: { text: '已完成', type: 'success' },
+  closed: { text: '已关闭', type: 'info' },
+  terminated: { text: '已终止', type: 'danger' },
+  converted: { text: '已转实体', type: 'success' }
 }
 
 const queryForm = reactive({

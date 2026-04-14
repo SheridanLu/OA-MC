@@ -56,3 +56,23 @@ export function getStockAgingReport(params) {
 export function getPurchasePriceComparison(params) {
   return request({ url: '/api/v1/report/purchase-price', method: 'get', params })
 }
+
+// ==================== 报表订阅 ====================
+
+export function getSubscriptions(params) {
+  return request.get('/api/v1/report/subscribe/list', { params })
+}
+
+export function subscribe(data) {
+  return request.post('/api/v1/report/subscribe', data)
+}
+
+export function unsubscribe(id) {
+  return request.delete(`/api/v1/report/subscribe/${id}`)
+}
+
+// ==================== 报表导出 ====================
+
+export function exportReport(params) {
+  return request.get('/api/v1/reports/export', { params, responseType: 'blob' })
+}

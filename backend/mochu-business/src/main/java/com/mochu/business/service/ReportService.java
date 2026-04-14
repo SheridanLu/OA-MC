@@ -3,9 +3,14 @@ package com.mochu.business.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.mochu.business.entity.*;
 import com.mochu.business.mapper.*;
+import com.mochu.common.exception.BusinessException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,6 +18,7 @@ import java.util.stream.Collectors;
 /**
  * 报表汇总服务
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -197,5 +203,100 @@ public class ReportService {
         result.put("resignCount", resignCount);
         result.put("totalSalary", totalSalary);
         return result;
+    }
+
+    /**
+     * 导出报表为CSV — 根据 type 选择对应的汇总数据
+     */
+    public void exportReport(String type, Integer projectId, HttpServletResponse response) throws IOException {
+        if (type == null || type.isBlank()) {
+            throw new BusinessException("报表类型不能为空");
+        }
+
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=report_" + type + ".csv");
+        response.setCharacterEncoding("UTF-8");
+
+        PrintWriter writer = response.getWriter();
+        // UTF-8 BOM for Excel compatibility
+        writer.write('\ufeff');
+
+        switch (type) {
+            case "project" -> {
+                Map<String, Object> data = getProjectSummary();
+                writer.println("状态,数量");
+                @SuppressWarnings("unchecked")
+                Map<String, Long> statusCounts = (Map<String, Long>) data.get("statusCounts");
+                if (statusCounts != null) {
+                    statusCounts.forEach((status, count) -> writer.println(status + "," + count));
+                }
+                writer.println();
+                writer.println("预算总额," + data.get("totalBudget"));
+                writer.println("合同总额," + data.get("totalContract"));
+            }
+            case "finance" -> {
+                Map<String, Object> data = getFinanceSummary();
+                @SuppressWarnings("unchecked")
+                List<String> months = (List<String>) data.get("months");
+                @SuppressWarnings("unchecked")
+                List<BigDecimal> income = (List<BigDecimal>) data.get("income");
+                @SuppressWarnings("unchecked")
+                List<BigDecimal> expense = (List<BigDecimal>) data.get("expense");
+                writer.println("月份,产值,回款");
+                if (months != null) {
+                    for (int i = 0; i < months.size(); i++) {
+                        writer.println(months.get(i) + ","
+                                + (income != null && i < income.size() ? income.get(i) : 0) + ","
+                                + (expense != null && i < expense.size() ? expense.get(i) : 0));
+                    }
+                }
+            }
+            case "inventory" -> {
+                Map<String, Object> data = getInventorySummary();
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
+                writer.println("物料ID,物料名称,总数量,总金额");
+                if (items != null) {
+                    for (Map<String, Object> item : items) {
+                        writer.println(item.get("materialId") + ","
+                                + item.get("materialName") + ","
+                                + item.get("totalQty") + ","
+                                + item.get("totalAmount"));
+                    }
+                }
+            }
+            case "contract" -> {
+                Map<String, Object> data = getContractSummary();
+                writer.println("合同类型,数量");
+                @SuppressWarnings("unchecked")
+                Map<String, Long> typeCounts = (Map<String, Long>) data.get("typeCounts");
+                if (typeCounts != null) {
+                    typeCounts.forEach((cType, count) -> writer.println(cType + "," + count));
+                }
+                writer.println();
+                writer.println("合同总额," + data.get("totalAmount"));
+            }
+            case "cost" -> {
+                Map<String, Object> data = getCostSummary();
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> costs = (List<Map<String, Object>>) data.get("costs");
+                writer.println("成本类型,总金额");
+                if (costs != null) {
+                    for (Map<String, Object> cost : costs) {
+                        writer.println(cost.get("costType") + "," + cost.get("totalAmount"));
+                    }
+                }
+            }
+            case "hr" -> {
+                Map<String, Object> data = getHrSummary();
+                writer.println("指标,数值");
+                writer.println("入职人数," + data.get("entryCount"));
+                writer.println("离职人数," + data.get("resignCount"));
+                writer.println("薪资总额," + data.get("totalSalary"));
+            }
+            default -> throw new BusinessException("不支持的报表类型: " + type);
+        }
+
+        writer.flush();
     }
 }

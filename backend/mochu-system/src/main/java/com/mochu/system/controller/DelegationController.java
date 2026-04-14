@@ -5,6 +5,7 @@ import com.mochu.common.result.R;
 import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DelegationDTO;
 import com.mochu.system.service.DelegationService;
+import com.mochu.system.entity.SysDelegation;
 import com.mochu.system.vo.DelegationVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,12 @@ public class DelegationController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         return R.ok(delegationService.list(delegatorId, status, page, size));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public R<SysDelegation> getDetail(@PathVariable Integer id) {
+        return R.ok(delegationService.getById(id));
     }
 
     @Idempotent

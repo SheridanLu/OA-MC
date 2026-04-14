@@ -105,6 +105,33 @@
         </el-form>
       </div>
     </div>
+
+    <!-- 忘记密码弹窗 -->
+    <el-dialog v-model="forgotPasswordVisible" title="忘记密码" width="420px" :close-on-click-modal="false">
+      <el-form ref="forgotFormRef" :model="forgotForm" :rules="forgotRules" label-width="80px">
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="forgotForm.phone" placeholder="请输入注册手机号" prefix-icon="Phone" size="large" />
+        </el-form-item>
+        <el-form-item label="验证码" prop="smsCode">
+          <div class="sms-row">
+            <el-input v-model="forgotForm.smsCode" placeholder="验证码" size="large" />
+            <el-button size="large" :disabled="forgotSmsCountdown > 0" @click="handleForgotSendSms">
+              {{ forgotSmsCountdown > 0 ? `${forgotSmsCountdown}s` : '获取验证码' }}
+            </el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="forgotForm.newPassword" type="password" placeholder="请输入新密码" prefix-icon="Lock" size="large" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input v-model="forgotForm.confirmPassword" type="password" placeholder="请再次输入新密码" prefix-icon="Lock" size="large" show-password />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="forgotPasswordVisible = false">取消</el-button>
+        <el-button type="primary" :loading="forgotLoading" @click="handleResetPassword">重置密码</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -113,7 +140,7 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { checkAccount, sendSms } from '@/api/auth'
+import { checkAccount, sendSms, resetPassword } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -227,8 +254,91 @@ const handleSmsLogin = async () => {
   }
 }
 
+const forgotPasswordVisible = ref(false)
+const forgotLoading = ref(false)
+const forgotSmsCountdown = ref(0)
+const forgotFormRef = ref(null)
+
+const forgotForm = reactive({
+  phone: '',
+  smsCode: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const forgotRules = {
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
+  smsCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 8, message: '密码长度不能少于8位', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== forgotForm.newPassword) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+}
+
 const handleForgotPassword = () => {
-  ElMessage.info('请联系管理员重置密码')
+  forgotForm.phone = ''
+  forgotForm.smsCode = ''
+  forgotForm.newPassword = ''
+  forgotForm.confirmPassword = ''
+  forgotPasswordVisible.value = true
+}
+
+const handleForgotSendSms = async () => {
+  if (!forgotForm.phone) {
+    ElMessage.warning('请输入手机号')
+    return
+  }
+  if (!/^1[3-9]\d{9}$/.test(forgotForm.phone)) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
+  try {
+    await sendSms(forgotForm.phone)
+    ElMessage.success('验证码已发送')
+    forgotSmsCountdown.value = 60
+    const timer = setInterval(() => {
+      forgotSmsCountdown.value--
+      if (forgotSmsCountdown.value <= 0) clearInterval(timer)
+    }, 1000)
+  } catch (e) {
+    // error handled by interceptor
+  }
+}
+
+const handleResetPassword = async () => {
+  const valid = await forgotFormRef.value.validate().catch(() => false)
+  if (!valid) return
+
+  forgotLoading.value = true
+  try {
+    await resetPassword({
+      phone: forgotForm.phone,
+      smsCode: forgotForm.smsCode,
+      newPassword: forgotForm.newPassword
+    })
+    ElMessage.success('密码重置成功，请使用新密码登录')
+    forgotPasswordVisible.value = false
+  } catch (e) {
+    // error handled by interceptor
+  } finally {
+    forgotLoading.value = false
+  }
 }
 </script>
 

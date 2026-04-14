@@ -24,6 +24,8 @@
             <el-option label="已审批" value="approved" />
             <el-option label="已驳回" value="rejected" />
             <el-option label="已终止" value="terminated" />
+            <el-option label="已关闭" value="closed" />
+            <el-option label="已完成" value="completed" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -219,7 +221,9 @@ const statusMap = {
   pending: { text: '待审批', type: 'warning' },
   approved: { text: '已审批', type: 'success' },
   rejected: { text: '已驳回', type: 'danger' },
-  terminated: { text: '已终止', type: 'info' }
+  terminated: { text: '已终止', type: 'info' },
+  closed: { text: '已关闭', type: 'info' },
+  completed: { text: '已完成', type: 'success' }
 }
 
 const queryForm = reactive({ contractName: '', contractType: '', status: '', page: 1, size: 20 })

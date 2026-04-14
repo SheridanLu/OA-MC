@@ -77,3 +77,15 @@ export function getMyInitiated(params) {
 export function getInstanceDetail(instanceId) {
   return request.get(`/api/v1/approval/${instanceId}`)
 }
+
+// ====== 已办列表 ======
+
+export function getMyDone(params) {
+  return request.get('/api/v1/approval/done', { params })
+}
+
+// ====== 抄送列表 ======
+
+export function getCcList(params) {
+  return request.get('/api/v1/approval/cc/list', { params })
+}

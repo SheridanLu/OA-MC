@@ -184,6 +184,24 @@ public class ApprovalController {
         return R.ok(approvalService.getMyInitiated(userId, page, size));
     }
 
+    @GetMapping("/done")
+    @PreAuthorize("isAuthenticated()")
+    public R<PageResult<Map<String, Object>>> getMyDone(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        return R.ok(approvalService.getMyDone(userId, page, size));
+    }
+
+    @GetMapping("/cc/list")
+    @PreAuthorize("isAuthenticated()")
+    public R<PageResult<Map<String, Object>>> getCcList(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        Integer userId = SecurityUtils.getCurrentUserId();
+        return R.ok(approvalService.getCcList(userId, page, size));
+    }
+
     @GetMapping("/{instanceId}")
     @PreAuthorize("isAuthenticated()")
     public R<Map<String, Object>> getInstanceDetail(@PathVariable Integer instanceId) {

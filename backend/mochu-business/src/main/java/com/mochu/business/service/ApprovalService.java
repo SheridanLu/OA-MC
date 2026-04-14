@@ -587,6 +587,82 @@ public class ApprovalService {
     }
 
     /**
+     * 我已审批的列表 — 查询 biz_approval_record 中 operator_id = userId 的记录，按 instance_id 分组
+     */
+    public PageResult<Map<String, Object>> getMyDone(Integer userId, Integer page, Integer size) {
+        int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
+        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+
+        // 查询当前用户参与审批的所有记录（approve/reject 视为已审批操作）
+        List<BizApprovalRecord> myRecords = recordMapper.selectList(
+                new LambdaQueryWrapper<BizApprovalRecord>()
+                        .eq(BizApprovalRecord::getApproverId, userId)
+                        .in(BizApprovalRecord::getAction, List.of("approve", "reject"))
+                        .orderByDesc(BizApprovalRecord::getCreatedAt));
+
+        // 按 instanceId 去重，保留最新操作
+        Set<Integer> seen = new LinkedHashSet<>();
+        List<Integer> instanceIds = new ArrayList<>();
+        for (BizApprovalRecord r : myRecords) {
+            if (seen.add(r.getInstanceId())) {
+                instanceIds.add(r.getInstanceId());
+            }
+        }
+
+        // 手动分页
+        int total = instanceIds.size();
+        int from = Math.min((p - 1) * s, total);
+        int to = Math.min(from + s, total);
+        List<Integer> pageIds = instanceIds.subList(from, to);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Integer instId : pageIds) {
+            BizApprovalInstance inst = instanceMapper.selectById(instId);
+            if (inst == null) continue;
+            SysFlowDef flowDef = flowDefMapper.selectById(inst.getFlowDefId());
+            List<FlowNode> nodes = parseNodes(flowDef != null ? flowDef.getNodesJson() : "[]");
+            int idx = inst.getCurrentNode() - 1;
+            FlowNode node = (idx >= 0 && idx < nodes.size()) ? nodes.get(idx) : null;
+            Map<String, Object> item = buildInstanceMap(inst, flowDef, node);
+            result.add(item);
+        }
+        return new PageResult<>(result, total, p, s);
+    }
+
+    /**
+     * 我的抄送列表 — 查询 biz_approval_cc 中 user_id = userId 的记录
+     */
+    public PageResult<Map<String, Object>> getCcList(Integer userId, Integer page, Integer size) {
+        int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
+        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+
+        Page<BizApprovalCc> pageParam = new Page<>(p, s);
+        ccMapper.selectPage(pageParam, new LambdaQueryWrapper<BizApprovalCc>()
+                .eq(BizApprovalCc::getUserId, userId)
+                .orderByDesc(BizApprovalCc::getCreatedAt));
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (BizApprovalCc cc : pageParam.getRecords()) {
+            BizApprovalInstance inst = instanceMapper.selectById(cc.getInstanceId());
+            if (inst == null) continue;
+            SysFlowDef flowDef = flowDefMapper.selectById(inst.getFlowDefId());
+            List<FlowNode> nodes = parseNodes(flowDef != null ? flowDef.getNodesJson() : "[]");
+            int idx = inst.getCurrentNode() - 1;
+            FlowNode node = (idx >= 0 && idx < nodes.size()) ? nodes.get(idx) : null;
+
+            Map<String, Object> item = buildInstanceMap(inst, flowDef, node);
+            item.put("cc_id", cc.getId());
+            item.put("cc_type", cc.getCcType());
+            item.put("is_read", cc.getIsRead());
+            item.put("is_handled", cc.getIsHandled());
+            item.put("cc_created_at", cc.getCreatedAt());
+            item.put("handled_at", cc.getHandledAt());
+            result.add(item);
+        }
+        return new PageResult<>(result, pageParam.getTotal(), p, s);
+    }
+
+    /**
      * 审批实例详情（含记录 + 会签 + 抄送）
      */
     public Map<String, Object> getInstanceDetail(Integer instanceId) {

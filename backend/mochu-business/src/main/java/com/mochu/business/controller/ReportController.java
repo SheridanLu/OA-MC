@@ -2,12 +2,12 @@ package com.mochu.business.controller;
 
 import com.mochu.business.service.ReportService;
 import com.mochu.common.result.R;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -54,5 +54,14 @@ public class ReportController {
     @PreAuthorize("hasAuthority('report:view')")
     public R<Map<String, Object>> hrSummary() {
         return R.ok(reportService.getHrSummary());
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project','report:view','report:export')")
+    public void exportReport(
+            @RequestParam String type,
+            @RequestParam(required = false) Integer projectId,
+            HttpServletResponse response) throws IOException {
+        reportService.exportReport(type, projectId, response);
     }
 }

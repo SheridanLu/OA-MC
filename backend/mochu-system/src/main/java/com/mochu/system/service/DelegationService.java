@@ -138,6 +138,14 @@ public class DelegationService {
         delegationMapper.insert(entity);
     }
 
+    public SysDelegation getById(Integer id) {
+        SysDelegation entity = delegationMapper.selectById(id);
+        if (entity == null) {
+            throw new BusinessException("委托记录不存在");
+        }
+        return entity;
+    }
+
     public void revoke(Integer id) {
         SysDelegation entity = delegationMapper.selectById(id);
         if (entity == null) {
