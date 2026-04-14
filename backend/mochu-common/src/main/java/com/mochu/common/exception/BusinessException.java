@@ -1,5 +1,6 @@
 package com.mochu.common.exception;
 
+import com.mochu.common.enums.ErrorCode;
 import lombok.Getter;
 
 /**
@@ -17,5 +18,11 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(String message) {
         this(400, message);
+    }
+
+    /** 通过 ErrorCode 枚举构造 */
+    public BusinessException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.code = errorCode.getCode();
     }
 }
