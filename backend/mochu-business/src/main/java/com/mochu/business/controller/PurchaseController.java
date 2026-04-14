@@ -31,8 +31,10 @@ public class PurchaseController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(purchaseService.listPurchaseLists(status, projectId, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(purchaseService.listPurchaseLists(status, projectId, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/api/v1/purchases/{id}")

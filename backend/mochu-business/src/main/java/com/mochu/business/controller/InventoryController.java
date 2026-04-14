@@ -263,8 +263,10 @@ public class InventoryController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) Integer materialId) {
-        return R.ok(inventoryService.listStock(page, size, projectId, materialId));
+            @RequestParam(required = false) Integer materialId,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(inventoryService.listStock(page, size, projectId, materialId, sortField, sortOrder));
     }
 
     @GetMapping("/stock/{id}")

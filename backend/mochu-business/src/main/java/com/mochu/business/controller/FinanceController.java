@@ -39,8 +39,10 @@ public class FinanceController {
             @RequestParam(required = false) Integer contractId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(financeService.listStatements(projectId, contractId, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(financeService.listStatements(projectId, contractId, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/statements/{id}")
@@ -95,8 +97,10 @@ public class FinanceController {
             @RequestParam(required = false) String paymentType,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(financeService.listPayments(projectId, contractId, paymentType, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(financeService.listPayments(projectId, contractId, paymentType, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/payments/{id}")
@@ -151,8 +155,10 @@ public class FinanceController {
             @RequestParam(required = false) String invoiceType,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(financeService.listInvoices(bizType, bizId, invoiceType, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(financeService.listInvoices(bizType, bizId, invoiceType, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/invoices/{id}")
@@ -207,8 +213,10 @@ public class FinanceController {
             @RequestParam(required = false) String reimburseType,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(financeService.listReimburses(deptId, projectId, reimburseType, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(financeService.listReimburses(deptId, projectId, reimburseType, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/reimburses/{id}")
@@ -291,8 +299,10 @@ public class FinanceController {
             @RequestParam(required = false) Integer contractId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(financeService.listReceipts(projectId, contractId, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(financeService.listReceipts(projectId, contractId, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/receipts/{id}")

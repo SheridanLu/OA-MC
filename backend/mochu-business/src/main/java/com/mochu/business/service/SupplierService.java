@@ -8,11 +8,13 @@ import com.mochu.business.mapper.BizSupplierMapper;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +22,13 @@ public class SupplierService {
 
     private final BizSupplierMapper supplierMapper;
 
-    public PageResult<BizSupplier> list(String supplierName, String status, Integer page, Integer size) {
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "status");
+
+    public PageResult<BizSupplier> list(String supplierName, String status, Integer page, Integer size,
+                                        String sortField, String sortOrder) {
         if (page == null || page < 1) page = Constants.DEFAULT_PAGE;
-        if (size == null || size < 1) size = Constants.DEFAULT_SIZE;
+        size = QueryParamUtils.normalizeSize(size);
 
         Page<BizSupplier> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<BizSupplier> wrapper = new LambdaQueryWrapper<>();
@@ -33,7 +39,13 @@ public class SupplierService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizSupplier::getStatus, status);
         }
-        wrapper.orderByDesc(BizSupplier::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizSupplier::getCreatedAt);
+        }
 
         supplierMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), page, size);

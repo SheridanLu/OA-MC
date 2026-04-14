@@ -18,6 +18,10 @@ import com.mochu.business.mapper.BizInvoiceMapper;
 import com.mochu.business.mapper.BizPaymentApplyMapper;
 import com.mochu.business.mapper.BizPurchaseListMapper;
 import com.mochu.business.dto.ContractMaterialDTO;
+import com.mochu.business.entity.BizInboundOrder;
+import com.mochu.business.entity.BizProject;
+import com.mochu.business.mapper.BizProjectMapper;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
@@ -46,6 +50,7 @@ public class ContractService {
     private final BizInvoiceMapper invoiceMapper;
     private final BizInboundOrderMapper inboundOrderMapper;
     private final BizPurchaseListMapper purchaseListMapper;
+    private final BizProjectMapper projectMapper;
     private final NoGeneratorService noGeneratorService;
     private final ContractTplService tplService;
     private final ApprovalService approvalService;
@@ -126,6 +131,14 @@ public class ContractService {
      */
     @Transactional
     public void create(ContractDTO dto, Integer initiatorId) {
+        // V3.2: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_contract");
+            }
+        }
+
         // 1. 校验合同类型
         if (!ContractTypeEnum.isValid(dto.getContractType())) {
             throw new BusinessException("无效的合同类型，必须为七类标准类型之一");

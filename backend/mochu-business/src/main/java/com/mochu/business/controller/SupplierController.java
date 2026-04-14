@@ -26,8 +26,10 @@ public class SupplierController {
             @RequestParam(required = false) String supplierName,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(supplierService.list(supplierName, status, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(supplierService.list(supplierName, status, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/all")

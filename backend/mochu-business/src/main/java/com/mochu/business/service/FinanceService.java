@@ -10,10 +10,12 @@ import com.mochu.business.dto.ReimburseDTO;
 import com.mochu.business.dto.StatementDTO;
 import com.mochu.business.entity.*;
 import com.mochu.business.mapper.*;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,17 +42,22 @@ public class FinanceService {
     private final BizCostLedgerMapper costLedgerMapper;
     private final BizReceiptMapper receiptMapper;
     private final BizContractMapper contractMapper;
+    private final BizProjectMapper projectMapper;
     private final BizIncomeSplitMapper incomeSplitMapper;
     private final BizIncomeSplitItemMapper incomeSplitItemMapper;
     private final NoGeneratorService noGeneratorService;
     private final ApprovalService approvalService;
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "amount", "amount_with_tax", "status");
+
     // ====================== 对账单 ======================
 
     public PageResult<BizStatement> listStatements(Integer projectId, Integer contractId, String status,
-                                                    Integer page, Integer size) {
+                                                    Integer page, Integer size,
+                                                    String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizStatement> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizStatement> wrapper = new LambdaQueryWrapper<>();
@@ -62,7 +70,13 @@ public class FinanceService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizStatement::getStatus, status);
         }
-        wrapper.orderByDesc(BizStatement::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizStatement::getCreatedAt);
+        }
 
         statementMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -106,9 +120,10 @@ public class FinanceService {
 
     public PageResult<BizPaymentApply> listPayments(Integer projectId, Integer contractId,
                                                      String paymentType, String status,
-                                                     Integer page, Integer size) {
+                                                     Integer page, Integer size,
+                                                     String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizPaymentApply> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizPaymentApply> wrapper = new LambdaQueryWrapper<>();
@@ -124,7 +139,13 @@ public class FinanceService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizPaymentApply::getStatus, status);
         }
-        wrapper.orderByDesc(BizPaymentApply::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizPaymentApply::getCreatedAt);
+        }
 
         paymentApplyMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -135,6 +156,14 @@ public class FinanceService {
     }
 
     public void createPayment(PaymentApplyDTO dto) {
+        // V3.2: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_payment");
+            }
+        }
+
         BizPaymentApply entity = new BizPaymentApply();
         BeanUtils.copyProperties(dto, entity);
         entity.setPaymentNo(noGeneratorService.generate("PA"));
@@ -167,9 +196,10 @@ public class FinanceService {
     // ====================== 发票 ======================
 
     public PageResult<BizInvoice> listInvoices(String bizType, Integer bizId, String invoiceType,
-                                                String status, Integer page, Integer size) {
+                                                String status, Integer page, Integer size,
+                                                String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizInvoice> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizInvoice> wrapper = new LambdaQueryWrapper<>();
@@ -185,7 +215,13 @@ public class FinanceService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizInvoice::getStatus, status);
         }
-        wrapper.orderByDesc(BizInvoice::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizInvoice::getCreatedAt);
+        }
 
         invoiceMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -230,9 +266,10 @@ public class FinanceService {
 
     public PageResult<BizReimburse> listReimburses(Integer deptId, Integer projectId,
                                                     String reimburseType, String status,
-                                                    Integer page, Integer size) {
+                                                    Integer page, Integer size,
+                                                    String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizReimburse> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizReimburse> wrapper = new LambdaQueryWrapper<>();
@@ -248,7 +285,13 @@ public class FinanceService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizReimburse::getStatus, status);
         }
-        wrapper.orderByDesc(BizReimburse::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizReimburse::getCreatedAt);
+        }
 
         reimburseMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -326,9 +369,10 @@ public class FinanceService {
     // ====================== 收款 ======================
 
     public PageResult<BizReceipt> listReceipts(Integer projectId, Integer contractId, String status,
-                                                Integer page, Integer size) {
+                                                Integer page, Integer size,
+                                                String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizReceipt> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizReceipt> wrapper = new LambdaQueryWrapper<>();
@@ -341,7 +385,13 @@ public class FinanceService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizReceipt::getStatus, status);
         }
-        wrapper.orderByDesc(BizReceipt::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizReceipt::getCreatedAt);
+        }
 
         receiptMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);

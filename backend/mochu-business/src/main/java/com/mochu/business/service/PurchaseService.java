@@ -13,6 +13,7 @@ import com.mochu.business.mapper.BizSpotPurchaseMapper;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -35,12 +37,16 @@ public class PurchaseService {
     private final NoGeneratorService noGeneratorService;
     private final ApprovalService approvalService;
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "status", "amount");
+
     // ==================== 采购清单 ====================
 
     public PageResult<BizPurchaseList> listPurchaseLists(String status, Integer projectId,
-                                                         Integer page, Integer size) {
+                                                         Integer page, Integer size,
+                                                         String sortField, String sortOrder) {
         if (page == null || page < 1) page = Constants.DEFAULT_PAGE;
-        if (size == null || size < 1) size = Constants.DEFAULT_SIZE;
+        size = QueryParamUtils.normalizeSize(size);
 
         Page<BizPurchaseList> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<BizPurchaseList> wrapper = new LambdaQueryWrapper<>();
@@ -51,7 +57,13 @@ public class PurchaseService {
         if (projectId != null) {
             wrapper.eq(BizPurchaseList::getProjectId, projectId);
         }
-        wrapper.orderByDesc(BizPurchaseList::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizPurchaseList::getCreatedAt);
+        }
 
         purchaseListMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), page, size);

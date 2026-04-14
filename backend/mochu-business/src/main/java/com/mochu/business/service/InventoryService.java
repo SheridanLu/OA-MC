@@ -18,10 +18,14 @@ import com.mochu.business.mapper.BizInventoryCheckMapper;
 import com.mochu.business.mapper.BizInventoryMapper;
 import com.mochu.business.mapper.BizOutboundOrderMapper;
 import com.mochu.business.mapper.BizReturnOrderMapper;
+import com.mochu.business.entity.BizProject;
+import com.mochu.business.mapper.BizProjectMapper;
+import com.mochu.business.util.ProjectStatusGuard;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +38,7 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 库存管理服务 — 入库/出库/退库/盘点/库存
@@ -48,16 +53,21 @@ public class InventoryService {
     private final BizReturnOrderMapper returnOrderMapper;
     private final BizInventoryCheckMapper checkMapper;
     private final BizInventoryMapper inventoryMapper;
+    private final BizProjectMapper projectMapper;
     private final NoGeneratorService noGeneratorService;
     private final InventoryRecordService inventoryRecordService;
     private final ApprovalService approvalService;
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "status", "inbound_date");
+
     // ======================== 入库单 ========================
 
     public PageResult<BizInboundOrder> listInbound(Integer page, Integer size,
-                                                   Integer projectId, String status) {
+                                                   Integer projectId, String status,
+                                                   String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizInboundOrder> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizInboundOrder> wrapper = new LambdaQueryWrapper<>();
@@ -67,7 +77,13 @@ public class InventoryService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizInboundOrder::getStatus, status);
         }
-        wrapper.orderByDesc(BizInboundOrder::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizInboundOrder::getCreatedAt);
+        }
 
         inboundOrderMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -78,6 +94,14 @@ public class InventoryService {
     }
 
     public void createInbound(InboundOrderDTO dto) {
+        // V3.2: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_inbound");
+            }
+        }
+
         BizInboundOrder entity = new BizInboundOrder();
         BeanUtils.copyProperties(dto, entity);
         entity.setInboundNo(noGeneratorService.generate("IB"));
@@ -110,9 +134,10 @@ public class InventoryService {
     // ======================== 出库单 ========================
 
     public PageResult<BizOutboundOrder> listOutbound(Integer page, Integer size,
-                                                     Integer projectId, String status) {
+                                                     Integer projectId, String status,
+                                                     String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizOutboundOrder> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizOutboundOrder> wrapper = new LambdaQueryWrapper<>();
@@ -122,7 +147,13 @@ public class InventoryService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizOutboundOrder::getStatus, status);
         }
-        wrapper.orderByDesc(BizOutboundOrder::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizOutboundOrder::getCreatedAt);
+        }
 
         outboundOrderMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -133,6 +164,14 @@ public class InventoryService {
     }
 
     public void createOutbound(OutboundOrderDTO dto) {
+        // V3.2: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_outbound");
+            }
+        }
+
         BizOutboundOrder entity = new BizOutboundOrder();
         BeanUtils.copyProperties(dto, entity);
         entity.setOutboundNo(noGeneratorService.generate("OB"));
@@ -165,9 +204,10 @@ public class InventoryService {
     // ======================== 退库单 ========================
 
     public PageResult<BizReturnOrder> listReturn(Integer page, Integer size,
-                                                  Integer projectId, String status) {
+                                                  Integer projectId, String status,
+                                                  String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizReturnOrder> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizReturnOrder> wrapper = new LambdaQueryWrapper<>();
@@ -177,7 +217,13 @@ public class InventoryService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizReturnOrder::getStatus, status);
         }
-        wrapper.orderByDesc(BizReturnOrder::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizReturnOrder::getCreatedAt);
+        }
 
         returnOrderMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -188,6 +234,14 @@ public class InventoryService {
     }
 
     public void createReturn(ReturnOrderDTO dto) {
+        // V3.2: 项目状态操作边界检查
+        if (dto.getProjectId() != null) {
+            BizProject project = projectMapper.selectById(dto.getProjectId());
+            if (project != null) {
+                ProjectStatusGuard.checkAllowed(project.getStatus(), "create_return");
+            }
+        }
+
         BizReturnOrder entity = new BizReturnOrder();
         BeanUtils.copyProperties(dto, entity);
         entity.setReturnNo(noGeneratorService.generate("RT"));
@@ -220,9 +274,10 @@ public class InventoryService {
     // ======================== 盘点 ========================
 
     public PageResult<BizInventoryCheck> listCheck(Integer page, Integer size,
-                                                    Integer projectId, String status) {
+                                                    Integer projectId, String status,
+                                                    String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizInventoryCheck> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizInventoryCheck> wrapper = new LambdaQueryWrapper<>();
@@ -232,7 +287,13 @@ public class InventoryService {
         if (status != null && !status.isBlank()) {
             wrapper.eq(BizInventoryCheck::getStatus, status);
         }
-        wrapper.orderByDesc(BizInventoryCheck::getCreatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizInventoryCheck::getCreatedAt);
+        }
 
         checkMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
@@ -277,9 +338,10 @@ public class InventoryService {
     // ======================== 库存 ========================
 
     public PageResult<BizInventory> listStock(Integer page, Integer size,
-                                               Integer projectId, Integer materialId) {
+                                               Integer projectId, Integer materialId,
+                                               String sortField, String sortOrder) {
         int p = (page == null || page < 1) ? Constants.DEFAULT_PAGE : page;
-        int s = (size == null || size < 1) ? Constants.DEFAULT_SIZE : size;
+        int s = QueryParamUtils.normalizeSize(size);
 
         Page<BizInventory> pageParam = new Page<>(p, s);
         LambdaQueryWrapper<BizInventory> wrapper = new LambdaQueryWrapper<>();
@@ -289,7 +351,13 @@ public class InventoryService {
         if (materialId != null) {
             wrapper.eq(BizInventory::getMaterialId, materialId);
         }
-        wrapper.orderByDesc(BizInventory::getUpdatedAt);
+
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizInventory::getUpdatedAt);
+        }
 
         inventoryMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), p, s);
