@@ -26,7 +26,7 @@ public class PurchaseController {
     // ==================== 采购清单 /api/v1/purchases ====================
 
     @GetMapping("/api/v1/purchases")
-    @PreAuthorize("hasAuthority('purchase:view')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<PageResult<BizPurchaseList>> listPurchases(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer projectId,
@@ -36,7 +36,7 @@ public class PurchaseController {
     }
 
     @GetMapping("/api/v1/purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:view')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<BizPurchaseList> getPurchaseList(@PathVariable Integer id) {
         BizPurchaseList entity = purchaseService.getPurchaseListById(id);
         if (entity == null) return R.fail(404, "采购清单不存在");
@@ -44,14 +44,14 @@ public class PurchaseController {
     }
 
     @GetMapping("/api/v1/purchases/{id}/items")
-    @PreAuthorize("hasAuthority('purchase:view')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<List<BizPurchaseListItem>> getPurchaseListItems(@PathVariable Integer id) {
         return R.ok(purchaseService.getPurchaseListItems(id));
     }
 
     @Idempotent
     @PostMapping("/api/v1/purchases")
-    @PreAuthorize("hasAuthority('purchase:create')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> createPurchaseList(@Valid @RequestBody PurchaseListDTO dto) {
         purchaseService.createPurchaseList(dto);
         return R.ok();
@@ -59,7 +59,7 @@ public class PurchaseController {
 
     @Idempotent
     @PutMapping("/api/v1/purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:edit')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updatePurchaseList(@PathVariable Integer id, @Valid @RequestBody PurchaseListDTO dto) {
         purchaseService.updatePurchaseList(id, dto);
         return R.ok();
@@ -67,7 +67,7 @@ public class PurchaseController {
 
     @Idempotent
     @PatchMapping("/api/v1/purchases/{id}/status")
-    @PreAuthorize("hasAuthority('purchase:edit')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updatePurchaseListStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         purchaseService.updatePurchaseListStatus(id, dto.getStatus());
         return R.ok();
@@ -75,7 +75,7 @@ public class PurchaseController {
 
     @Idempotent
     @DeleteMapping("/api/v1/purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:delete')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> deletePurchaseList(@PathVariable Integer id) {
         purchaseService.deletePurchaseList(id);
         return R.ok();
@@ -84,7 +84,7 @@ public class PurchaseController {
     // ==================== 零星采购 /api/v1/spot-purchases ====================
 
     @GetMapping("/api/v1/spot-purchases")
-    @PreAuthorize("hasAuthority('purchase:view')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<PageResult<BizSpotPurchase>> listSpotPurchases(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer projectId,
@@ -94,7 +94,7 @@ public class PurchaseController {
     }
 
     @GetMapping("/api/v1/spot-purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:view')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<BizSpotPurchase> getSpotPurchase(@PathVariable Integer id) {
         BizSpotPurchase entity = purchaseService.getSpotPurchaseById(id);
         if (entity == null) return R.fail(404, "零星采购不存在");
@@ -103,7 +103,7 @@ public class PurchaseController {
 
     @Idempotent
     @PostMapping("/api/v1/spot-purchases")
-    @PreAuthorize("hasAuthority('purchase:create')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> createSpotPurchase(@Valid @RequestBody SpotPurchaseDTO dto) {
         purchaseService.createSpotPurchase(dto);
         return R.ok();
@@ -111,7 +111,7 @@ public class PurchaseController {
 
     @Idempotent
     @PutMapping("/api/v1/spot-purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:edit')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updateSpotPurchase(@PathVariable Integer id, @Valid @RequestBody SpotPurchaseDTO dto) {
         purchaseService.updateSpotPurchase(id, dto);
         return R.ok();
@@ -119,7 +119,7 @@ public class PurchaseController {
 
     @Idempotent
     @PatchMapping("/api/v1/spot-purchases/{id}/status")
-    @PreAuthorize("hasAuthority('purchase:edit')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> updateSpotPurchaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         purchaseService.updateSpotPurchaseStatus(id, dto.getStatus());
         return R.ok();
@@ -127,7 +127,7 @@ public class PurchaseController {
 
     @Idempotent
     @DeleteMapping("/api/v1/spot-purchases/{id}")
-    @PreAuthorize("hasAuthority('purchase:delete')")
+    @PreAuthorize("hasAuthority('purchase:list-manage')")
     public R<Void> deleteSpotPurchase(@PathVariable Integer id) {
         purchaseService.deleteSpotPurchase(id);
         return R.ok();

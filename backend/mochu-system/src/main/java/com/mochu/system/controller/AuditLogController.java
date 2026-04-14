@@ -25,7 +25,7 @@ public class AuditLogController {
     private final AuditLogService auditLogService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('system:audit-log')")
+    @PreAuthorize("hasAuthority('system:log-view')")
     public R<PageResult<SysAuditLog>> list(
             @RequestParam(required = false) String operateModule,
             @RequestParam(required = false) String operateType,
@@ -38,7 +38,7 @@ public class AuditLogController {
     }
 
     @GetMapping("/export")
-    @PreAuthorize("hasAnyAuthority('system:log-view','system:audit-log')")
+    @PreAuthorize("hasAuthority('system:log-view')")
     @Idempotent
     public void exportLogs(
             @RequestParam(required = false) String module,

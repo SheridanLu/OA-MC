@@ -9,14 +9,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * 薪资配置表
+ * 薪资配置表 — V3.2 P.54 per-employee model
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("biz_salary_config")
 public class BizSalaryConfig extends BaseEntity {
 
-    /** P6: 关联用户ID */
+    /** V3.2: 关联员工ID (per-employee) */
     private Integer userId;
 
     private String grade;
@@ -25,9 +25,15 @@ public class BizSalaryConfig extends BaseEntity {
 
     private BigDecimal baseSalary;
 
+    /** V3.2: 岗位工资 */
+    private BigDecimal positionSalary;
+
+    /** V3.2: 绩效基数 */
+    private BigDecimal performance;
+
     private BigDecimal allowance;
 
-    /** P6: 生效日期 */
+    /** V3.2: 生效日期 */
     private LocalDate effectiveDate;
 
     private String remark;

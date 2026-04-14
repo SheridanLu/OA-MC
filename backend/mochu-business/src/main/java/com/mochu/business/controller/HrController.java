@@ -24,13 +24,13 @@ public class HrController {
     // ======================= 薪资 =======================
 
     @GetMapping("/salaries")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<PageResult<BizSalary>> listSalaries(SalaryDTO query) {
         return R.ok(hrService.listSalaries(query));
     }
 
     @GetMapping("/salaries/{id}")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<BizSalary> getSalaryById(@PathVariable Integer id) {
         BizSalary salary = hrService.getSalaryById(id);
         if (salary == null) {
@@ -41,7 +41,7 @@ public class HrController {
 
     @Idempotent
     @PostMapping("/salaries")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> createSalary(@Valid @RequestBody SalaryDTO dto) {
         hrService.createSalary(dto);
         return R.ok();
@@ -49,7 +49,7 @@ public class HrController {
 
     @Idempotent
     @PutMapping("/salaries/{id}")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> updateSalary(@PathVariable Integer id, @Valid @RequestBody SalaryDTO dto) {
         hrService.updateSalary(id, dto);
         return R.ok();
@@ -57,7 +57,7 @@ public class HrController {
 
     @Idempotent
     @PatchMapping("/salaries/{id}/status")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> updateSalaryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         hrService.updateSalaryStatus(id, dto.getStatus());
         return R.ok();
@@ -65,7 +65,7 @@ public class HrController {
 
     @Idempotent
     @DeleteMapping("/salaries/{id}")
-    @PreAuthorize("hasAuthority('hr:salary-manage')")
+    @PreAuthorize("hasAuthority('hr:salary-adjust')")
     public R<Void> deleteSalary(@PathVariable Integer id) {
         hrService.deleteSalary(id);
         return R.ok();
@@ -174,13 +174,13 @@ public class HrController {
     // ======================= 入职申请 =======================
 
     @GetMapping("/entries")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<PageResult<BizHrEntry>> listEntries(HrEntryDTO query) {
         return R.ok(hrService.listEntries(query));
     }
 
     @GetMapping("/entries/{id}")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<BizHrEntry> getEntryById(@PathVariable Integer id) {
         BizHrEntry entry = hrService.getEntryById(id);
         if (entry == null) {
@@ -191,7 +191,7 @@ public class HrController {
 
     @Idempotent
     @PostMapping("/entries")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> createEntry(@Valid @RequestBody HrEntryDTO dto) {
         hrService.createEntry(dto);
         return R.ok();
@@ -199,7 +199,7 @@ public class HrController {
 
     @Idempotent
     @PutMapping("/entries/{id}")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> updateEntry(@PathVariable Integer id, @Valid @RequestBody HrEntryDTO dto) {
         hrService.updateEntry(id, dto);
         return R.ok();
@@ -207,7 +207,7 @@ public class HrController {
 
     @Idempotent
     @PatchMapping("/entries/{id}/status")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> updateEntryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         hrService.updateEntryStatus(id, dto.getStatus());
         return R.ok();
@@ -215,7 +215,7 @@ public class HrController {
 
     @Idempotent
     @DeleteMapping("/entries/{id}")
-    @PreAuthorize("hasAuthority('hr:entry-manage')")
+    @PreAuthorize("hasAuthority('hr:entry-process')")
     public R<Void> deleteEntry(@PathVariable Integer id) {
         hrService.deleteEntry(id);
         return R.ok();
@@ -224,13 +224,13 @@ public class HrController {
     // ======================= 离职申请 =======================
 
     @GetMapping("/resigns")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<PageResult<BizHrResign>> listResigns(HrResignDTO query) {
         return R.ok(hrService.listResigns(query));
     }
 
     @GetMapping("/resigns/{id}")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<BizHrResign> getResignById(@PathVariable Integer id) {
         BizHrResign resign = hrService.getResignById(id);
         if (resign == null) {
@@ -241,7 +241,7 @@ public class HrController {
 
     @Idempotent
     @PostMapping("/resigns")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> createResign(@Valid @RequestBody HrResignDTO dto) {
         hrService.createResign(dto);
         return R.ok();
@@ -249,7 +249,7 @@ public class HrController {
 
     @Idempotent
     @PutMapping("/resigns/{id}")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> updateResign(@PathVariable Integer id, @Valid @RequestBody HrResignDTO dto) {
         hrService.updateResign(id, dto);
         return R.ok();
@@ -257,7 +257,7 @@ public class HrController {
 
     @Idempotent
     @PatchMapping("/resigns/{id}/status")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> updateResignStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         hrService.updateResignStatus(id, dto.getStatus());
         return R.ok();
@@ -265,7 +265,7 @@ public class HrController {
 
     @Idempotent
     @DeleteMapping("/resigns/{id}")
-    @PreAuthorize("hasAuthority('hr:resign-manage')")
+    @PreAuthorize("hasAuthority('hr:resign-process')")
     public R<Void> deleteResign(@PathVariable Integer id) {
         hrService.deleteResign(id);
         return R.ok();
@@ -324,13 +324,13 @@ public class HrController {
     // ======================= 社保配置 =======================
 
     @GetMapping("/social-insurance")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<PageResult<BizSocialInsurance>> listSocialInsurances(SocialInsuranceDTO query) {
         return R.ok(hrService.listSocialInsurances(query));
     }
 
     @GetMapping("/social-insurance/{id}")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<BizSocialInsurance> getSocialInsuranceById(@PathVariable Integer id) {
         BizSocialInsurance socialInsurance = hrService.getSocialInsuranceById(id);
         if (socialInsurance == null) {
@@ -341,7 +341,7 @@ public class HrController {
 
     @Idempotent
     @PostMapping("/social-insurance")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> createSocialInsurance(@Valid @RequestBody SocialInsuranceDTO dto) {
         hrService.createSocialInsurance(dto);
         return R.ok();
@@ -349,7 +349,7 @@ public class HrController {
 
     @Idempotent
     @PutMapping("/social-insurance/{id}")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> updateSocialInsurance(@PathVariable Integer id, @Valid @RequestBody SocialInsuranceDTO dto) {
         hrService.updateSocialInsurance(id, dto);
         return R.ok();
@@ -357,7 +357,7 @@ public class HrController {
 
     @Idempotent
     @PatchMapping("/social-insurance/{id}/status")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> updateSocialInsuranceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         hrService.updateSocialInsuranceStatus(id, dto.getStatus());
         return R.ok();
@@ -365,7 +365,7 @@ public class HrController {
 
     @Idempotent
     @DeleteMapping("/social-insurance/{id}")
-    @PreAuthorize("hasAuthority('hr:social-insurance')")
+    @PreAuthorize("hasAuthority('hr:social-insurance-config')")
     public R<Void> deleteSocialInsurance(@PathVariable Integer id) {
         hrService.deleteSocialInsurance(id);
         return R.ok();

@@ -33,7 +33,7 @@ public class FinanceController {
     // ====================== 对账单 /statements ======================
 
     @GetMapping("/statements")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<PageResult<BizStatement>> listStatements(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer contractId,
@@ -44,7 +44,7 @@ public class FinanceController {
     }
 
     @GetMapping("/statements/{id}")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<BizStatement> getStatement(@PathVariable Integer id) {
         BizStatement entity = financeService.getStatementById(id);
         if (entity == null) {
@@ -55,7 +55,7 @@ public class FinanceController {
 
     @Idempotent
     @PostMapping("/statements")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<Void> createStatement(@Valid @RequestBody StatementDTO dto) {
         financeService.createStatement(dto);
         return R.ok();
@@ -63,7 +63,7 @@ public class FinanceController {
 
     @Idempotent
     @PutMapping("/statements/{id}")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<Void> updateStatement(@PathVariable Integer id, @Valid @RequestBody StatementDTO dto) {
         financeService.updateStatement(id, dto);
         return R.ok();
@@ -71,7 +71,7 @@ public class FinanceController {
 
     @Idempotent
     @PatchMapping("/statements/{id}/status")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateStatementStatus(id, dto.getStatus());
         return R.ok();
@@ -79,7 +79,7 @@ public class FinanceController {
 
     @Idempotent
     @DeleteMapping("/statements/{id}")
-    @PreAuthorize("hasAuthority('finance:statement-manage')")
+    @PreAuthorize("hasAnyAuthority('statement:apply','statement:approve')")
     public R<Void> deleteStatement(@PathVariable Integer id) {
         financeService.deleteStatement(id);
         return R.ok();
@@ -88,7 +88,7 @@ public class FinanceController {
     // ====================== 付款申请 /payments ======================
 
     @GetMapping("/payments")
-    @PreAuthorize("hasAnyAuthority('finance:payment-create','finance:payment-confirm')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<PageResult<BizPaymentApply>> listPayments(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer contractId,
@@ -100,7 +100,7 @@ public class FinanceController {
     }
 
     @GetMapping("/payments/{id}")
-    @PreAuthorize("hasAnyAuthority('finance:payment-create','finance:payment-confirm')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<BizPaymentApply> getPayment(@PathVariable Integer id) {
         BizPaymentApply entity = financeService.getPaymentById(id);
         if (entity == null) {
@@ -111,7 +111,7 @@ public class FinanceController {
 
     @Idempotent
     @PostMapping("/payments")
-    @PreAuthorize("hasAuthority('finance:payment-create')")
+    @PreAuthorize("hasAuthority('finance:payment-apply')")
     public R<Void> createPayment(@Valid @RequestBody PaymentApplyDTO dto) {
         financeService.createPayment(dto);
         return R.ok();
@@ -119,7 +119,7 @@ public class FinanceController {
 
     @Idempotent
     @PutMapping("/payments/{id}")
-    @PreAuthorize("hasAuthority('finance:payment-create')")
+    @PreAuthorize("hasAuthority('finance:payment-apply')")
     public R<Void> updatePayment(@PathVariable Integer id, @Valid @RequestBody PaymentApplyDTO dto) {
         financeService.updatePayment(id, dto);
         return R.ok();
@@ -135,7 +135,7 @@ public class FinanceController {
 
     @Idempotent
     @DeleteMapping("/payments/{id}")
-    @PreAuthorize("hasAuthority('finance:payment-create')")
+    @PreAuthorize("hasAuthority('finance:payment-apply')")
     public R<Void> deletePayment(@PathVariable Integer id) {
         financeService.deletePayment(id);
         return R.ok();
@@ -144,7 +144,7 @@ public class FinanceController {
     // ====================== 发票 /invoices ======================
 
     @GetMapping("/invoices")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<PageResult<BizInvoice>> listInvoices(
             @RequestParam(required = false) String bizType,
             @RequestParam(required = false) Integer bizId,
@@ -156,7 +156,7 @@ public class FinanceController {
     }
 
     @GetMapping("/invoices/{id}")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<BizInvoice> getInvoice(@PathVariable Integer id) {
         BizInvoice entity = financeService.getInvoiceById(id);
         if (entity == null) {
@@ -167,7 +167,7 @@ public class FinanceController {
 
     @Idempotent
     @PostMapping("/invoices")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> createInvoice(@Valid @RequestBody InvoiceDTO dto) {
         financeService.createInvoice(dto);
         return R.ok();
@@ -175,7 +175,7 @@ public class FinanceController {
 
     @Idempotent
     @PutMapping("/invoices/{id}")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateInvoice(@PathVariable Integer id, @Valid @RequestBody InvoiceDTO dto) {
         financeService.updateInvoice(id, dto);
         return R.ok();
@@ -183,7 +183,7 @@ public class FinanceController {
 
     @Idempotent
     @PatchMapping("/invoices/{id}/status")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateInvoiceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateInvoiceStatus(id, dto.getStatus());
         return R.ok();
@@ -191,7 +191,7 @@ public class FinanceController {
 
     @Idempotent
     @DeleteMapping("/invoices/{id}")
-    @PreAuthorize("hasAuthority('finance:invoice-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> deleteInvoice(@PathVariable Integer id) {
         financeService.deleteInvoice(id);
         return R.ok();
@@ -200,7 +200,7 @@ public class FinanceController {
     // ====================== 报销 /reimburses ======================
 
     @GetMapping("/reimburses")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("isAuthenticated()")
     public R<PageResult<BizReimburse>> listReimburses(
             @RequestParam(required = false) Integer deptId,
             @RequestParam(required = false) Integer projectId,
@@ -212,7 +212,7 @@ public class FinanceController {
     }
 
     @GetMapping("/reimburses/{id}")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("isAuthenticated()")
     public R<BizReimburse> getReimburse(@PathVariable Integer id) {
         BizReimburse entity = financeService.getReimburseById(id);
         if (entity == null) {
@@ -223,7 +223,7 @@ public class FinanceController {
 
     @Idempotent
     @PostMapping("/reimburses")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> createReimburse(@Valid @RequestBody ReimburseDTO dto) {
         financeService.createReimburse(dto);
         return R.ok();
@@ -231,7 +231,7 @@ public class FinanceController {
 
     @Idempotent
     @PutMapping("/reimburses/{id}")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> updateReimburse(@PathVariable Integer id, @Valid @RequestBody ReimburseDTO dto) {
         financeService.updateReimburse(id, dto);
         return R.ok();
@@ -239,7 +239,7 @@ public class FinanceController {
 
     @Idempotent
     @PatchMapping("/reimburses/{id}/status")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("hasAuthority('finance:reimburse-approve')")
     public R<Void> updateReimburseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateReimburseStatus(id, dto.getStatus());
         return R.ok();
@@ -247,7 +247,7 @@ public class FinanceController {
 
     @Idempotent
     @DeleteMapping("/reimburses/{id}")
-    @PreAuthorize("hasAuthority('finance:reimburse-manage')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> deleteReimburse(@PathVariable Integer id) {
         financeService.deleteReimburse(id);
         return R.ok();
@@ -256,7 +256,7 @@ public class FinanceController {
     // ====================== 成本台账 /cost-ledger ======================
 
     @GetMapping("/cost-ledger")
-    @PreAuthorize("hasAuthority('finance:cost-view')")
+    @PreAuthorize("hasAuthority('finance:report-view')")
     public R<PageResult<BizCostLedger>> listCostLedger(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String costType,
@@ -267,7 +267,7 @@ public class FinanceController {
     }
 
     @GetMapping("/cost-ledger/{id}")
-    @PreAuthorize("hasAuthority('finance:cost-view')")
+    @PreAuthorize("hasAuthority('finance:report-view')")
     public R<BizCostLedger> getCostLedger(@PathVariable Integer id) {
         BizCostLedger entity = financeService.getCostLedgerById(id);
         if (entity == null) {
@@ -277,7 +277,7 @@ public class FinanceController {
     }
 
     @GetMapping("/cost-ledger/project/{projectId}")
-    @PreAuthorize("hasAuthority('finance:cost-view')")
+    @PreAuthorize("hasAuthority('finance:report-view')")
     public R<List<BizCostLedger>> listCostLedgerByProject(@PathVariable Integer projectId) {
         return R.ok(financeService.listCostLedgerByProject(projectId));
     }
@@ -285,7 +285,7 @@ public class FinanceController {
     // ====================== 收款 /receipts ======================
 
     @GetMapping("/receipts")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<PageResult<BizReceipt>> listReceipts(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer contractId,
@@ -296,7 +296,7 @@ public class FinanceController {
     }
 
     @GetMapping("/receipts/{id}")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<BizReceipt> getReceipt(@PathVariable Integer id) {
         BizReceipt entity = financeService.getReceiptById(id);
         if (entity == null) {
@@ -307,7 +307,7 @@ public class FinanceController {
 
     @Idempotent
     @PostMapping("/receipts")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<Void> createReceipt(@Valid @RequestBody ReceiptDTO dto) {
         financeService.createReceipt(dto);
         return R.ok();
@@ -315,7 +315,7 @@ public class FinanceController {
 
     @Idempotent
     @PutMapping("/receipts/{id}")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<Void> updateReceipt(@PathVariable Integer id, @Valid @RequestBody ReceiptDTO dto) {
         financeService.updateReceipt(id, dto);
         return R.ok();
@@ -323,7 +323,7 @@ public class FinanceController {
 
     @Idempotent
     @PatchMapping("/receipts/{id}/status")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<Void> updateReceiptStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         financeService.updateReceiptStatus(id, dto.getStatus());
         return R.ok();
@@ -331,7 +331,7 @@ public class FinanceController {
 
     @Idempotent
     @DeleteMapping("/receipts/{id}")
-    @PreAuthorize("hasAuthority('finance:receipt-create')")
+    @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<Void> deleteReceipt(@PathVariable Integer id) {
         financeService.deleteReceipt(id);
         return R.ok();
@@ -340,7 +340,7 @@ public class FinanceController {
     // ====================== 成本汇总 ======================
 
     @GetMapping("/cost-summary")
-    @PreAuthorize("hasAuthority('finance:cost-summary')")
+    @PreAuthorize("hasAuthority('finance:report-view')")
     public R<Map<String, BigDecimal>> getCostSummary(@RequestParam Integer projectId) {
         return R.ok(financeService.getCostSummary(projectId));
     }

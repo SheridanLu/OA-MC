@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Set;
 
 /**
  * P6 §4.18: HR 入离职自动化事件监听
@@ -80,6 +81,9 @@ public class HrEventListener {
         // userRole.setRoleId(getRoleIdByPosition(entry.getPosition()));
         // userRoleMapper.insert(userRole);
 
+        // V3.2 §4.2: 入职 → 通讯录缓存失效
+        clearContactCache();
+
         log.info("入职自动创建账号: username={}, userId={}", user.getUsername(), user.getId());
     }
 
@@ -133,10 +137,30 @@ public class HrEventListener {
             log.warn("员工{}有{}项资产未完成移交", userId, pendingTransfers);
         }
 
+        // V3.2 §4.2: 离职 → 通讯录缓存失效
+        clearContactCache();
+
         log.info("离职处理完成: userId={}", userId);
     }
 
     // ===================== 内部辅助方法 =====================
+
+    /**
+     * V3.2 §4.2: 人事变动时清除通讯录 Redis 缓存
+     * 直接通过 RedisTemplate 删除 contact:* 前缀的 key，
+     * 避免跨模块依赖 system 模块的 ContactService
+     */
+    private void clearContactCache() {
+        try {
+            Set<String> keys = redisTemplate.keys("contact:*");
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+                log.info("人事变动触发通讯录缓存清除, 共{}个key", keys.size());
+            }
+        } catch (Exception e) {
+            log.warn("清除通讯录缓存失败: {}", e.getMessage());
+        }
+    }
 
     /**
      * 生成用户名: 姓名拼音首字母 + 4位随机数

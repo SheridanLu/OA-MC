@@ -34,17 +34,19 @@ public class InventoryController {
     // ======================== 入库单 /inbound ========================
 
     @GetMapping("/inbound")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<PageResult<BizInboundOrder>> listInbound(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) String status) {
-        return R.ok(inventoryService.listInbound(page, size, projectId, status));
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(inventoryService.listInbound(page, size, projectId, status, sortField, sortOrder));
     }
 
     @GetMapping("/inbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<BizInboundOrder> getInbound(@PathVariable Integer id) {
         BizInboundOrder order = inventoryService.getInboundById(id);
         if (order == null) {
@@ -55,7 +57,7 @@ public class InventoryController {
 
     @Idempotent
     @PostMapping("/inbound")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> createInbound(@Valid @RequestBody InboundOrderDTO dto) {
         inventoryService.createInbound(dto);
         return R.ok();
@@ -63,7 +65,7 @@ public class InventoryController {
 
     @Idempotent
     @PutMapping("/inbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> updateInbound(@PathVariable Integer id, @Valid @RequestBody InboundOrderDTO dto) {
         inventoryService.updateInbound(id, dto);
         return R.ok();
@@ -71,7 +73,7 @@ public class InventoryController {
 
     @Idempotent
     @PatchMapping("/inbound/{id}/status")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> updateInboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         inventoryService.updateInboundStatus(id, dto.getStatus());
         return R.ok();
@@ -79,7 +81,7 @@ public class InventoryController {
 
     @Idempotent
     @DeleteMapping("/inbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:inbound')")
+    @PreAuthorize("hasAuthority('material:inbound')")
     public R<Void> deleteInbound(@PathVariable Integer id) {
         inventoryService.deleteInbound(id);
         return R.ok();
@@ -88,17 +90,19 @@ public class InventoryController {
     // ======================== 出库单 /outbound ========================
 
     @GetMapping("/outbound")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<PageResult<BizOutboundOrder>> listOutbound(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) String status) {
-        return R.ok(inventoryService.listOutbound(page, size, projectId, status));
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(inventoryService.listOutbound(page, size, projectId, status, sortField, sortOrder));
     }
 
     @GetMapping("/outbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<BizOutboundOrder> getOutbound(@PathVariable Integer id) {
         BizOutboundOrder order = inventoryService.getOutboundById(id);
         if (order == null) {
@@ -109,7 +113,7 @@ public class InventoryController {
 
     @Idempotent
     @PostMapping("/outbound")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> createOutbound(@Valid @RequestBody OutboundOrderDTO dto) {
         inventoryService.createOutbound(dto);
         return R.ok();
@@ -117,7 +121,7 @@ public class InventoryController {
 
     @Idempotent
     @PutMapping("/outbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> updateOutbound(@PathVariable Integer id, @Valid @RequestBody OutboundOrderDTO dto) {
         inventoryService.updateOutbound(id, dto);
         return R.ok();
@@ -125,7 +129,7 @@ public class InventoryController {
 
     @Idempotent
     @PatchMapping("/outbound/{id}/status")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> updateOutboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         inventoryService.updateOutboundStatus(id, dto.getStatus());
         return R.ok();
@@ -133,7 +137,7 @@ public class InventoryController {
 
     @Idempotent
     @DeleteMapping("/outbound/{id}")
-    @PreAuthorize("hasAuthority('inventory:outbound')")
+    @PreAuthorize("hasAuthority('material:outbound')")
     public R<Void> deleteOutbound(@PathVariable Integer id) {
         inventoryService.deleteOutbound(id);
         return R.ok();
@@ -142,17 +146,19 @@ public class InventoryController {
     // ======================== 退库单 /return ========================
 
     @GetMapping("/return")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<PageResult<BizReturnOrder>> listReturn(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) String status) {
-        return R.ok(inventoryService.listReturn(page, size, projectId, status));
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(inventoryService.listReturn(page, size, projectId, status, sortField, sortOrder));
     }
 
     @GetMapping("/return/{id}")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<BizReturnOrder> getReturn(@PathVariable Integer id) {
         BizReturnOrder order = inventoryService.getReturnById(id);
         if (order == null) {
@@ -163,7 +169,7 @@ public class InventoryController {
 
     @Idempotent
     @PostMapping("/return")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<Void> createReturn(@Valid @RequestBody ReturnOrderDTO dto) {
         inventoryService.createReturn(dto);
         return R.ok();
@@ -171,7 +177,7 @@ public class InventoryController {
 
     @Idempotent
     @PutMapping("/return/{id}")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<Void> updateReturn(@PathVariable Integer id, @Valid @RequestBody ReturnOrderDTO dto) {
         inventoryService.updateReturn(id, dto);
         return R.ok();
@@ -179,7 +185,7 @@ public class InventoryController {
 
     @Idempotent
     @PatchMapping("/return/{id}/status")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<Void> updateReturnStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         inventoryService.updateReturnStatus(id, dto.getStatus());
         return R.ok();
@@ -187,7 +193,7 @@ public class InventoryController {
 
     @Idempotent
     @DeleteMapping("/return/{id}")
-    @PreAuthorize("hasAuthority('inventory:return')")
+    @PreAuthorize("hasAuthority('material:return')")
     public R<Void> deleteReturn(@PathVariable Integer id) {
         inventoryService.deleteReturn(id);
         return R.ok();
@@ -196,17 +202,19 @@ public class InventoryController {
     // ======================== 盘点 /check ========================
 
     @GetMapping("/check")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<PageResult<BizInventoryCheck>> listCheck(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) String status) {
-        return R.ok(inventoryService.listCheck(page, size, projectId, status));
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(inventoryService.listCheck(page, size, projectId, status, sortField, sortOrder));
     }
 
     @GetMapping("/check/{id}")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<BizInventoryCheck> getCheck(@PathVariable Integer id) {
         BizInventoryCheck check = inventoryService.getCheckById(id);
         if (check == null) {
@@ -217,7 +225,7 @@ public class InventoryController {
 
     @Idempotent
     @PostMapping("/check")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> createCheck(@Valid @RequestBody InventoryCheckDTO dto) {
         inventoryService.createCheck(dto);
         return R.ok();
@@ -225,7 +233,7 @@ public class InventoryController {
 
     @Idempotent
     @PutMapping("/check/{id}")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> updateCheck(@PathVariable Integer id, @Valid @RequestBody InventoryCheckDTO dto) {
         inventoryService.updateCheck(id, dto);
         return R.ok();
@@ -233,7 +241,7 @@ public class InventoryController {
 
     @Idempotent
     @PatchMapping("/check/{id}/status")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> updateCheckStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         inventoryService.updateCheckStatus(id, dto.getStatus());
         return R.ok();
@@ -241,7 +249,7 @@ public class InventoryController {
 
     @Idempotent
     @DeleteMapping("/check/{id}")
-    @PreAuthorize("hasAuthority('inventory:check')")
+    @PreAuthorize("hasAuthority('inventory:check-approve')")
     public R<Void> deleteCheck(@PathVariable Integer id) {
         inventoryService.deleteCheck(id);
         return R.ok();
@@ -250,7 +258,7 @@ public class InventoryController {
     // ======================== 库存 /stock ========================
 
     @GetMapping("/stock")
-    @PreAuthorize("hasAuthority('inventory:stock-view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<PageResult<BizInventory>> listStock(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -260,7 +268,7 @@ public class InventoryController {
     }
 
     @GetMapping("/stock/{id}")
-    @PreAuthorize("hasAuthority('inventory:stock-view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<BizInventory> getStock(@PathVariable Integer id) {
         BizInventory inventory = inventoryService.getStockById(id);
         if (inventory == null) {

@@ -23,7 +23,7 @@ public class DelegationController {
     private final DelegationService delegationService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('system:delegation')")
+    @PreAuthorize("isAuthenticated()")
     public R<PageResult<DelegationVO>> list(
             @RequestParam(required = false) Integer delegatorId,
             @RequestParam(required = false) Integer status,
@@ -40,7 +40,7 @@ public class DelegationController {
 
     @Idempotent
     @PostMapping
-    @PreAuthorize("hasAuthority('system:delegation:edit')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> create(@Valid @RequestBody DelegationDTO dto) {
         delegationService.create(dto);
         return R.ok();
@@ -48,7 +48,7 @@ public class DelegationController {
 
     @Idempotent
     @PatchMapping("/{id}/revoke")
-    @PreAuthorize("hasAuthority('system:delegation:edit')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> revoke(@PathVariable Integer id) {
         delegationService.revoke(id);
         return R.ok();
@@ -56,7 +56,7 @@ public class DelegationController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:delegation:edit')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> delete(@PathVariable Integer id) {
         delegationService.delete(id);
         return R.ok();

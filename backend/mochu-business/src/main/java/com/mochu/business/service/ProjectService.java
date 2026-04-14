@@ -13,6 +13,7 @@ import com.mochu.business.vo.ProjectVO;
 import com.mochu.common.constant.Constants;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 项目管理服务
@@ -35,9 +37,12 @@ public class ProjectService {
     private final NoGeneratorService noGeneratorService;
     private final ApprovalService approvalService;
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "project_no", "status", "plan_start_date", "plan_end_date");
+
     public PageResult<BizProject> list(ProjectQueryDTO query) {
         int page = (query.getPage() == null || query.getPage() < 1) ? Constants.DEFAULT_PAGE : query.getPage();
-        int size = (query.getSize() == null || query.getSize() < 1) ? Constants.DEFAULT_SIZE : query.getSize();
+        int size = QueryParamUtils.normalizeSize(query.getSize());
 
         Page<BizProject> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<BizProject> wrapper = new LambdaQueryWrapper<>();
@@ -57,7 +62,15 @@ public class ProjectService {
         if (query.getManagerId() != null) {
             wrapper.eq(BizProject::getManagerId, query.getManagerId());
         }
-        wrapper.orderByDesc(BizProject::getCreatedAt);
+
+        // V3.2: sort_field/sort_order 支持
+        String orderClause = QueryParamUtils.buildOrderClause(
+                query.getSortField(), query.getSortOrder(), ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizProject::getCreatedAt);
+        }
 
         projectMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), page, size);

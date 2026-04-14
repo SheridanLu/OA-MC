@@ -18,4 +18,10 @@ public class ProjectQueryDTO {
     private Integer page;
 
     private Integer size;
+
+    /** V3.2: 排序字段 */
+    private String sortField;
+
+    /** V3.2: 排序方向 (asc/desc) */
+    private String sortOrder;
 }

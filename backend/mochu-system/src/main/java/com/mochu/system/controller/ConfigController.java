@@ -23,13 +23,13 @@ public class ConfigController {
     private final ConfigService configService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('system:config')")
+    @PreAuthorize("hasAuthority('system:user-manage')")
     public R<PageResult<SysConfig>> list(ConfigQueryDTO query) {
         return R.ok(configService.list(query));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:config')")
+    @PreAuthorize("hasAuthority('system:user-manage')")
     public R<SysConfig> getById(@PathVariable Integer id) {
         SysConfig config = configService.getById(id);
         if (config == null) {
@@ -40,7 +40,7 @@ public class ConfigController {
 
     @Idempotent
     @PostMapping
-    @PreAuthorize("hasAuthority('system:config:edit')")
+    @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> create(@Valid @RequestBody ConfigDTO dto) {
         configService.create(dto);
         return R.ok();
@@ -48,7 +48,7 @@ public class ConfigController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:config:edit')")
+    @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ConfigDTO dto) {
         configService.update(id, dto);
         return R.ok();
@@ -56,7 +56,7 @@ public class ConfigController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:config:edit')")
+    @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> delete(@PathVariable Integer id) {
         configService.delete(id);
         return R.ok();

@@ -21,43 +21,43 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping("/project")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> projectSummary() {
         return R.ok(reportService.getProjectSummary());
     }
 
     @GetMapping("/finance")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> financeSummary() {
         return R.ok(reportService.getFinanceSummary());
     }
 
     @GetMapping("/inventory")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> inventorySummary() {
         return R.ok(reportService.getInventorySummary());
     }
 
     @GetMapping("/contract")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> contractSummary() {
         return R.ok(reportService.getContractSummary());
     }
 
     @GetMapping("/cost")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> costSummary() {
         return R.ok(reportService.getCostSummary());
     }
 
     @GetMapping("/hr")
-    @PreAuthorize("hasAuthority('report:view')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public R<Map<String, Object>> hrSummary() {
         return R.ok(reportService.getHrSummary());
     }
 
     @GetMapping("/export")
-    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project','report:view','report:export')")
+    @PreAuthorize("hasAnyAuthority('report:view-all','report:view-project')")
     public void exportReport(
             @RequestParam String type,
             @RequestParam(required = false) Integer projectId,

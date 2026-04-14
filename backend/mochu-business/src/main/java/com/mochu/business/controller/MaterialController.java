@@ -23,7 +23,7 @@ public class MaterialController {
     private final MaterialService materialService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('material:view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<PageResult<BizMaterialBase>> list(
             @RequestParam(required = false) String materialName,
             @RequestParam(required = false) String category,
@@ -34,13 +34,13 @@ public class MaterialController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('material:view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<List<BizMaterialBase>> listAll() {
         return R.ok(materialService.listAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('material:view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<BizMaterialBase> getById(@PathVariable Integer id) {
         BizMaterialBase material = materialService.getById(id);
         if (material == null) return R.fail(404, "材料不存在");
@@ -49,7 +49,7 @@ public class MaterialController {
 
     @Idempotent
     @PostMapping("/batch")
-    @PreAuthorize("hasAuthority('material:edit')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<BatchResult> batchCreate(@Valid @RequestBody MaterialBatchDTO dto) {
         BatchResult result = materialService.batchCreate(dto);
         return R.ok(result);
@@ -57,7 +57,7 @@ public class MaterialController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('material:edit')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody MaterialDTO dto) {
         materialService.update(id, dto);
         return R.ok();
@@ -65,7 +65,7 @@ public class MaterialController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('material:edit')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<Void> delete(@PathVariable Integer id) {
         materialService.delete(id);
         return R.ok();

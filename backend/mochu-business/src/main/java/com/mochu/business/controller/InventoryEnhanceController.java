@@ -30,7 +30,7 @@ public class InventoryEnhanceController {
     }
 
     @GetMapping("/alerts/triggered")
-    @PreAuthorize("hasAuthority('inventory:stock-view')")
+    @PreAuthorize("hasAnyAuthority('material:inbound','material:outbound')")
     public R<List<Object>> listTriggeredAlerts(@RequestParam(required = false) Integer projectId) {
         return R.ok(enhanceService.listTriggeredAlerts(projectId));
     }

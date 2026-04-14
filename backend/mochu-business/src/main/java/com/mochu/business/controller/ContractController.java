@@ -34,8 +34,10 @@ public class ContractController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return R.ok(contractService.list(contractName, contractType, status, projectId, page, size));
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortField,
+            @RequestParam(required = false) String sortOrder) {
+        return R.ok(contractService.list(contractName, contractType, status, projectId, page, size, sortField, sortOrder));
     }
 
     @GetMapping("/{id}")
@@ -46,7 +48,7 @@ public class ContractController {
 
     @Idempotent
     @PostMapping
-    @PreAuthorize("hasAuthority('contract:create')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> create(@Valid @RequestBody ContractDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.create(dto, userId);
@@ -55,7 +57,7 @@ public class ContractController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('contract:edit')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractDTO dto) {
         contractService.update(id, dto);
         return R.ok();
@@ -63,7 +65,7 @@ public class ContractController {
 
     @Idempotent
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('contract:edit')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         contractService.updateStatus(id, dto.getStatus());
         return R.ok();
@@ -71,7 +73,7 @@ public class ContractController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('contract:delete')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> delete(@PathVariable Integer id) {
         contractService.delete(id);
         return R.ok();
@@ -81,7 +83,7 @@ public class ContractController {
 
     @Idempotent
     @PostMapping("/{id}/submit")
-    @PreAuthorize("hasAuthority('contract:edit')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> submit(@PathVariable Integer id) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.submitContract(id, userId);
@@ -107,7 +109,7 @@ public class ContractController {
 
     @Idempotent
     @PostMapping("/{contractId}/supplements")
-    @PreAuthorize("hasAuthority('contract:create')")
+    @PreAuthorize("hasAnyAuthority('contract:sign-income','contract:sign-expense')")
     public R<Void> createSupplement(@PathVariable Integer contractId, @Valid @RequestBody ContractDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         contractService.createSupplement(contractId, dto, userId);

@@ -36,7 +36,7 @@ public class CompletionController {
     // ==================== 完工验收 /finish ====================
 
     @GetMapping("/finish")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<PageResult<BizCompletionFinish>> listFinish(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String status,
@@ -46,7 +46,7 @@ public class CompletionController {
     }
 
     @GetMapping("/finish/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<BizCompletionFinish> getFinishById(@PathVariable Integer id) {
         BizCompletionFinish entity = completionService.getFinishById(id);
         if (entity == null) {
@@ -57,7 +57,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/finish")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createFinish(@Valid @RequestBody CompletionFinishDTO dto) {
         completionService.createFinish(dto);
         return R.ok();
@@ -65,7 +65,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/finish/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateFinish(@PathVariable Integer id, @Valid @RequestBody CompletionFinishDTO dto) {
         completionService.updateFinish(id, dto);
         return R.ok();
@@ -73,7 +73,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/finish/{id}/status")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateFinishStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         completionService.updateFinishStatus(id, dto.getStatus());
         return R.ok();
@@ -81,7 +81,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/finish/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteFinish(@PathVariable Integer id) {
         completionService.deleteFinish(id);
         return R.ok();
@@ -90,7 +90,7 @@ public class CompletionController {
     // ==================== 劳务结算 /labor ====================
 
     @GetMapping("/labor")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<PageResult<BizLaborSettlement>> listLabor(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String status,
@@ -100,7 +100,7 @@ public class CompletionController {
     }
 
     @GetMapping("/labor/{id}")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<BizLaborSettlement> getLaborById(@PathVariable Integer id) {
         BizLaborSettlement entity = completionService.getLaborById(id);
         if (entity == null) {
@@ -111,7 +111,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/labor")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> createLabor(@Valid @RequestBody LaborSettlementDTO dto) {
         completionService.createLabor(dto);
         return R.ok();
@@ -119,7 +119,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/labor/{id}")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateLabor(@PathVariable Integer id, @Valid @RequestBody LaborSettlementDTO dto) {
         completionService.updateLabor(id, dto);
         return R.ok();
@@ -127,7 +127,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/labor/{id}/status")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> updateLaborStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         completionService.updateLaborStatus(id, dto.getStatus());
         return R.ok();
@@ -135,7 +135,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/labor/{id}")
-    @PreAuthorize("hasAuthority('completion:labor-manage')")
+    @PreAuthorize("hasAnyAuthority('finance:payment-apply','finance:payment-confirm')")
     public R<Void> deleteLabor(@PathVariable Integer id) {
         completionService.deleteLabor(id);
         return R.ok();
@@ -144,7 +144,7 @@ public class CompletionController {
     // ==================== 案例管理 /cases ====================
 
     @GetMapping("/cases")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<PageResult<BizCase>> listCase(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String status,
@@ -154,7 +154,7 @@ public class CompletionController {
     }
 
     @GetMapping("/cases/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<BizCase> getCaseById(@PathVariable Integer id) {
         BizCase entity = completionService.getCaseById(id);
         if (entity == null) {
@@ -165,7 +165,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/cases")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createCase(@Valid @RequestBody CaseDTO dto) {
         completionService.createCase(dto);
         return R.ok();
@@ -173,7 +173,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/cases/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateCase(@PathVariable Integer id, @Valid @RequestBody CaseDTO dto) {
         completionService.updateCase(id, dto);
         return R.ok();
@@ -181,7 +181,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/cases/{id}/status")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateCaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         completionService.updateCaseStatus(id, dto.getStatus());
         return R.ok();
@@ -189,7 +189,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/cases/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteCase(@PathVariable Integer id) {
         completionService.deleteCase(id);
         return R.ok();
@@ -198,7 +198,7 @@ public class CompletionController {
     // ==================== 异常工单 /exceptions ====================
 
     @GetMapping("/exceptions")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<PageResult<BizExceptionTask>> listException(
             @RequestParam(required = false) String bizType,
             @RequestParam(required = false) Integer status,
@@ -208,7 +208,7 @@ public class CompletionController {
     }
 
     @GetMapping("/exceptions/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<BizExceptionTask> getExceptionById(@PathVariable Integer id) {
         BizExceptionTask entity = completionService.getExceptionById(id);
         if (entity == null) {
@@ -219,7 +219,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/exceptions")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> createException(@Valid @RequestBody ExceptionTaskDTO dto) {
         completionService.createException(dto);
         return R.ok();
@@ -227,7 +227,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/exceptions/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> updateException(@PathVariable Integer id, @Valid @RequestBody ExceptionTaskDTO dto) {
         completionService.updateException(id, dto);
         return R.ok();
@@ -235,7 +235,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/exceptions/{id}/resolve")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> resolveException(@PathVariable Integer id, @Valid @RequestBody ResolveExceptionDTO dto) {
         completionService.resolveException(id, dto.getResolveRemark());
         return R.ok();
@@ -243,7 +243,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/exceptions/{id}")
-    @PreAuthorize("hasAuthority('completion:finish-manage')")
+    @PreAuthorize("hasAnyAuthority('progress:report','project:view-all')")
     public R<Void> deleteException(@PathVariable Integer id) {
         completionService.deleteException(id);
         return R.ok();
@@ -252,7 +252,7 @@ public class CompletionController {
     // ==================== 竣工图纸 /drawings ====================
 
     @GetMapping("/drawings")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<PageResult<BizDrawing>> listDrawing(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String status,
@@ -262,7 +262,7 @@ public class CompletionController {
     }
 
     @GetMapping("/drawings/{id}")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<BizDrawing> getDrawingById(@PathVariable Integer id) {
         BizDrawing entity = completionService.getDrawingById(id);
         if (entity == null) {
@@ -273,7 +273,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/drawings")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> createDrawing(@Valid @RequestBody DrawingDTO dto) {
         completionService.createDrawing(dto);
         return R.ok();
@@ -281,7 +281,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/drawings/{id}")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDrawing(@PathVariable Integer id, @Valid @RequestBody DrawingDTO dto) {
         completionService.updateDrawing(id, dto);
         return R.ok();
@@ -289,7 +289,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/drawings/{id}/status")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDrawingStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         completionService.updateDrawingStatus(id, dto.getStatus());
         return R.ok();
@@ -297,7 +297,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/drawings/{id}")
-    @PreAuthorize("hasAuthority('completion:drawing-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> deleteDrawing(@PathVariable Integer id) {
         completionService.deleteDrawing(id);
         return R.ok();
@@ -306,7 +306,7 @@ public class CompletionController {
     // ==================== 竣工资料 /docs ====================
 
     @GetMapping("/docs")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<PageResult<BizCompletionDoc>> listDoc(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String status,
@@ -316,7 +316,7 @@ public class CompletionController {
     }
 
     @GetMapping("/docs/{id}")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<BizCompletionDoc> getDocById(@PathVariable Integer id) {
         BizCompletionDoc entity = completionService.getDocById(id);
         if (entity == null) {
@@ -327,7 +327,7 @@ public class CompletionController {
 
     @Idempotent
     @PostMapping("/docs")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> createDoc(@Valid @RequestBody CompletionDocDTO dto) {
         completionService.createDoc(dto);
         return R.ok();
@@ -335,7 +335,7 @@ public class CompletionController {
 
     @Idempotent
     @PutMapping("/docs/{id}")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDoc(@PathVariable Integer id, @Valid @RequestBody CompletionDocDTO dto) {
         completionService.updateDoc(id, dto);
         return R.ok();
@@ -343,7 +343,7 @@ public class CompletionController {
 
     @Idempotent
     @PatchMapping("/docs/{id}/status")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> updateDocStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         completionService.updateDocStatus(id, dto.getStatus());
         return R.ok();
@@ -351,7 +351,7 @@ public class CompletionController {
 
     @Idempotent
     @DeleteMapping("/docs/{id}")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> deleteDoc(@PathVariable Integer id) {
         completionService.deleteDoc(id);
         return R.ok();

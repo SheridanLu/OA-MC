@@ -33,7 +33,7 @@ public class ContractTplController {
     // ===================== 模板 CRUD =====================
 
     @GetMapping
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<PageResult<SysContractTpl>> list(
             @RequestParam(required = false) String contractType,
             @RequestParam(required = false) Integer status,
@@ -43,7 +43,7 @@ public class ContractTplController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTpl> getById(@PathVariable Integer id) {
         SysContractTpl tpl = tplService.getById(id);
         if (tpl == null) return R.fail(404, "模板不存在");
@@ -52,7 +52,7 @@ public class ContractTplController {
 
     @Idempotent
     @PostMapping
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Integer> create(@Valid @RequestBody ContractTplDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         Integer tplId = tplService.create(dto, userId);
@@ -64,7 +64,7 @@ public class ContractTplController {
      */
     @Idempotent
     @PostMapping("/with-file")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTplVersion> createWithFile(
             @RequestParam String contractType,
             @RequestParam String tplName,
@@ -82,7 +82,7 @@ public class ContractTplController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractTplDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         tplService.update(id, dto, userId);
@@ -91,7 +91,7 @@ public class ContractTplController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> delete(@PathVariable Integer id) {
         Integer userId = SecurityUtils.getCurrentUserId();
         tplService.delete(id, userId);
@@ -102,7 +102,7 @@ public class ContractTplController {
 
     @Idempotent
     @PostMapping("/{id}/versions")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTplVersion> uploadVersion(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
         Integer userId = SecurityUtils.getCurrentUserId();
         SysContractTplVersion version = tplService.uploadVersion(id, file, userId);
@@ -110,13 +110,13 @@ public class ContractTplController {
     }
 
     @GetMapping("/{id}/versions")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<List<SysContractTplVersion>> listVersions(@PathVariable Integer id) {
         return R.ok(tplService.listVersions(id));
     }
 
     @GetMapping("/versions/{versionId}")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<SysContractTplVersion> getVersion(@PathVariable Integer versionId) {
         SysContractTplVersion version = tplService.getVersionById(versionId);
         if (version == null) return R.fail(404, "版本不存在");
@@ -125,7 +125,7 @@ public class ContractTplController {
 
     @Idempotent
     @PatchMapping("/versions/{versionId}/status")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> updateVersionStatus(@PathVariable Integer versionId, @Valid @RequestBody VersionStatusDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         tplService.updateVersionStatus(versionId, dto.getStatus(), userId);
@@ -137,7 +137,7 @@ public class ContractTplController {
      */
     @Idempotent
     @PostMapping("/versions/{versionId}/submit-approval")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> submitVersionApproval(@PathVariable Integer versionId) {
         Integer userId = SecurityUtils.getCurrentUserId();
         tplService.submitVersionApproval(versionId, userId);
@@ -145,13 +145,13 @@ public class ContractTplController {
     }
 
     @GetMapping("/versions/{versionId}/preview")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<String> preview(@PathVariable Integer versionId) {
         return R.ok(tplService.getPreviewHtml(versionId));
     }
 
     @GetMapping("/versions/{versionId}/download")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<String> download(@PathVariable Integer versionId) {
         return R.ok(tplService.getDownloadUrl(versionId));
     }
@@ -159,14 +159,14 @@ public class ContractTplController {
     // ===================== 字段管理 =====================
 
     @GetMapping("/versions/{versionId}/fields")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<List<SysContractTplField>> listFields(@PathVariable Integer versionId) {
         return R.ok(tplService.listFields(versionId));
     }
 
     @Idempotent
     @PutMapping("/versions/{versionId}/fields")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<Void> updateFields(@PathVariable Integer versionId, @Valid @RequestBody TplFieldUpdateDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         tplService.updateFields(versionId, dto, userId);
@@ -176,7 +176,7 @@ public class ContractTplController {
     // ===================== 审计日志 =====================
 
     @GetMapping("/{id}/audit-logs")
-    @PreAuthorize("hasAuthority('system:tpl-manage')")
+    @PreAuthorize("hasAuthority('contract:template-manage')")
     public R<PageResult<SysContractTplAudit>> auditLogs(
             @PathVariable Integer id,
             @RequestParam(required = false) Integer page,
@@ -187,7 +187,7 @@ public class ContractTplController {
     // ===================== 公开查询（供合同创建选择模板用） =====================
 
     @GetMapping("/active")
-    @PreAuthorize("hasAnyAuthority('system:tpl-manage','contract:create')")
+    @PreAuthorize("hasAnyAuthority('contract:template-manage','contract:sign-income','contract:sign-expense')")
     public R<SysContractTplVersion> getActiveVersion(@RequestParam String contractType) {
         SysContractTplVersion version = tplService.getActiveVersion(contractType);
         if (version == null) return R.fail(404, "该合同类型尚未配置模板");

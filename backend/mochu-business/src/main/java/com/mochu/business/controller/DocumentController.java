@@ -20,7 +20,7 @@ public class DocumentController {
     private final AttachmentService attachmentService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<PageResult<BizAttachment>> list(
             @RequestParam(required = false) Integer bizId,
             @RequestParam(required = false) Integer page,
@@ -30,7 +30,7 @@ public class DocumentController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('completion:doc-manage')")
+    @PreAuthorize("hasAnyAuthority('doc:upload','doc:download','doc:manage')")
     public R<Void> delete(@PathVariable Integer id) throws Exception {
         attachmentService.delete(id);
         return R.ok();

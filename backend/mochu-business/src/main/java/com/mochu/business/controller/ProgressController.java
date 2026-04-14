@@ -39,7 +39,7 @@ public class ProgressController {
     // ===================== 甘特图任务 /gantt =====================
 
     @GetMapping("/gantt")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<PageResult<BizGanttTask>> listGanttTasks(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer taskType,
@@ -49,7 +49,7 @@ public class ProgressController {
     }
 
     @GetMapping("/gantt/{id}")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<BizGanttTask> getGanttTask(@PathVariable Integer id) {
         BizGanttTask task = progressService.getGanttTaskById(id);
         if (task == null) {
@@ -60,7 +60,7 @@ public class ProgressController {
 
     @Idempotent
     @PostMapping("/gantt")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createGanttTask(@Valid @RequestBody GanttTaskDTO dto) {
         progressService.createGanttTask(dto);
         return R.ok();
@@ -68,7 +68,7 @@ public class ProgressController {
 
     @Idempotent
     @PutMapping("/gantt/{id}")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateGanttTask(@PathVariable Integer id, @Valid @RequestBody GanttTaskDTO dto) {
         progressService.updateGanttTask(id, dto);
         return R.ok();
@@ -76,7 +76,7 @@ public class ProgressController {
 
     @Idempotent
     @PatchMapping("/gantt/{id}/status")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateGanttTaskStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         progressService.updateGanttTaskStatus(id, dto.getStatus());
         return R.ok();
@@ -84,7 +84,7 @@ public class ProgressController {
 
     @Idempotent
     @DeleteMapping("/gantt/{id}")
-    @PreAuthorize("hasAuthority('progress:gantt-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteGanttTask(@PathVariable Integer id) {
         progressService.deleteGanttTask(id);
         return R.ok();
@@ -93,7 +93,7 @@ public class ProgressController {
     // ===================== 里程碑 /milestones =====================
 
     @GetMapping("/milestones")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<PageResult<MilestoneVO>> listMilestones(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) Integer page,
@@ -102,7 +102,7 @@ public class ProgressController {
     }
 
     @GetMapping("/milestones/all")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<List<MilestoneVO>> listAllMilestones(
             @RequestParam(required = false) Integer projectId) {
         return R.ok(progressService.listAllMilestones(projectId));
@@ -110,7 +110,7 @@ public class ProgressController {
 
     @Idempotent
     @PostMapping("/milestones")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> createMilestone(@Valid @RequestBody MilestoneDTO dto) {
         progressService.createMilestone(dto);
         return R.ok();
@@ -118,7 +118,7 @@ public class ProgressController {
 
     @Idempotent
     @PutMapping("/milestones/{id}")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateMilestone(@PathVariable Integer id, @Valid @RequestBody MilestoneDTO dto) {
         progressService.updateMilestone(id, dto);
         return R.ok();
@@ -126,7 +126,7 @@ public class ProgressController {
 
     @Idempotent
     @DeleteMapping("/milestones/{id}")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> deleteMilestone(@PathVariable Integer id) {
         progressService.deleteMilestone(id);
         return R.ok();
@@ -134,14 +134,14 @@ public class ProgressController {
 
     @Idempotent
     @PatchMapping("/milestones/{id}/status")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<Void> updateMilestoneStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         progressService.updateMilestoneStatus(id, dto.getStatus());
         return R.ok();
     }
 
     @GetMapping("/milestones/{id}/deps")
-    @PreAuthorize("hasAuthority('progress:milestone-manage')")
+    @PreAuthorize("hasAuthority('progress:report')")
     public R<List<Integer>> getMilestoneDeps(@PathVariable Integer id) {
         return R.ok(progressService.getMilestoneDeps(id));
     }
@@ -149,7 +149,7 @@ public class ProgressController {
     // ===================== 变更单 /changes =====================
 
     @GetMapping("/changes")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<PageResult<BizChangeOrder>> listChangeOrders(
             @RequestParam(required = false) Integer projectId,
             @RequestParam(required = false) String changeType,
@@ -160,7 +160,7 @@ public class ProgressController {
     }
 
     @GetMapping("/changes/{id}")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<BizChangeOrder> getChangeOrder(@PathVariable Integer id) {
         BizChangeOrder order = progressService.getChangeOrderById(id);
         if (order == null) {
@@ -170,14 +170,14 @@ public class ProgressController {
     }
 
     @GetMapping("/changes/{id}/details")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<List<BizChangeDetail>> listChangeDetails(@PathVariable Integer id) {
         return R.ok(progressService.listChangeDetails(id));
     }
 
     @Idempotent
     @PostMapping("/changes")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> createChangeOrder(@Valid @RequestBody ChangeOrderDTO dto) {
         progressService.createChangeOrder(dto);
         return R.ok();
@@ -185,7 +185,7 @@ public class ProgressController {
 
     @Idempotent
     @PutMapping("/changes/{id}")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> updateChangeOrder(@PathVariable Integer id, @Valid @RequestBody ChangeOrderDTO dto) {
         progressService.updateChangeOrder(id, dto);
         return R.ok();
@@ -193,7 +193,7 @@ public class ProgressController {
 
     @Idempotent
     @PatchMapping("/changes/{id}/status")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> updateChangeOrderStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         progressService.updateChangeOrderStatus(id, dto.getStatus());
         return R.ok();
@@ -201,7 +201,7 @@ public class ProgressController {
 
     @Idempotent
     @DeleteMapping("/changes/{id}")
-    @PreAuthorize("hasAuthority('progress:change-manage')")
+    @PreAuthorize("hasAuthority('change:apply')")
     public R<Void> deleteChangeOrder(@PathVariable Integer id) {
         progressService.deleteChangeOrder(id);
         return R.ok();

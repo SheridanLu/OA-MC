@@ -22,6 +22,7 @@ import com.mochu.common.constant.Constants;
 import com.mochu.common.enums.ErrorCode;
 import com.mochu.common.exception.BusinessException;
 import com.mochu.common.result.PageResult;
+import com.mochu.common.util.QueryParamUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -51,10 +52,14 @@ public class ContractService {
     private final ContractVersionService contractVersionService;
     private final ContractCheckService contractCheckService;
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "created_at", "updated_at", "id", "contract_no", "amount_with_tax", "status", "sign_date");
+
     public PageResult<BizContract> list(String contractName, String contractType, String status,
-                                         Integer projectId, Integer page, Integer size) {
+                                         Integer projectId, Integer page, Integer size,
+                                         String sortField, String sortOrder) {
         if (page == null || page < 1) page = Constants.DEFAULT_PAGE;
-        if (size == null || size < 1) size = Constants.DEFAULT_SIZE;
+        size = QueryParamUtils.normalizeSize(size);
 
         Page<BizContract> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<BizContract> wrapper = new LambdaQueryWrapper<>();
@@ -71,7 +76,14 @@ public class ContractService {
         if (projectId != null) {
             wrapper.eq(BizContract::getProjectId, projectId);
         }
-        wrapper.orderByDesc(BizContract::getCreatedAt);
+
+        // V3.2: sort_field/sort_order 支持
+        String orderClause = QueryParamUtils.buildOrderClause(sortField, sortOrder, ALLOWED_SORT_FIELDS);
+        if (orderClause != null) {
+            wrapper.last(orderClause);
+        } else {
+            wrapper.orderByDesc(BizContract::getCreatedAt);
+        }
 
         contractMapper.selectPage(pageParam, wrapper);
         return new PageResult<>(pageParam.getRecords(), pageParam.getTotal(), page, size);

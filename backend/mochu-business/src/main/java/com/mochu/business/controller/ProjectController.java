@@ -62,7 +62,7 @@ public class ProjectController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('project:edit')")
+    @PreAuthorize("hasAuthority('project:create')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ProjectDTO dto) {
         projectService.update(id, dto);
         return R.ok();
@@ -70,7 +70,7 @@ public class ProjectController {
 
     @Idempotent
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('project:edit')")
+    @PreAuthorize("hasAuthority('project:create')")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
         projectService.updateStatus(id, dto.getStatus());
         return R.ok();
@@ -78,7 +78,7 @@ public class ProjectController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('project:delete')")
+    @PreAuthorize("hasAuthority('project:create')")
     public R<Void> delete(@PathVariable Integer id) {
         projectService.delete(id);
         return R.ok();
@@ -88,7 +88,7 @@ public class ProjectController {
 
     @Idempotent
     @PostMapping("/{id}/convert")
-    @PreAuthorize("hasAuthority('project:suspend')")
+    @PreAuthorize("hasAuthority('project:convert')")
     public R<Void> convert(@PathVariable Integer id) {
         projectService.convertProject(id);
         return R.ok();
@@ -104,7 +104,7 @@ public class ProjectController {
 
     @Idempotent
     @PostMapping("/{id}/resume")
-    @PreAuthorize("hasAuthority('project:suspend')")
+    @PreAuthorize("hasAuthority('project:resume')")
     public R<Void> resume(@PathVariable Integer id) {
         projectService.resumeProject(id);
         return R.ok();
@@ -112,7 +112,7 @@ public class ProjectController {
 
     @Idempotent
     @PostMapping("/{id}/terminate")
-    @PreAuthorize("hasAuthority('project:suspend')")
+    @PreAuthorize("hasAuthority('project:terminate')")
     public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
         projectService.terminateProject(id, dto.getReason());
         return R.ok();
@@ -128,7 +128,7 @@ public class ProjectController {
 
     @Idempotent
     @PostMapping("/{id}/members")
-    @PreAuthorize("hasAuthority('project:edit')")
+    @PreAuthorize("hasAuthority('project:create')")
     public R<Void> addMember(@PathVariable Integer id, @Valid @RequestBody ProjectMemberDTO dto) {
         projectService.addMember(id, dto);
         return R.ok();
@@ -136,7 +136,7 @@ public class ProjectController {
 
     @Idempotent
     @DeleteMapping("/{id}/members/{userId}")
-    @PreAuthorize("hasAuthority('project:edit')")
+    @PreAuthorize("hasAuthority('project:create')")
     public R<Void> removeMember(@PathVariable Integer id, @PathVariable Integer userId) {
         projectService.removeMember(id, userId);
         return R.ok();

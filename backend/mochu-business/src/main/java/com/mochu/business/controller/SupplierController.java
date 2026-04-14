@@ -21,7 +21,7 @@ public class SupplierController {
     private final SupplierService supplierService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('supplier:view')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<PageResult<BizSupplier>> list(
             @RequestParam(required = false) String supplierName,
             @RequestParam(required = false) String status,
@@ -31,13 +31,13 @@ public class SupplierController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('supplier:view')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<List<BizSupplier>> listAll() {
         return R.ok(supplierService.listAll());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('supplier:view')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<BizSupplier> getById(@PathVariable Integer id) {
         BizSupplier supplier = supplierService.getById(id);
         if (supplier == null) return R.fail(404, "供应商不存在");
@@ -46,7 +46,7 @@ public class SupplierController {
 
     @Idempotent
     @PostMapping
-    @PreAuthorize("hasAuthority('supplier:edit')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<Void> create(@Valid @RequestBody SupplierDTO dto) {
         supplierService.create(dto);
         return R.ok();
@@ -54,7 +54,7 @@ public class SupplierController {
 
     @Idempotent
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('supplier:edit')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody SupplierDTO dto) {
         supplierService.update(id, dto);
         return R.ok();
@@ -62,7 +62,7 @@ public class SupplierController {
 
     @Idempotent
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('supplier:edit')")
+    @PreAuthorize("hasAuthority('contract:sign-expense')")
     public R<Void> delete(@PathVariable Integer id) {
         supplierService.delete(id);
         return R.ok();
