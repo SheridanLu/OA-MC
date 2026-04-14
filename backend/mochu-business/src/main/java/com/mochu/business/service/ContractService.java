@@ -44,6 +44,7 @@ public class ContractService {
     private final NoGeneratorService noGeneratorService;
     private final ContractTplService tplService;
     private final ApprovalService approvalService;
+    private final ContractVersionService contractVersionService;
 
     public PageResult<BizContract> list(String contractName, String contractType, String status,
                                          Integer projectId, Integer page, Integer size) {
@@ -268,11 +269,23 @@ public class ContractService {
         if (!"approved".equals(entity.getStatus()) && !"executing".equals(entity.getStatus())) {
             throw new BusinessException("仅已审批或执行中的合同可以终止");
         }
+        // 终止前生成版本快照
+        contractVersionService.createSnapshot(entity, "terminate", "合同终止", terminatorId);
         entity.setStatus("terminated");
         entity.setTerminateReason(reason);
         entity.setTerminateTime(LocalDateTime.now());
         entity.setTerminatorId(terminatorId);
         contractMapper.updateById(entity);
+    }
+
+    /**
+     * 补充协议审批通过回调 — 生成版本快照
+     */
+    public void onSupplementApproved(Integer contractId, Integer operatorId) {
+        BizContract contract = contractMapper.selectById(contractId);
+        contractVersionService.createSnapshot(
+                contract, "supplement", "补充协议审批通过", operatorId);
+        // ... 更新合同金额等
     }
 
     /**

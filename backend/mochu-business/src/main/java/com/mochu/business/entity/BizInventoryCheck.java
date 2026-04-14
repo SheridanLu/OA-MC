@@ -27,5 +27,7 @@ public class BizInventoryCheck extends BaseEntity {
 
     private String remark;
 
+    private Integer isOverThreshold;
+
     private String status;
 }
