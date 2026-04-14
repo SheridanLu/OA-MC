@@ -17,6 +17,7 @@ import com.mochu.business.dto.StatusUpdateDTO;
 import com.mochu.business.service.CompletionService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,6 +55,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/finish")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> createFinish(@Valid @RequestBody CompletionFinishDTO dto) {
@@ -61,6 +63,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/finish/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> updateFinish(@PathVariable Integer id, @Valid @RequestBody CompletionFinishDTO dto) {
@@ -68,6 +71,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/finish/{id}/status")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> updateFinishStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -75,6 +79,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/finish/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> deleteFinish(@PathVariable Integer id) {
@@ -104,6 +109,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/labor")
     @PreAuthorize("hasAuthority('completion:labor-manage')")
     public R<Void> createLabor(@Valid @RequestBody LaborSettlementDTO dto) {
@@ -111,6 +117,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/labor/{id}")
     @PreAuthorize("hasAuthority('completion:labor-manage')")
     public R<Void> updateLabor(@PathVariable Integer id, @Valid @RequestBody LaborSettlementDTO dto) {
@@ -118,6 +125,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/labor/{id}/status")
     @PreAuthorize("hasAuthority('completion:labor-manage')")
     public R<Void> updateLaborStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -125,6 +133,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/labor/{id}")
     @PreAuthorize("hasAuthority('completion:labor-manage')")
     public R<Void> deleteLabor(@PathVariable Integer id) {
@@ -154,6 +163,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/cases")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> createCase(@Valid @RequestBody CaseDTO dto) {
@@ -161,6 +171,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/cases/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> updateCase(@PathVariable Integer id, @Valid @RequestBody CaseDTO dto) {
@@ -168,6 +179,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/cases/{id}/status")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> updateCaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -175,6 +187,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/cases/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> deleteCase(@PathVariable Integer id) {
@@ -204,6 +217,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/exceptions")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> createException(@Valid @RequestBody ExceptionTaskDTO dto) {
@@ -211,6 +225,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/exceptions/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> updateException(@PathVariable Integer id, @Valid @RequestBody ExceptionTaskDTO dto) {
@@ -218,6 +233,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/exceptions/{id}/resolve")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> resolveException(@PathVariable Integer id, @Valid @RequestBody ResolveExceptionDTO dto) {
@@ -225,6 +241,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/exceptions/{id}")
     @PreAuthorize("hasAuthority('completion:finish-manage')")
     public R<Void> deleteException(@PathVariable Integer id) {
@@ -254,6 +271,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/drawings")
     @PreAuthorize("hasAuthority('completion:drawing-manage')")
     public R<Void> createDrawing(@Valid @RequestBody DrawingDTO dto) {
@@ -261,6 +279,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/drawings/{id}")
     @PreAuthorize("hasAuthority('completion:drawing-manage')")
     public R<Void> updateDrawing(@PathVariable Integer id, @Valid @RequestBody DrawingDTO dto) {
@@ -268,6 +287,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/drawings/{id}/status")
     @PreAuthorize("hasAuthority('completion:drawing-manage')")
     public R<Void> updateDrawingStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -275,6 +295,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/drawings/{id}")
     @PreAuthorize("hasAuthority('completion:drawing-manage')")
     public R<Void> deleteDrawing(@PathVariable Integer id) {
@@ -304,6 +325,7 @@ public class CompletionController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/docs")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
     public R<Void> createDoc(@Valid @RequestBody CompletionDocDTO dto) {
@@ -311,6 +333,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/docs/{id}")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
     public R<Void> updateDoc(@PathVariable Integer id, @Valid @RequestBody CompletionDocDTO dto) {
@@ -318,6 +341,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/docs/{id}/status")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
     public R<Void> updateDocStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -325,6 +349,7 @@ public class CompletionController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/docs/{id}")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
     public R<Void> deleteDoc(@PathVariable Integer id) {

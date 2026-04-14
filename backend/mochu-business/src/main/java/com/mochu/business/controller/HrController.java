@@ -5,6 +5,7 @@ import com.mochu.business.entity.*;
 import com.mochu.business.service.HrService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +39,7 @@ public class HrController {
         return R.ok(salary);
     }
 
+    @Idempotent
     @PostMapping("/salaries")
     @PreAuthorize("hasAuthority('hr:salary-manage')")
     public R<Void> createSalary(@Valid @RequestBody SalaryDTO dto) {
@@ -45,6 +47,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/salaries/{id}")
     @PreAuthorize("hasAuthority('hr:salary-manage')")
     public R<Void> updateSalary(@PathVariable Integer id, @Valid @RequestBody SalaryDTO dto) {
@@ -52,6 +55,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/salaries/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-manage')")
     public R<Void> updateSalaryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -59,6 +63,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/salaries/{id}")
     @PreAuthorize("hasAuthority('hr:salary-manage')")
     public R<Void> deleteSalary(@PathVariable Integer id) {
@@ -84,6 +89,7 @@ public class HrController {
         return R.ok(contract);
     }
 
+    @Idempotent
     @PostMapping("/contracts")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> createContract(@Valid @RequestBody HrContractDTO dto) {
@@ -91,6 +97,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/contracts/{id}")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> updateContract(@PathVariable Integer id, @Valid @RequestBody HrContractDTO dto) {
@@ -98,6 +105,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/contracts/{id}/status")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> updateContractStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -105,6 +113,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/contracts/{id}")
     @PreAuthorize("hasAuthority('hr:contract-manage')")
     public R<Void> deleteContract(@PathVariable Integer id) {
@@ -130,6 +139,7 @@ public class HrController {
         return R.ok(certificate);
     }
 
+    @Idempotent
     @PostMapping("/certificates")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> createCertificate(@Valid @RequestBody HrCertificateDTO dto) {
@@ -137,6 +147,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/certificates/{id}")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> updateCertificate(@PathVariable Integer id, @Valid @RequestBody HrCertificateDTO dto) {
@@ -144,6 +155,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/certificates/{id}/status")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> updateCertificateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -151,6 +163,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/certificates/{id}")
     @PreAuthorize("hasAuthority('hr:certificate-manage')")
     public R<Void> deleteCertificate(@PathVariable Integer id) {
@@ -176,6 +189,7 @@ public class HrController {
         return R.ok(entry);
     }
 
+    @Idempotent
     @PostMapping("/entries")
     @PreAuthorize("hasAuthority('hr:entry-manage')")
     public R<Void> createEntry(@Valid @RequestBody HrEntryDTO dto) {
@@ -183,6 +197,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/entries/{id}")
     @PreAuthorize("hasAuthority('hr:entry-manage')")
     public R<Void> updateEntry(@PathVariable Integer id, @Valid @RequestBody HrEntryDTO dto) {
@@ -190,6 +205,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/entries/{id}/status")
     @PreAuthorize("hasAuthority('hr:entry-manage')")
     public R<Void> updateEntryStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -197,6 +213,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/entries/{id}")
     @PreAuthorize("hasAuthority('hr:entry-manage')")
     public R<Void> deleteEntry(@PathVariable Integer id) {
@@ -222,6 +239,7 @@ public class HrController {
         return R.ok(resign);
     }
 
+    @Idempotent
     @PostMapping("/resigns")
     @PreAuthorize("hasAuthority('hr:resign-manage')")
     public R<Void> createResign(@Valid @RequestBody HrResignDTO dto) {
@@ -229,6 +247,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/resigns/{id}")
     @PreAuthorize("hasAuthority('hr:resign-manage')")
     public R<Void> updateResign(@PathVariable Integer id, @Valid @RequestBody HrResignDTO dto) {
@@ -236,6 +255,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/resigns/{id}/status")
     @PreAuthorize("hasAuthority('hr:resign-manage')")
     public R<Void> updateResignStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -243,6 +263,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/resigns/{id}")
     @PreAuthorize("hasAuthority('hr:resign-manage')")
     public R<Void> deleteResign(@PathVariable Integer id) {
@@ -268,6 +289,7 @@ public class HrController {
         return R.ok(salaryConfig);
     }
 
+    @Idempotent
     @PostMapping("/salary-config")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> createSalaryConfig(@Valid @RequestBody SalaryConfigDTO dto) {
@@ -275,6 +297,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/salary-config/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateSalaryConfig(@PathVariable Integer id, @Valid @RequestBody SalaryConfigDTO dto) {
@@ -282,6 +305,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/salary-config/{id}/status")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateSalaryConfigStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -289,6 +313,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/salary-config/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> deleteSalaryConfig(@PathVariable Integer id) {
@@ -314,6 +339,7 @@ public class HrController {
         return R.ok(socialInsurance);
     }
 
+    @Idempotent
     @PostMapping("/social-insurance")
     @PreAuthorize("hasAuthority('hr:social-insurance')")
     public R<Void> createSocialInsurance(@Valid @RequestBody SocialInsuranceDTO dto) {
@@ -321,6 +347,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/social-insurance/{id}")
     @PreAuthorize("hasAuthority('hr:social-insurance')")
     public R<Void> updateSocialInsurance(@PathVariable Integer id, @Valid @RequestBody SocialInsuranceDTO dto) {
@@ -328,6 +355,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/social-insurance/{id}/status")
     @PreAuthorize("hasAuthority('hr:social-insurance')")
     public R<Void> updateSocialInsuranceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -335,6 +363,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/social-insurance/{id}")
     @PreAuthorize("hasAuthority('hr:social-insurance')")
     public R<Void> deleteSocialInsurance(@PathVariable Integer id) {
@@ -360,6 +389,7 @@ public class HrController {
         return R.ok(taxRate);
     }
 
+    @Idempotent
     @PostMapping("/tax-rate")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> createTaxRate(@Valid @RequestBody TaxRateDTO dto) {
@@ -367,6 +397,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/tax-rate/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> updateTaxRate(@PathVariable Integer id, @Valid @RequestBody TaxRateDTO dto) {
@@ -374,6 +405,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/tax-rate/{id}")
     @PreAuthorize("hasAuthority('hr:salary-config')")
     public R<Void> deleteTaxRate(@PathVariable Integer id) {
@@ -399,6 +431,7 @@ public class HrController {
         return R.ok(assetTransfer);
     }
 
+    @Idempotent
     @PostMapping("/asset-transfer")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> createAssetTransfer(@Valid @RequestBody AssetTransferDTO dto) {
@@ -406,6 +439,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/asset-transfer/{id}")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> updateAssetTransfer(@PathVariable Integer id, @Valid @RequestBody AssetTransferDTO dto) {
@@ -413,6 +447,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/asset-transfer/{id}/status")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> updateAssetTransferStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -420,6 +455,7 @@ public class HrController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/asset-transfer/{id}")
     @PreAuthorize("hasAuthority('hr:asset-transfer')")
     public R<Void> deleteAssetTransfer(@PathVariable Integer id) {

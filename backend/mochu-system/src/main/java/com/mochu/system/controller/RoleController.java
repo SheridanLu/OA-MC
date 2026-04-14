@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.RoleDTO;
 import com.mochu.system.service.RoleService;
 import com.mochu.system.vo.RoleVO;
@@ -48,6 +49,7 @@ public class RoleController {
     /**
      * 创建角色 — POST /api/v1/admin/roles
      */
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:role-manage')")
     public R<Integer> create(@Valid @RequestBody RoleDTO dto) {
@@ -57,6 +59,7 @@ public class RoleController {
     /**
      * 更新角色 — PUT /api/v1/admin/roles/{id}
      */
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody RoleDTO dto) {
@@ -68,6 +71,7 @@ public class RoleController {
     /**
      * 删除角色 — DELETE /api/v1/admin/roles/{id}
      */
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:role-manage')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -87,6 +91,7 @@ public class RoleController {
     /**
      * 配置角色权限 — PUT /api/v1/admin/roles/{id}/permissions — V3.2 §5.9.5
      */
+    @Idempotent
     @PutMapping("/{id}/permissions")
     @PreAuthorize("hasAuthority('system:role-manage')")
     public R<Void> updatePermissions(@PathVariable Integer id, @RequestBody Map<String, List<Integer>> body) {
@@ -117,6 +122,7 @@ public class RoleController {
     /**
      * 更新角色数据权限 — PUT /api/v1/admin/roles/{id}/data-scope — V3.2
      */
+    @Idempotent
     @PutMapping("/{id}/data-scope")
     @PreAuthorize("hasAuthority('system:role-manage')")
     public R<Void> updateDataScope(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {

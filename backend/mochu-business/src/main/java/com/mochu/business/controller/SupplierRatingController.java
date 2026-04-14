@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizSupplierRating;
 import com.mochu.business.service.SupplierRatingService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +36,7 @@ public class SupplierRatingController {
         return R.ok(ratingService.supplierRatingSummary());
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('supplier:rating')")
     public R<Void> create(@Valid @RequestBody SupplierRatingDTO dto) {
@@ -42,6 +44,7 @@ public class SupplierRatingController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('supplier:rating')")
     public R<Void> delete(@PathVariable Integer id) {

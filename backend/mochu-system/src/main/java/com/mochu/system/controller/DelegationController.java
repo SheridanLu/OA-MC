@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DelegationDTO;
 import com.mochu.system.service.DelegationService;
 import com.mochu.system.vo.DelegationVO;
@@ -30,6 +31,7 @@ public class DelegationController {
         return R.ok(delegationService.list(delegatorId, status, page, size));
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:delegation:edit')")
     public R<Void> create(@Valid @RequestBody DelegationDTO dto) {
@@ -37,6 +39,7 @@ public class DelegationController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/{id}/revoke")
     @PreAuthorize("hasAuthority('system:delegation:edit')")
     public R<Void> revoke(@PathVariable Integer id) {
@@ -44,6 +47,7 @@ public class DelegationController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:delegation:edit')")
     public R<Void> delete(@PathVariable Integer id) {

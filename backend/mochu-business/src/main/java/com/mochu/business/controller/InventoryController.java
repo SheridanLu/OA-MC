@@ -13,6 +13,7 @@ import com.mochu.business.entity.BizReturnOrder;
 import com.mochu.business.service.InventoryService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +53,7 @@ public class InventoryController {
         return R.ok(order);
     }
 
+    @Idempotent
     @PostMapping("/inbound")
     @PreAuthorize("hasAuthority('inventory:inbound')")
     public R<Void> createInbound(@Valid @RequestBody InboundOrderDTO dto) {
@@ -59,6 +61,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/inbound/{id}")
     @PreAuthorize("hasAuthority('inventory:inbound')")
     public R<Void> updateInbound(@PathVariable Integer id, @Valid @RequestBody InboundOrderDTO dto) {
@@ -66,6 +69,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/inbound/{id}/status")
     @PreAuthorize("hasAuthority('inventory:inbound')")
     public R<Void> updateInboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -73,6 +77,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/inbound/{id}")
     @PreAuthorize("hasAuthority('inventory:inbound')")
     public R<Void> deleteInbound(@PathVariable Integer id) {
@@ -102,6 +107,7 @@ public class InventoryController {
         return R.ok(order);
     }
 
+    @Idempotent
     @PostMapping("/outbound")
     @PreAuthorize("hasAuthority('inventory:outbound')")
     public R<Void> createOutbound(@Valid @RequestBody OutboundOrderDTO dto) {
@@ -109,6 +115,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/outbound/{id}")
     @PreAuthorize("hasAuthority('inventory:outbound')")
     public R<Void> updateOutbound(@PathVariable Integer id, @Valid @RequestBody OutboundOrderDTO dto) {
@@ -116,6 +123,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/outbound/{id}/status")
     @PreAuthorize("hasAuthority('inventory:outbound')")
     public R<Void> updateOutboundStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -123,6 +131,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/outbound/{id}")
     @PreAuthorize("hasAuthority('inventory:outbound')")
     public R<Void> deleteOutbound(@PathVariable Integer id) {
@@ -152,6 +161,7 @@ public class InventoryController {
         return R.ok(order);
     }
 
+    @Idempotent
     @PostMapping("/return")
     @PreAuthorize("hasAuthority('inventory:return')")
     public R<Void> createReturn(@Valid @RequestBody ReturnOrderDTO dto) {
@@ -159,6 +169,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/return/{id}")
     @PreAuthorize("hasAuthority('inventory:return')")
     public R<Void> updateReturn(@PathVariable Integer id, @Valid @RequestBody ReturnOrderDTO dto) {
@@ -166,6 +177,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/return/{id}/status")
     @PreAuthorize("hasAuthority('inventory:return')")
     public R<Void> updateReturnStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -173,6 +185,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/return/{id}")
     @PreAuthorize("hasAuthority('inventory:return')")
     public R<Void> deleteReturn(@PathVariable Integer id) {
@@ -202,6 +215,7 @@ public class InventoryController {
         return R.ok(check);
     }
 
+    @Idempotent
     @PostMapping("/check")
     @PreAuthorize("hasAuthority('inventory:check')")
     public R<Void> createCheck(@Valid @RequestBody InventoryCheckDTO dto) {
@@ -209,6 +223,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/check/{id}")
     @PreAuthorize("hasAuthority('inventory:check')")
     public R<Void> updateCheck(@PathVariable Integer id, @Valid @RequestBody InventoryCheckDTO dto) {
@@ -216,6 +231,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/check/{id}/status")
     @PreAuthorize("hasAuthority('inventory:check')")
     public R<Void> updateCheckStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -223,6 +239,7 @@ public class InventoryController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/check/{id}")
     @PreAuthorize("hasAuthority('inventory:check')")
     public R<Void> deleteCheck(@PathVariable Integer id) {

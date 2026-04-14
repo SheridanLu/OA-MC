@@ -13,11 +13,12 @@ public enum ErrorCode {
 
     // ===== 项目管理 10xxx =====
     PROJECT_STATUS_NOT_ALLOWED(10001, "项目状态不允许此操作"),
+    PROJECT_OVER_LIMIT(10002, "超出虚拟项目投入限额"),
 
     // ===== 合同管理 20xxx =====
     CONTRACT_AMOUNT_EXCEED(20001, "合同金额超限"),
     MATERIAL_OVER_QUANTITY(20002, "物资超量需预算员审批"),
-    PRICE_OVER_BASE(20003, "单价超基准价"),
+    PRICE_OVER_BASE(20003, "单价偏离基准价"),
     PENDING_PAYMENT_EXISTS(20004, "存在待审批付款申请"),
     PENDING_INBOUND_EXISTS(20005, "存在未完成入库单"),
 

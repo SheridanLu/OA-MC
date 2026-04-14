@@ -6,7 +6,9 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
@@ -14,6 +16,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Set;
 
 /**
@@ -28,6 +31,9 @@ public class SignatureVerificationFilter implements Filter {
     @Value("${security.signature-key:MochuOA_Signature_Key_2026}")
     private String signatureKey;
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     /** 需要签名验证的路径 */
     private static final Set<String> SIGNED_PATHS = Set.of(
             "/api/v1/auth/login-by-password",
@@ -36,7 +42,13 @@ public class SignatureVerificationFilter implements Filter {
             "/api/v1/auth/reset-password",
             "/api/v1/contracts",
             "/api/v1/payment/apply",
-            "/api/v1/admin/users/reset-password"
+            "/api/v1/admin/users/reset-password",
+            "/api/v1/finance/payments",
+            "/api/v1/finance/receipts",
+            "/api/v1/attachments",
+            "/api/v1/hr/salary-config",
+            "/api/v1/hr/tax-rate",
+            "/api/v1/completion/labor"
     );
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -84,6 +96,19 @@ public class SignatureVerificationFilter implements Filter {
             }
         } catch (NumberFormatException e) {
             writeError(resp, 400, "时间戳格式无效");
+            return;
+        }
+
+        // Nonce 防重放校验
+        if (nonce == null || nonce.isBlank()) {
+            writeError(resp, 400, "缺少Nonce参数");
+            return;
+        }
+        String nonceKey = "nonce:" + nonce;
+        Boolean setSuccess = stringRedisTemplate.opsForValue()
+                .setIfAbsent(nonceKey, "1", Duration.ofMinutes(5));
+        if (!Boolean.TRUE.equals(setSuccess)) {
+            writeError(resp, 400, "请求已处理（重复Nonce）");
             return;
         }
 

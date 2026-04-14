@@ -10,6 +10,7 @@ import com.mochu.business.service.ContractService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +44,7 @@ public class ContractController {
         return R.ok(contractService.getDetail(id));
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('contract:create')")
     public R<Void> create(@Valid @RequestBody ContractDTO dto) {
@@ -51,6 +53,7 @@ public class ContractController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:edit')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractDTO dto) {
@@ -58,6 +61,7 @@ public class ContractController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('contract:edit')")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -65,6 +69,7 @@ public class ContractController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('contract:delete')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -74,6 +79,7 @@ public class ContractController {
 
     // ======================== 合同提交/终止 ========================
 
+    @Idempotent
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasAuthority('contract:edit')")
     public R<Void> submit(@PathVariable Integer id) {
@@ -82,6 +88,7 @@ public class ContractController {
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{id}/terminate")
     @PreAuthorize("hasAuthority('contract:terminate')")
     public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
@@ -98,6 +105,7 @@ public class ContractController {
         return R.ok(contractService.listSupplements(contractId));
     }
 
+    @Idempotent
     @PostMapping("/{contractId}/supplements")
     @PreAuthorize("hasAuthority('contract:create')")
     public R<Void> createSupplement(@PathVariable Integer contractId, @Valid @RequestBody ContractDTO dto) {

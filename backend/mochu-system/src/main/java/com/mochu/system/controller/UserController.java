@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.UserCreateDTO;
 import com.mochu.system.dto.UserQueryDTO;
 import com.mochu.system.dto.UserUpdateDTO;
@@ -46,6 +47,7 @@ public class UserController {
     /**
      * 创建用户 — POST /api/v1/admin/users
      */
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Integer> create(@Valid @RequestBody UserCreateDTO dto) {
@@ -55,6 +57,7 @@ public class UserController {
     /**
      * 更新用户 — PUT /api/v1/admin/users/{id}
      */
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody UserUpdateDTO dto) {
@@ -66,6 +69,7 @@ public class UserController {
     /**
      * 删除用户 — DELETE /api/v1/admin/users/{id}
      */
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -76,6 +80,7 @@ public class UserController {
     /**
      * 启用/禁用用户 — PATCH /api/v1/admin/users/{id}/status — V3.2 §5.9.4
      */
+    @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
@@ -90,6 +95,7 @@ public class UserController {
     /**
      * 分配角色 — PUT /api/v1/admin/users/{id}/roles
      */
+    @Idempotent
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> assignRoles(@PathVariable Integer id, @RequestBody Map<String, List<Integer>> body) {
@@ -101,6 +107,7 @@ public class UserController {
     /**
      * 重置密码 — POST /api/v1/admin/users/{id}/reset-password — V3.2 §5.9.4
      */
+    @Idempotent
     @PostMapping("/{id}/reset-password")
     @PreAuthorize("hasAuthority('system:user-manage')")
     public R<Void> resetPassword(@PathVariable Integer id, @RequestBody Map<String, String> body) {

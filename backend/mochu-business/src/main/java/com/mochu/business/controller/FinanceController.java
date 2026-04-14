@@ -10,6 +10,7 @@ import com.mochu.business.entity.*;
 import com.mochu.business.service.FinanceService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,6 +53,7 @@ public class FinanceController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/statements")
     @PreAuthorize("hasAuthority('finance:statement-manage')")
     public R<Void> createStatement(@Valid @RequestBody StatementDTO dto) {
@@ -59,6 +61,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/statements/{id}")
     @PreAuthorize("hasAuthority('finance:statement-manage')")
     public R<Void> updateStatement(@PathVariable Integer id, @Valid @RequestBody StatementDTO dto) {
@@ -66,6 +69,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/statements/{id}/status")
     @PreAuthorize("hasAuthority('finance:statement-manage')")
     public R<Void> updateStatementStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -73,6 +77,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/statements/{id}")
     @PreAuthorize("hasAuthority('finance:statement-manage')")
     public R<Void> deleteStatement(@PathVariable Integer id) {
@@ -104,6 +109,7 @@ public class FinanceController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/payments")
     @PreAuthorize("hasAuthority('finance:payment-create')")
     public R<Void> createPayment(@Valid @RequestBody PaymentApplyDTO dto) {
@@ -111,6 +117,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/payments/{id}")
     @PreAuthorize("hasAuthority('finance:payment-create')")
     public R<Void> updatePayment(@PathVariable Integer id, @Valid @RequestBody PaymentApplyDTO dto) {
@@ -118,6 +125,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/payments/{id}/status")
     @PreAuthorize("hasAuthority('finance:payment-confirm')")
     public R<Void> updatePaymentStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -125,6 +133,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/payments/{id}")
     @PreAuthorize("hasAuthority('finance:payment-create')")
     public R<Void> deletePayment(@PathVariable Integer id) {
@@ -156,6 +165,7 @@ public class FinanceController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/invoices")
     @PreAuthorize("hasAuthority('finance:invoice-manage')")
     public R<Void> createInvoice(@Valid @RequestBody InvoiceDTO dto) {
@@ -163,6 +173,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/invoices/{id}")
     @PreAuthorize("hasAuthority('finance:invoice-manage')")
     public R<Void> updateInvoice(@PathVariable Integer id, @Valid @RequestBody InvoiceDTO dto) {
@@ -170,6 +181,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/invoices/{id}/status")
     @PreAuthorize("hasAuthority('finance:invoice-manage')")
     public R<Void> updateInvoiceStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -177,6 +189,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/invoices/{id}")
     @PreAuthorize("hasAuthority('finance:invoice-manage')")
     public R<Void> deleteInvoice(@PathVariable Integer id) {
@@ -208,6 +221,7 @@ public class FinanceController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/reimburses")
     @PreAuthorize("hasAuthority('finance:reimburse-manage')")
     public R<Void> createReimburse(@Valid @RequestBody ReimburseDTO dto) {
@@ -215,6 +229,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/reimburses/{id}")
     @PreAuthorize("hasAuthority('finance:reimburse-manage')")
     public R<Void> updateReimburse(@PathVariable Integer id, @Valid @RequestBody ReimburseDTO dto) {
@@ -222,6 +237,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/reimburses/{id}/status")
     @PreAuthorize("hasAuthority('finance:reimburse-manage')")
     public R<Void> updateReimburseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -229,6 +245,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/reimburses/{id}")
     @PreAuthorize("hasAuthority('finance:reimburse-manage')")
     public R<Void> deleteReimburse(@PathVariable Integer id) {
@@ -288,6 +305,7 @@ public class FinanceController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/receipts")
     @PreAuthorize("hasAuthority('finance:receipt-create')")
     public R<Void> createReceipt(@Valid @RequestBody ReceiptDTO dto) {
@@ -295,6 +313,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/receipts/{id}")
     @PreAuthorize("hasAuthority('finance:receipt-create')")
     public R<Void> updateReceipt(@PathVariable Integer id, @Valid @RequestBody ReceiptDTO dto) {
@@ -302,6 +321,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/receipts/{id}/status")
     @PreAuthorize("hasAuthority('finance:receipt-create')")
     public R<Void> updateReceiptStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -309,6 +329,7 @@ public class FinanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/receipts/{id}")
     @PreAuthorize("hasAuthority('finance:receipt-create')")
     public R<Void> deleteReceipt(@PathVariable Integer id) {

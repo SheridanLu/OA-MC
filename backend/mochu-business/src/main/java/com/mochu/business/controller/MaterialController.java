@@ -7,6 +7,7 @@ import com.mochu.business.service.MaterialService;
 import com.mochu.business.vo.BatchResult;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,6 +47,7 @@ public class MaterialController {
         return R.ok(material);
     }
 
+    @Idempotent
     @PostMapping("/batch")
     @PreAuthorize("hasAuthority('material:edit')")
     public R<BatchResult> batchCreate(@Valid @RequestBody MaterialBatchDTO dto) {
@@ -53,6 +55,7 @@ public class MaterialController {
         return R.ok(result);
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('material:edit')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody MaterialDTO dto) {
@@ -60,6 +63,7 @@ public class MaterialController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('material:edit')")
     public R<Void> delete(@PathVariable Integer id) {

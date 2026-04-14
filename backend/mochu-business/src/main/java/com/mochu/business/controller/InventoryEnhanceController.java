@@ -6,6 +6,7 @@ import com.mochu.business.entity.BizInventoryAlert;
 import com.mochu.business.entity.BizInventoryTransfer;
 import com.mochu.business.service.InventoryEnhanceService;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +35,7 @@ public class InventoryEnhanceController {
         return R.ok(enhanceService.listTriggeredAlerts(projectId));
     }
 
+    @Idempotent
     @PostMapping("/alerts")
     @PreAuthorize("hasAuthority('inventory:alert-manage')")
     public R<Void> saveAlert(@Valid @RequestBody InventoryAlertDTO dto) {
@@ -41,6 +43,7 @@ public class InventoryEnhanceController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/alerts/{id}")
     @PreAuthorize("hasAuthority('inventory:alert-manage')")
     public R<Void> deleteAlert(@PathVariable Integer id) {
@@ -58,6 +61,7 @@ public class InventoryEnhanceController {
         return R.ok(enhanceService.listTransfers(projectId, status));
     }
 
+    @Idempotent
     @PostMapping("/transfers")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> createTransfer(@Valid @RequestBody InventoryTransferDTO dto) {
@@ -65,6 +69,7 @@ public class InventoryEnhanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/transfers/{id}/confirm")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> confirmTransfer(@PathVariable Integer id) {
@@ -72,6 +77,7 @@ public class InventoryEnhanceController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/transfers/{id}/cancel")
     @PreAuthorize("hasAuthority('inventory:transfer')")
     public R<Void> cancelTransfer(@PathVariable Integer id) {

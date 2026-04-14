@@ -194,6 +194,9 @@ public class AuthService {
         // P0: 通过 PasswordPolicyService 校验密码复杂度
         passwordPolicyService.validateComplexity(dto.getNewPassword());
 
+        // P0: 检查密码历史 — 新密码不能与最近5次使用过的密码相同
+        passwordPolicyService.checkPasswordHistory(user.getId(), dto.getNewPassword());
+
         // 更新密码
         user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
         user.setLoginAttempts(0);
@@ -201,6 +204,9 @@ public class AuthService {
         user.setPasswordChangedAt(LocalDateTime.now()); // P0: 更新密码修改时间
         user.setForceChangePwd(0); // 重置后不再强制改密
         sysUserMapper.updateById(user);
+
+        // P0: 保存密码历史
+        passwordPolicyService.savePasswordHistory(user.getId(), user.getPasswordHash());
 
         // P0: 重置 Redis 失败计数
         passwordPolicyService.resetFailureCount(user.getUsername());

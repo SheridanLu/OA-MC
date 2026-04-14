@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.AnnouncementDTO;
 import com.mochu.system.dto.AnnouncementQueryDTO;
 import com.mochu.system.service.AnnouncementService;
@@ -44,6 +45,7 @@ public class AnnouncementController {
     /**
      * 创建公告 — POST /api/v1/admin/announcements
      */
+    @Idempotent
     @PostMapping("/admin/announcements")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Integer> create(@Valid @RequestBody AnnouncementDTO dto) {
@@ -53,6 +55,7 @@ public class AnnouncementController {
     /**
      * 更新公告 — PUT /api/v1/admin/announcements/{id}
      */
+    @Idempotent
     @PutMapping("/admin/announcements/{id}")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody AnnouncementDTO dto) {
@@ -64,6 +67,7 @@ public class AnnouncementController {
     /**
      * 发布公告 — PATCH /api/v1/admin/announcements/{id}/publish
      */
+    @Idempotent
     @PatchMapping("/admin/announcements/{id}/publish")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Void> publish(@PathVariable Integer id) {
@@ -74,6 +78,7 @@ public class AnnouncementController {
     /**
      * 下线公告 — PATCH /api/v1/admin/announcements/{id}/offline
      */
+    @Idempotent
     @PatchMapping("/admin/announcements/{id}/offline")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Void> offline(@PathVariable Integer id) {
@@ -84,6 +89,7 @@ public class AnnouncementController {
     /**
      * 置顶/取消置顶 — PATCH /api/v1/admin/announcements/{id}/toggle-top
      */
+    @Idempotent
     @PatchMapping("/admin/announcements/{id}/toggle-top")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Void> toggleTop(@PathVariable Integer id) {
@@ -94,6 +100,7 @@ public class AnnouncementController {
     /**
      * 删除公告 — DELETE /api/v1/admin/announcements/{id}
      */
+    @Idempotent
     @DeleteMapping("/admin/announcements/{id}")
     @PreAuthorize("hasAuthority('system:announcement-manage')")
     public R<Void> delete(@PathVariable Integer id) {

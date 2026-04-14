@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.ConfigDTO;
 import com.mochu.system.dto.ConfigQueryDTO;
 import com.mochu.system.entity.SysConfig;
@@ -37,6 +38,7 @@ public class ConfigController {
         return R.ok(config);
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:config:edit')")
     public R<Void> create(@Valid @RequestBody ConfigDTO dto) {
@@ -44,6 +46,7 @@ public class ConfigController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:config:edit')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ConfigDTO dto) {
@@ -51,6 +54,7 @@ public class ConfigController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:config:edit')")
     public R<Void> delete(@PathVariable Integer id) {

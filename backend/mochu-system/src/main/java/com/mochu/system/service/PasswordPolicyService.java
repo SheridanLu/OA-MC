@@ -4,10 +4,13 @@ import com.mochu.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -20,6 +23,8 @@ import java.util.regex.Pattern;
 public class PasswordPolicyService {
 
     private final StringRedisTemplate redisTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final PasswordEncoder passwordEncoder;
 
     /** 密码复杂度正则：8位以上，包含大写、小写、数字、特殊字符 */
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
@@ -117,5 +122,28 @@ public class PasswordPolicyService {
      */
     public int getRemainingAttempts(String username) {
         return Math.max(0, MAX_FAILURES - getFailureCount(username));
+    }
+
+    /**
+     * 检查密码历史 — 新密码不能与最近5次使用过的密码相同
+     */
+    public void checkPasswordHistory(Integer userId, String rawPassword) {
+        List<String> recentHashes = jdbcTemplate.queryForList(
+                "SELECT password_hash FROM sys_password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 5",
+                String.class, userId);
+        for (String historicalHash : recentHashes) {
+            if (passwordEncoder.matches(rawPassword, historicalHash)) {
+                throw new BusinessException(400, "新密码不能与最近5次使用过的密码相同");
+            }
+        }
+    }
+
+    /**
+     * 保存密码历史记录
+     */
+    public void savePasswordHistory(Integer userId, String encodedPassword) {
+        jdbcTemplate.update(
+                "INSERT INTO sys_password_history (user_id, password_hash, created_at) VALUES (?, ?, NOW())",
+                userId, encodedPassword);
     }
 }

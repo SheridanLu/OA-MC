@@ -1,6 +1,7 @@
 package com.mochu.system.controller;
 
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DeptDTO;
 import com.mochu.system.service.DeptService;
 import com.mochu.system.vo.DeptVO;
@@ -42,6 +43,7 @@ public class DeptController {
     /**
      * 创建部门 — POST /api/v1/admin/depts
      */
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:dept-manage')")
     public R<Integer> create(@Valid @RequestBody DeptDTO dto) {
@@ -51,6 +53,7 @@ public class DeptController {
     /**
      * 更新部门 — PUT /api/v1/admin/depts/{id}
      */
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:dept-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody DeptDTO dto) {
@@ -62,6 +65,7 @@ public class DeptController {
     /**
      * 启用/停用部门 — PATCH /api/v1/admin/depts/{id}/status — V3.2 §5.9.6
      */
+    @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('system:dept-manage')")
     public R<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
@@ -76,6 +80,7 @@ public class DeptController {
     /**
      * 删除部门 — DELETE /api/v1/admin/depts/{id}
      */
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:dept-manage')")
     public R<Void> delete(@PathVariable Integer id) {

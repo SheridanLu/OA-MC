@@ -4,6 +4,7 @@ import com.mochu.business.dto.ReportTemplateDTO;
 import com.mochu.business.entity.SysReportTemplate;
 import com.mochu.business.service.ReportTemplateService;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,7 @@ public class ReportTemplateController {
         return R.ok(reportTemplateService.getTemplate(id));
     }
 
+    @Idempotent
     @PostMapping("/templates")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> createTemplate(@Valid @RequestBody ReportTemplateDTO dto) {
@@ -40,6 +42,7 @@ public class ReportTemplateController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/templates/{id}")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> updateTemplate(@PathVariable Integer id, @Valid @RequestBody ReportTemplateDTO dto) {
@@ -47,6 +50,7 @@ public class ReportTemplateController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/templates/{id}")
     @PreAuthorize("hasAuthority('report:template-manage')")
     public R<Void> deleteTemplate(@PathVariable Integer id) {
@@ -54,6 +58,7 @@ public class ReportTemplateController {
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/templates/{id}/execute")
     @PreAuthorize("hasAuthority('report:view')")
     public R<Map<String, Object>> executeTemplate(@PathVariable Integer id,

@@ -24,7 +24,13 @@ INSERT INTO sys_role (role_code, role_name, data_scope, remark, status, deleted)
 ('HR', '人力资源', 1, '人事管理', 1, 0),
 ('INVENTORY', '仓库管理员', 2, '库存管理', 1, 0),
 ('BUDGET', '预算专员', 2, '预算审核', 1, 0),
-('VIEWER', '查看者', 4, '只读权限', 1, 0);
+('VIEWER', '查看者', 4, '只读权限', 1, 0),
+('GM', '总经理', 1, '系统最高管理权限', 1, 0),
+('LEGAL', '法务', 2, '合同法律审核', 1, 0),
+('DATA', '资料员', 2, '文档管理和数据维护', 1, 0),
+('BASE', '基础业务部员工', 4, '基础业务部门', 1, 0),
+('SOFT', '软件业务部员工', 4, '软件业务部门', 1, 0),
+('TEAM_MEMBER', '项目团队成员', 3, '项目执行层人员', 1, 0);
 
 -- ============================================================
 -- Default department
@@ -178,12 +184,62 @@ INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
 ('report:template-manage', '报表模板管理', 'report', 1);
 
+-- V3.2 Spec alignment permissions
+INSERT INTO sys_permission (perm_code, perm_name, module, perm_type) VALUES
+('project:approve', '项目审批', 'project', 1),
+('project:convert', '虚拟转实体', 'project', 1),
+('project:terminate', '项目终止', 'project', 1),
+('project:resume', '项目恢复', 'project', 1),
+('contract:sign-income', '签订收入合同', 'contract', 1),
+('contract:sign-expense', '签订支出合同', 'contract', 1),
+('contract:approve-finance', '合同财务审批', 'contract', 1),
+('contract:approve-legal', '合同法务审批', 'contract', 1),
+('contract:approve-gm', '合同总经理审批', 'contract', 1),
+('contract:link', '合同关联', 'contract', 1),
+('contract:template-manage', '合同模板管理', 'contract', 1),
+('purchase:list-manage', '采购清单管理', 'purchase', 1),
+('purchase:check-overbuy', '超量采购检查', 'purchase', 1),
+('material:inbound-approve', '入库审批', 'material', 1),
+('material:outbound-approve', '出库审批', 'material', 1),
+('material:return', '退库操作', 'material', 1),
+('material:return-approve', '退库审批', 'material', 1),
+('progress:view', '进度查看', 'progress', 1),
+('progress:correct', '进度纠偏', 'progress', 1),
+('change:apply', '变更申请', 'change', 1),
+('change:approve', '变更审批', 'change', 1),
+('statement:apply', '对账单申请', 'statement', 1),
+('statement:approve', '对账单审批', 'statement', 1),
+('split:apply', '收入拆分申请', 'split', 1),
+('finance:reimburse-approve', '报销审批', 'finance', 1),
+('finance:payment-apply', '付款申请', 'finance', 1),
+('finance:report-view', '财务报表查看', 'finance', 1),
+('doc:upload', '文档上传', 'doc', 1),
+('doc:download', '文档下载', 'doc', 1),
+('doc:manage', '文档管理', 'doc', 1),
+('report:view-all', '查看所有报表', 'report', 1),
+('report:view-project', '查看项目报表', 'report', 1),
+('system:log-view', '审计日志查看', 'system', 1),
+('hr:entry-process', '入职流程', 'hr', 1),
+('hr:resign-process', '离职流程', 'hr', 1),
+('hr:salary-adjust', '薪资调整', 'hr', 1),
+('hr:salary-approve', '薪资审批', 'hr', 1),
+('hr:contract-view-own', '查看本人合同', 'hr', 1),
+('hr:social-insurance-config', '社保配置', 'hr', 1),
+('hr:tax-rate-config', '税率配置', 'hr', 1);
+
 -- ============================================================
 -- SUPER_ADMIN -> ALL permissions (cross join)
 -- ============================================================
 INSERT INTO sys_role_permission (role_id, permission_id)
 SELECT r.id, p.id FROM sys_role r, sys_permission p
 WHERE r.role_code = 'SUPER_ADMIN';
+
+-- ============================================================
+-- GM -> ALL permissions (cross join)
+-- ============================================================
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT r.id, p.id FROM sys_role r, sys_permission p
+WHERE r.role_code = 'GM';
 
 -- ============================================================
 -- 字典类型种子数据
@@ -232,7 +288,17 @@ INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_cl
 ('biz_status', '逾期', 'overdue', 16, 'danger', '#f56c6c', 1, 0),
 ('biz_status', '正常', 'normal', 17, 'success', '#67c23a', 1, 0),
 ('biz_status', '已付款', 'paid', 18, 'success', '#67c23a', 1, 0),
-('biz_status', '未付款', 'unpaid', 19, 'warning', '#e6a23c', 1, 0);
+('biz_status', '未付款', 'unpaid', 19, 'warning', '#e6a23c', 1, 0),
+('biz_status', '跟踪中', 'tracking', 20, 'info', '#909399', 1, 0),
+('biz_status', '已转实体', 'converted', 21, 'success', '#67c23a', 1, 0),
+('biz_status', '已完工验收', 'completion_accepted', 22, 'success', '#67c23a', 1, 0),
+('biz_status', '已竣工验收', 'final_accepted', 23, 'success', '#67c23a', 1, 0),
+('biz_status', '已完成审计', 'audit_done', 24, 'success', '#67c23a', 1, 0),
+('biz_status', '归集失败', 'collect_failed', 25, 'danger', '#f56c6c', 1, 0),
+('biz_status', '已作废', 'voided', 26, 'info', '#909399', 1, 0),
+('biz_status', '已下线', 'offline', 27, 'info', '#909399', 1, 0),
+('biz_status', '已过期', 'expired', 28, 'info', '#909399', 1, 0),
+('biz_status', '已失效', 'inactive', 29, 'info', '#909399', 1, 0);
 
 -- contract_type (7)
 INSERT INTO sys_dict_data (dict_type, dict_label, dict_value, dict_sort, list_class, color_hex, status, deleted) VALUES

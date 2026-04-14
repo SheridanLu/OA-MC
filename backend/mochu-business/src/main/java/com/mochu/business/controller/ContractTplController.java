@@ -11,6 +11,7 @@ import com.mochu.business.service.ContractTplService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,6 +50,7 @@ public class ContractTplController {
         return R.ok(tpl);
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Integer> create(@Valid @RequestBody ContractTplDTO dto) {
@@ -60,6 +62,7 @@ public class ContractTplController {
     /**
      * 创建模板并同时上传模板文件（合并操作）
      */
+    @Idempotent
     @PostMapping("/with-file")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<SysContractTplVersion> createWithFile(
@@ -77,6 +80,7 @@ public class ContractTplController {
         return R.ok(version);
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ContractTplDTO dto) {
@@ -85,6 +89,7 @@ public class ContractTplController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -95,6 +100,7 @@ public class ContractTplController {
 
     // ===================== 版本管理 =====================
 
+    @Idempotent
     @PostMapping("/{id}/versions")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<SysContractTplVersion> uploadVersion(@PathVariable Integer id, @RequestParam("file") MultipartFile file) {
@@ -117,6 +123,7 @@ public class ContractTplController {
         return R.ok(version);
     }
 
+    @Idempotent
     @PatchMapping("/versions/{versionId}/status")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Void> updateVersionStatus(@PathVariable Integer versionId, @Valid @RequestBody VersionStatusDTO dto) {
@@ -128,6 +135,7 @@ public class ContractTplController {
     /**
      * 提交版本启用审批（电子流审批）
      */
+    @Idempotent
     @PostMapping("/versions/{versionId}/submit-approval")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Void> submitVersionApproval(@PathVariable Integer versionId) {
@@ -156,6 +164,7 @@ public class ContractTplController {
         return R.ok(tplService.listFields(versionId));
     }
 
+    @Idempotent
     @PutMapping("/versions/{versionId}/fields")
     @PreAuthorize("hasAuthority('system:tpl-manage')")
     public R<Void> updateFields(@PathVariable Integer versionId, @Valid @RequestBody TplFieldUpdateDTO dto) {

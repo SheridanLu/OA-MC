@@ -4,6 +4,7 @@ import com.mochu.business.entity.BizAttachment;
 import com.mochu.business.service.AttachmentService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class AttachmentController {
 
     private final AttachmentService attachmentService;
 
+    @Idempotent
     @PostMapping("/upload")
     @PreAuthorize("isAuthenticated()")
     public R<BizAttachment> upload(@RequestParam("file") MultipartFile file,
@@ -54,6 +56,7 @@ public class AttachmentController {
         return R.ok(attachmentService.listByBiz(bizType, bizId));
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public R<Void> delete(@PathVariable Integer id) throws Exception {
@@ -65,6 +68,7 @@ public class AttachmentController {
      * POST /api/v1/attachments/{id}/replace
      * 替换附件 — 原文件保留标记 replaced（status=0）
      */
+    @Idempotent
     @PostMapping("/{id}/replace")
     @PreAuthorize("isAuthenticated()")
     public R<BizAttachment> replace(@PathVariable Integer id,
@@ -76,6 +80,7 @@ public class AttachmentController {
      * POST /api/v1/attachments/bindBatch
      * 批量关联附件到指定业务单据
      */
+    @Idempotent
     @PostMapping("/bindBatch")
     @PreAuthorize("isAuthenticated()")
     public R<Void> bindBatch(@RequestBody Map<String, Object> body) {

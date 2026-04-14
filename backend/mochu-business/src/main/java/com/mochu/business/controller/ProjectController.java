@@ -11,6 +11,7 @@ import com.mochu.business.service.ProjectService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,6 +51,7 @@ public class ProjectController {
         return R.ok(project);
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('project:create')")
     public R<Void> create(@Valid @RequestBody ProjectDTO dto) {
@@ -58,6 +60,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('project:edit')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody ProjectDTO dto) {
@@ -65,6 +68,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('project:edit')")
     public R<Void> updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -72,6 +76,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('project:delete')")
     public R<Void> delete(@PathVariable Integer id) {
@@ -81,6 +86,7 @@ public class ProjectController {
 
     // ======================== 项目生命周期 ========================
 
+    @Idempotent
     @PostMapping("/{id}/convert")
     @PreAuthorize("hasAuthority('project:suspend')")
     public R<Void> convert(@PathVariable Integer id) {
@@ -88,6 +94,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{id}/suspend")
     @PreAuthorize("hasAuthority('project:suspend')")
     public R<Void> suspend(@PathVariable Integer id) {
@@ -95,6 +102,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{id}/resume")
     @PreAuthorize("hasAuthority('project:suspend')")
     public R<Void> resume(@PathVariable Integer id) {
@@ -102,6 +110,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{id}/terminate")
     @PreAuthorize("hasAuthority('project:suspend')")
     public R<Void> terminate(@PathVariable Integer id, @Valid @RequestBody TerminateDTO dto) {
@@ -117,6 +126,7 @@ public class ProjectController {
         return R.ok(projectService.listMembers(id));
     }
 
+    @Idempotent
     @PostMapping("/{id}/members")
     @PreAuthorize("hasAuthority('project:edit')")
     public R<Void> addMember(@PathVariable Integer id, @Valid @RequestBody ProjectMemberDTO dto) {
@@ -124,6 +134,7 @@ public class ProjectController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}/members/{userId}")
     @PreAuthorize("hasAuthority('project:edit')")
     public R<Void> removeMember(@PathVariable Integer id, @PathVariable Integer userId) {

@@ -4,6 +4,7 @@ import com.mochu.business.entity.BizAttachment;
 import com.mochu.business.service.AttachmentService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class DocumentController {
         return R.ok(attachmentService.list("document", bizId, page, size));
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('completion:doc-manage')")
     public R<Void> delete(@PathVariable Integer id) throws Exception {

@@ -5,6 +5,7 @@ import com.mochu.business.entity.BizSupplier;
 import com.mochu.business.service.SupplierService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +44,7 @@ public class SupplierController {
         return R.ok(supplier);
     }
 
+    @Idempotent
     @PostMapping
     @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> create(@Valid @RequestBody SupplierDTO dto) {
@@ -50,6 +52,7 @@ public class SupplierController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> update(@PathVariable Integer id, @Valid @RequestBody SupplierDTO dto) {
@@ -57,6 +60,7 @@ public class SupplierController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('supplier:edit')")
     public R<Void> delete(@PathVariable Integer id) {

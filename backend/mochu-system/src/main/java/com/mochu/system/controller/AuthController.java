@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.*;
 import com.mochu.system.service.AuthService;
 import com.mochu.system.vo.CheckAccountVO;
@@ -24,6 +25,7 @@ public class AuthController {
     /**
      * 检查账号 — POST /api/v1/auth/check-account
      */
+    @Idempotent
     @PostMapping("/check-account")
     public R<CheckAccountVO> checkAccount(@Valid @RequestBody CheckAccountDTO dto) {
         return R.ok(authService.checkAccount(dto));
@@ -32,6 +34,7 @@ public class AuthController {
     /**
      * 发送短信验证码 — POST /api/v1/auth/send-sms
      */
+    @Idempotent
     @PostMapping("/send-sms")
     public R<Void> sendSms(@RequestParam String phone) {
         authService.sendSms(phone);
@@ -41,6 +44,7 @@ public class AuthController {
     /**
      * 密码登录 — POST /api/v1/auth/login-by-password
      */
+    @Idempotent
     @PostMapping("/login-by-password")
     public R<LoginVO> loginByPassword(@Valid @RequestBody LoginByPasswordDTO dto,
                                       HttpServletRequest request) {
@@ -51,6 +55,7 @@ public class AuthController {
     /**
      * 短信登录 — POST /api/v1/auth/login-by-sms
      */
+    @Idempotent
     @PostMapping("/login-by-sms")
     public R<LoginVO> loginBySms(@Valid @RequestBody LoginBySmsDTO dto,
                                  HttpServletRequest request) {
@@ -61,6 +66,7 @@ public class AuthController {
     /**
      * 退出登录 — POST /api/v1/auth/logout
      */
+    @Idempotent
     @PostMapping("/logout")
     public R<Void> logout(HttpServletRequest request) {
         Integer userId = SecurityUtils.getCurrentUserId();
@@ -72,6 +78,7 @@ public class AuthController {
     /**
      * 忘记密码(发送验证码) — POST /api/v1/auth/forgot-password
      */
+    @Idempotent
     @PostMapping("/forgot-password")
     public R<Void> forgotPassword(@RequestParam String phone) {
         authService.forgotPassword(phone);
@@ -81,6 +88,7 @@ public class AuthController {
     /**
      * 重置密码 — POST /api/v1/auth/reset-password
      */
+    @Idempotent
     @PostMapping("/reset-password")
     public R<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO dto) {
         authService.resetPassword(dto);
@@ -90,6 +98,7 @@ public class AuthController {
     /**
      * 找回账号 — POST /api/v1/auth/retrieve-account
      */
+    @Idempotent
     @PostMapping("/retrieve-account")
     public R<String> retrieveAccount(@RequestParam String phone) {
         return R.ok(authService.retrieveAccount(phone));

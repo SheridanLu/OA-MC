@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ public class UserService {
     private final SysUserRoleMapper sysUserRoleMapper;
     private final SysRoleMapper sysRoleMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordPolicyService passwordPolicyService;
 
     /**
      * 用户分页查询
@@ -207,11 +209,21 @@ public class UserService {
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        // P0: 校验密码复杂度
+        passwordPolicyService.validateComplexity(newPassword);
+        // P0: 检查密码历史
+        passwordPolicyService.checkPasswordHistory(userId, newPassword);
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(encodedPassword);
         user.setForceChangePwd(1);
         user.setLoginAttempts(0);
         user.setLockUntil(null);
+        user.setPasswordChangedAt(LocalDateTime.now());
         sysUserMapper.updateById(user);
+
+        // P0: 保存密码历史
+        passwordPolicyService.savePasswordHistory(userId, encodedPassword);
     }
 
     private UserVO toVO(SysUser user) {

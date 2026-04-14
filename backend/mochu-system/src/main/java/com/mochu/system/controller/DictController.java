@@ -2,6 +2,7 @@ package com.mochu.system.controller;
 
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import com.mochu.system.dto.DictDataDTO;
 import com.mochu.system.dto.DictDataQueryDTO;
 import com.mochu.system.dto.DictTypeDTO;
@@ -37,6 +38,7 @@ public class DictController {
         return R.ok(dictService.getDictTypeById(id));
     }
 
+    @Idempotent
     @PostMapping("/types")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> createDictType(@Valid @RequestBody DictTypeDTO dto) {
@@ -44,6 +46,7 @@ public class DictController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/types/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> updateDictType(@PathVariable Integer id, @Valid @RequestBody DictTypeDTO dto) {
@@ -51,6 +54,7 @@ public class DictController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/types/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> deleteDictType(@PathVariable Integer id) {
@@ -71,6 +75,7 @@ public class DictController {
         return R.ok(dictService.getDictDataByType(dictType));
     }
 
+    @Idempotent
     @PostMapping("/data")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> createDictData(@Valid @RequestBody DictDataDTO dto) {
@@ -78,6 +83,7 @@ public class DictController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/data/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> updateDictData(@PathVariable Integer id, @Valid @RequestBody DictDataDTO dto) {
@@ -85,6 +91,7 @@ public class DictController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/data/{id}")
     @PreAuthorize("hasAuthority('system:dict-manage')")
     public R<Void> deleteDictData(@PathVariable Integer id) {

@@ -10,6 +10,7 @@ import com.mochu.business.service.ApprovalService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
 import com.mochu.common.security.SecurityUtils;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +48,7 @@ public class ApprovalController {
         return R.ok(def);
     }
 
+    @Idempotent
     @PostMapping("/flows")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> createFlowDef(@Valid @RequestBody FlowDefDTO dto) {
@@ -54,6 +56,7 @@ public class ApprovalController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/flows/{id}")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> updateFlowDef(@PathVariable Integer id, @Valid @RequestBody FlowDefDTO dto) {
@@ -61,6 +64,7 @@ public class ApprovalController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/flows/{id}")
     @PreAuthorize("hasAuthority('approval:flow-manage')")
     public R<Void> deleteFlowDef(@PathVariable Integer id) {
@@ -70,80 +74,90 @@ public class ApprovalController {
 
     // ===================== 审批操作 =====================
 
+    @Idempotent
     @PostMapping("/submit")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> submitForApproval(@Valid @RequestBody ApprovalActionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.submitForApproval(dto.getBizType(), dto.getBizId(), userId);
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/approve")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> approve(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.approve(instanceId, userId, dto.getOpinion());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/reject")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> reject(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.reject(instanceId, userId, dto.getOpinion());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/withdraw")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> withdraw(@PathVariable Integer instanceId) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.withdraw(instanceId, userId);
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/transfer")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> transfer(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.transfer(instanceId, userId, dto.getTargetUserId(), dto.getOpinion());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/cosign")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> addCosigner(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.addCosigner(instanceId, userId, dto.getTargetUserId(), dto.getOpinion());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/cosign/{cosignId}/approve")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> approveCosign(@PathVariable Integer cosignId, @Valid @RequestBody ApprovalOpinionDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.approveCosign(cosignId, userId, dto.getOpinion());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/read-handle")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> sendReadHandle(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalTransferDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.sendReadHandle(instanceId, userId, dto.getTargetUserId());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/{instanceId}/cc")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> sendCc(@PathVariable Integer instanceId, @Valid @RequestBody ApprovalCcDTO dto) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.sendCc(instanceId, userId, dto.getUserIds());
         return R.ok();
     }
 
+    @Idempotent
     @PostMapping("/cc/{ccId}/handle")
-    @PreAuthorize("hasAuthority('approval:operate')")
+    @PreAuthorize("isAuthenticated()")
     public R<Void> markHandled(@PathVariable Integer ccId) {
         Integer userId = SecurityUtils.getCurrentUserId();
         approvalService.markHandled(ccId, userId);
@@ -153,7 +167,7 @@ public class ApprovalController {
     // ===================== 查询 =====================
 
     @GetMapping("/pending")
-    @PreAuthorize("hasAuthority('approval:view')")
+    @PreAuthorize("isAuthenticated()")
     public R<PageResult<Map<String, Object>>> getMyPending(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
@@ -162,7 +176,7 @@ public class ApprovalController {
     }
 
     @GetMapping("/initiated")
-    @PreAuthorize("hasAuthority('approval:view')")
+    @PreAuthorize("isAuthenticated()")
     public R<PageResult<Map<String, Object>>> getMyInitiated(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
@@ -171,7 +185,7 @@ public class ApprovalController {
     }
 
     @GetMapping("/{instanceId}")
-    @PreAuthorize("hasAuthority('approval:view')")
+    @PreAuthorize("isAuthenticated()")
     public R<Map<String, Object>> getInstanceDetail(@PathVariable Integer instanceId) {
         return R.ok(approvalService.getInstanceDetail(instanceId));
     }

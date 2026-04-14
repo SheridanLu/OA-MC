@@ -9,6 +9,7 @@ import com.mochu.business.entity.BizSpotPurchase;
 import com.mochu.business.service.PurchaseService;
 import com.mochu.common.result.PageResult;
 import com.mochu.common.result.R;
+import com.mochu.framework.annotation.Idempotent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +49,7 @@ public class PurchaseController {
         return R.ok(purchaseService.getPurchaseListItems(id));
     }
 
+    @Idempotent
     @PostMapping("/api/v1/purchases")
     @PreAuthorize("hasAuthority('purchase:create')")
     public R<Void> createPurchaseList(@Valid @RequestBody PurchaseListDTO dto) {
@@ -55,6 +57,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/api/v1/purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:edit')")
     public R<Void> updatePurchaseList(@PathVariable Integer id, @Valid @RequestBody PurchaseListDTO dto) {
@@ -62,6 +65,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/api/v1/purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:edit')")
     public R<Void> updatePurchaseListStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -69,6 +73,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/api/v1/purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:delete')")
     public R<Void> deletePurchaseList(@PathVariable Integer id) {
@@ -96,6 +101,7 @@ public class PurchaseController {
         return R.ok(entity);
     }
 
+    @Idempotent
     @PostMapping("/api/v1/spot-purchases")
     @PreAuthorize("hasAuthority('purchase:create')")
     public R<Void> createSpotPurchase(@Valid @RequestBody SpotPurchaseDTO dto) {
@@ -103,6 +109,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @PutMapping("/api/v1/spot-purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:edit')")
     public R<Void> updateSpotPurchase(@PathVariable Integer id, @Valid @RequestBody SpotPurchaseDTO dto) {
@@ -110,6 +117,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @PatchMapping("/api/v1/spot-purchases/{id}/status")
     @PreAuthorize("hasAuthority('purchase:edit')")
     public R<Void> updateSpotPurchaseStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateDTO dto) {
@@ -117,6 +125,7 @@ public class PurchaseController {
         return R.ok();
     }
 
+    @Idempotent
     @DeleteMapping("/api/v1/spot-purchases/{id}")
     @PreAuthorize("hasAuthority('purchase:delete')")
     public R<Void> deleteSpotPurchase(@PathVariable Integer id) {
