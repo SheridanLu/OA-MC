@@ -60,4 +60,30 @@ public class AttachmentController {
         attachmentService.delete(id);
         return R.ok();
     }
+
+    /**
+     * POST /api/v1/attachments/{id}/replace
+     * 替换附件 — 原文件保留标记 replaced（status=0）
+     */
+    @PostMapping("/{id}/replace")
+    @PreAuthorize("isAuthenticated()")
+    public R<BizAttachment> replace(@PathVariable Integer id,
+                                     @RequestParam("file") MultipartFile file) throws Exception {
+        return R.ok(attachmentService.replace(id, file));
+    }
+
+    /**
+     * POST /api/v1/attachments/bindBatch
+     * 批量关联附件到指定业务单据
+     */
+    @PostMapping("/bindBatch")
+    @PreAuthorize("isAuthenticated()")
+    public R<Void> bindBatch(@RequestBody Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
+        List<Integer> attachmentIds = (List<Integer>) body.get("attachment_ids");
+        String bizType = (String) body.get("biz_type");
+        Integer bizId = (Integer) body.get("biz_id");
+        attachmentService.bindBatch(attachmentIds, bizType, bizId);
+        return R.ok();
+    }
 }

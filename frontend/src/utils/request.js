@@ -2,6 +2,8 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 import CryptoJS from 'crypto-js'
+import { checkWritePermission } from './network'
+import { getClientType } from '@/config/mobile-features'
 
 /**
  * 生成 UUID v4
@@ -53,12 +55,23 @@ const request = axios.create({
 // 请求拦截器 — 对照 V3.2 §3.2
 request.interceptors.request.use(
   (config) => {
+    // P7: 离线写操作拦截
+    if (!checkWritePermission(config.method || 'GET')) {
+      return Promise.reject(new Error('OFFLINE_WRITE_BLOCKED'))
+    }
+
+    // P7: 文件上传 → 超时 30 秒
+    if (config.headers['Content-Type'] === 'multipart/form-data'
+        || config.url?.includes('/upload')) {
+      config.timeout = 30000
+    }
+
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    // 客户端类型标识
-    config.headers['X-Client-Type'] = 'pc'
+    // P7: 自动添加 X-Client-Type（pc/h5/wxapp）
+    config.headers['X-Client-Type'] = getClientType()
     // 请求追踪ID — V3.2 spec
     config.headers['X-Request-Id'] = uuid()
     // 写操作幂等键 — V3.2 spec
@@ -128,6 +141,15 @@ request.interceptors.response.use(
     return res
   },
   (error) => {
+    const config = error.config
+
+    // P7: 超时自动重试 1 次
+    if (error.code === 'ECONNABORTED' && config && !config._retried) {
+      config._retried = true
+      console.warn('[retry] 请求超时，自动重试:', config.url)
+      return request(config)
+    }
+
     if (error.response) {
       const { status, data } = error.response
       if (status === 401) {
